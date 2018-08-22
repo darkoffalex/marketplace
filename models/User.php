@@ -6,6 +6,7 @@ use app\models\base\UserBase;
 use Yii;
 use app\helpers\Constants;
 use Imagine\Exception\NotSupportedException;
+use yii\helpers\Url;
 use yii\web\IdentityInterface;
 
 /**
@@ -156,5 +157,16 @@ class User extends UserBase implements IdentityInterface
 //        $rules[] = ['email', 'email', 'on' => 'register'];
 
         return $rules;
+    }
+
+    /**
+     * Получение аватара
+     * @param int $width
+     * @param int $height
+     * @return null|string
+     */
+    public function getAvatar($width = 128, $height = 128)
+    {
+        return Url::to('@web/frontend/img/profile_128.png');
     }
 }

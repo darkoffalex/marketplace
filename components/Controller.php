@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\models\Language;
 use app\models\User;
 use yii\web\Controller as BaseController;
 use yii\base\Module;
@@ -11,6 +12,11 @@ use Yii;
 class Controller extends BaseController
 {
     /**
+     * @var null|string заголовок страницы
+     */
+    public $title = null;
+
+    /**
      * Переопределить конструктор
      * @param string $id
      * @param Module $module
@@ -18,8 +24,13 @@ class Controller extends BaseController
      */
     public function __construct($id, $module, $config = [])
     {
-        //заголовок страниц
+        //Отображаемый заголовок
         $this->view->title = Yii::$app->name;
+        //Заголовок окна браузера
+        $this->title = $this->view->title;
+
+        //Layout по умолчанию
+        $this->layout = 'main_landing';
 
         //мета-теги
         $this->view->registerMetaTag(['name' => 'description', 'content' => ""]);
@@ -52,6 +63,22 @@ class Controller extends BaseController
         //текущий пользователь (пустой если не авторизован)
         /* @var $user User */
         $user = !Yii::$app->user->isGuest ? Yii::$app->user->identity : null;
+
+        /* @var $defaultLanguage Language */
+        //получить префикс языка по умолчанию (учитывая предпочитаемый я
+        $defaultLanguage = Language::find()->where(['is_default' => (int)true])->one();
+        $defaultLanguagePrefix = !empty($user->preferred_language) ? $user->preferred_language : (!empty($defaultLanguage) ? $defaultLanguage->prefix : Yii::$app->language);
+
+        //установить язык из GET либо по умолчнию
+        Yii::$app->language = Yii::$app->request->get('language',$defaultLanguagePrefix);
+
+        //если пользователь не пуст - обновить его
+        if(!empty($user)){
+            $user->last_login_at = date('Y-m-d H:i:s',time());
+            $user->preferred_language = Yii::$app->language;
+            $user->update();
+        }
+
         return parent::beforeAction($action);
     }
 }

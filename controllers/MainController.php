@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use app\components\Controller;
+use Yii;
+use yii\helpers\Url;
 
 /**
  * Базовый контроллер для приложения
@@ -35,5 +37,15 @@ class MainController extends Controller
     public function actionIndex()
     {
         return $this->render('index');
+    }
+
+    /**
+     * Выход
+     * @return \yii\web\Response
+     */
+    public function actionLogout()
+    {
+        Yii::$app->user->logout();
+        return $this->redirect(Url::to(['/main/index']));
     }
 }
