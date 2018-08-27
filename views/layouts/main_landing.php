@@ -2,14 +2,19 @@
 use yii\helpers\Html;
 use yii\widgets\Breadcrumbs;
 use yii\bootstrap\Nav;
+use app\helpers\Constants;
+use app\models\Country;
 
 use app\widgets\LoginWidget;
 use app\widgets\LanguageSwitchWidget;
+use yii\helpers\Url;
 
 /* @var $this \yii\web\View */
 /* @var $controller \app\controllers\MainController */
 /* @var $content string */
 /* @var $user \app\models\User */
+
+/* @var $countries Country[] */
 
 app\assets\FrontendAsset::register($this);
 dmstr\web\AdminLteAsset::register($this);
@@ -18,7 +23,22 @@ $directoryAsset = Yii::$app->assetManager->getPublishedUrl('@vendor/almasaeed201
 $controller = $this->context;
 $user = Yii::$app->user->identity;
 
+$countries = Country::find()
+    ->where(['status_id' => Constants::STATUS_ENABLED])
+    ->orderBy('priority ASC')
+    ->all();
+
+$countriesArr = [];
+foreach ($countries as $country){
+    $countriesArr[] = [
+        'label' => Yii::t('app',$country->name),
+        'url' => $country->getUrl(),
+        'active' => Yii::$app->request->get('subSubDomain') == $country->domain_alias,
+        'visible' => true
+    ];
+}
 ?>
+
 <?php $this->beginPage() ?>
     <!DOCTYPE html>
     <html lang="<?= Yii::$app->language ?>">
@@ -38,7 +58,7 @@ $user = Yii::$app->user->identity;
             <nav class="navbar navbar-static-top">
                 <div class="container">
                     <div class="navbar-header">
-                        <a href="/" class="navbar-brand"><b><?= Yii::$app->name; ?></b></a>
+                        <a href="<?= Url::to(['/main/index']); ?>" class="navbar-brand"><b><?= Yii::$app->name; ?></b></a>
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
                             <i class="fa fa-bars"></i>
                         </button>
@@ -55,20 +75,7 @@ $user = Yii::$app->user->identity;
                                         'label' => Yii::t('app','Countries'),
                                         'active' => false,
                                         'visible' => true,
-                                        'items' => [
-                                            [
-                                                'label' => 'Country 1',
-                                                'url' => '#',
-                                                'active' => false,
-                                                'visible' => true,
-                                            ],
-                                            [
-                                                'label' => 'Country 2',
-                                                'url' => ['/groups/index'],
-                                                'active' => false,
-                                                'visible' => true,
-                                            ],
-                                        ]
+                                        'items' => $countriesArr
                                     ],
                                 ],
                             'options' => ['class' => 'navbar-nav'],

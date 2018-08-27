@@ -2,6 +2,7 @@
 
 namespace app\components;
 
+use app\helpers\Help;
 use app\models\Language;
 use app\models\User;
 use yii\web\Controller as BaseController;

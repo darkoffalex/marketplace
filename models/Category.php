@@ -2,6 +2,10 @@
 
 namespace app\models;
 
+use app\helpers\Help;
+use Yii;
+use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use app\helpers\Constants;
 /**
  * This is the model class for table "category".
@@ -118,5 +122,44 @@ class Category extends \app\models\base\CategoryBase
         }
 
         return $result;
+    }
+
+    /**
+     * Получить ссылку на страницу категории
+     * @param null $country
+     * @param bool $scheme
+     * @return string
+     */
+    public function getUrl($country = null, $scheme = false)
+    {
+        $country = !empty($country) ? $country : Yii::$app->request->get('subSubDomain');
+        return Url::to(['country/category','subSubDomain' => $country, 'id' => $this->id, 'title' => Help::slug(Yii::t('app',$this->name))],$scheme);
+    }
+
+    /**
+     * Получить массив для breadcrumbs
+     * @param null|Country $country
+     * @return array
+     */
+    public function getBreadCrumbs($country = null)
+    {
+        $result = [];
+
+        /* @var $country Country */
+        if(!empty($country)){
+            $result[] = ['label' => Yii::t('app',$country->name), 'url' => $country->getUrl()];
+        }
+
+        $items = [];
+        $cat = $this;
+        while (!empty($cat->parent)){
+            $cat = $cat->parent;
+            $items[] = ['label' => Yii::t('app',$cat->name), 'url' => $cat->getUrl()];
+        }
+
+        $items = array_reverse($items);
+        $items[] = Yii::t('app',$this->name);
+
+        return ArrayHelper::merge($result,$items);
     }
 }

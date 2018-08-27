@@ -100,25 +100,35 @@ $config = [
         'db' => require(__DIR__ . '/db.php'),
 
         'urlManager' => [
-            'class' => 'yii\web\UrlManager',
+            'class' => \app\components\UrlManager::class,
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                '<protocol:http|https>://<domain>/admin' => 'admin/main/index',
-                '<protocol:http|https>://<domain>/admin/<controller>' => 'admin/main/index',
-                '<protocol:http|https>://<domain>/admin/<controller>/<action>/<id:\d+>' => 'admin/<controller>/<action>',
-                '<protocol:http|https>://<domain>/admin/<controller>/<action>' => 'admin/<controller>/<action>',
+                //Админ панель
+                '<protocol:http|https>://<subDomain>.<domain>/admin' => 'admin/main/index',
+                '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>' => 'admin/main/index',
+                '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>/<action>/<id:\d+>' => 'admin/<controller>/<action>',
+                '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>/<action>' => 'admin/<controller>/<action>',
 
-                '<language:\w{2}>/' => 'main/index',
-                '/' => 'main/index',
-                '<language:\w{2}>/<controller>' => '<controller>/index',
-                '<controller>' => '<controller>/index',
-                '<language:\w{2}>/<controller>/<action>/<id:\d+>/<title:\w+(-\w+)*>' => '<controller>/<action>',
-                '<controller>/<action>/<id:\d+>/<title:\w+(-\w+)*>' => '<controller>/<action>',
-                '<language:\w{2}>/<controller>/<action>/<id:\d+>' => '<controller>/<action>',
-                '<controller>/<action>/<id:\d+>' => '<controller>/<action>',
-                '<language:\w{2}>/<controller>/<action>' => '<controller>/<action>',
-                '<controller>/<action>' => '<controller>/<action>',
+                //Страна (суб-домен)
+                '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>' => 'country/index',
+                '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/' => 'country/index',
+
+                //Категория
+                '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>/<id:\d+>/<title:\w+(-\w+)*>' => 'country/category',
+                '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<id:\d+>/<title:\w+(-\w+)*>' => 'country/category',
+
+                //Базовые правила
+                '<protocol:http|https>://<subDomain>.<domain>/<language:\w{2}>/' => 'main/index',
+                '<protocol:http|https>://<subDomain>.<domain>/' => 'main/index',
+                '<protocol:http|https>://<subDomain>.<domain>/<language:\w{2}>/<controller>' => '<controller>/index',
+                '<protocol:http|https>://<subDomain>.<domain>/<controller>' => '<controller>/index',
+                '<protocol:http|https>://<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>/<id:\d+>/<title:\w+(-\w+)*>' => '<controller>/<action>',
+                '<protocol:http|https>://<subDomain>.<domain>/<controller>/<action>/<id:\d+>/<title:\w+(-\w+)*>' => '<controller>/<action>',
+                '<protocol:http|https>://<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>/<id:\d+>' => '<controller>/<action>',
+                '<protocol:http|https>://<subDomain>.<domain>/<controller>/<action>/<id:\d+>' => '<controller>/<action>',
+                '<protocol:http|https>://<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>' => '<controller>/<action>',
+                '<protocol:http|https>://<subDomain>.<domain>/<controller>/<action>' => '<controller>/<action>',
 
                 //'admin' => 'admin/main/index',
                 //'admin/<controller>' => 'admin/<controller>/index',
