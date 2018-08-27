@@ -51,6 +51,23 @@ use app\modules\admin\helpers\Access;
 
                         ],
                     ],
+
+                    [
+                        'label' => Yii::t('app','Countries'),
+                        'icon' => 'map-marker',
+                        'active' => $c == 'countries',
+                        'visible' => Access::has($user,'countries'),
+                        'url' => ['/admin/countries/index'],
+                    ],
+
+                    [
+                        'label' => Yii::t('app','Categories'),
+                        'icon' => 'folder',
+                        'active' => $c == 'categories',
+                        'visible' => true,
+                        'url' => ['/admin/categories/index'],
+                    ],
+                    
                     [
                         'label' => Yii::t('app','Settings'),
                         'icon' => 'gear',

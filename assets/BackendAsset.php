@@ -25,6 +25,7 @@ class BackendAsset extends AssetBundle
     ];
 
     public $js = [
+        'js/common.js'
     ];
 
     public $depends = [
