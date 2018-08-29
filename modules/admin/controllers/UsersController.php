@@ -189,13 +189,18 @@ class UsersController extends Controller
             //если кол-во слов в запросе больще единицы
             $query->where(['like','name',$q]);
 
+            $query->where(['like','name', $q])
+                ->orWhere(['like','username', $q])
+                ->orWhere(['id' => (int)$q])
+                ->limit(20);
+
             //получить данные и сформировать ответ
             $command = $query->createCommand();
             $data = array_values($command->queryAll());
             $tmp = [];
 
             foreach($data as $index => $arr){
-                $tmp[] = ['id' => $arr['id'], 'text' => $arr['name']];
+                $tmp[] = ['id' => $arr['id'], 'text' => $arr['name']." ({$arr['id']})"];
             }
 
             $out['results'] = $tmp;
@@ -205,7 +210,7 @@ class UsersController extends Controller
             //найти по ID и сформировать ответ
             $user = User::findOne((int)$id);
             if(!empty($user)){
-                $out['results'] = ['id' => $id, 'text' => $user->name];
+                $out['results'] = ['id' => $id, 'text' => $user->name." ({$user->id})"];
             }
         }
 

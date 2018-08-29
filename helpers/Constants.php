@@ -30,6 +30,11 @@ class Constants
     const ROLE_BOOKKEEPER = 2;
     const ROLE_USER = 3;
 
+    //Состояние заявки
+    const CV_STATUS_NEW = 1;
+    const CV_STATUS_APPROVED = 2;
+    const CV_STATUS_REJECTED = 3;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

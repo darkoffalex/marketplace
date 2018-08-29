@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="row">
     <div class="col-md-12">
         <?php if(!empty($categories)): ?>
-            <p class="lead">
+            <p>
                 <?php foreach ($categories as $index => $category): ?>
                     <?php if($index != 0): ?>|<?php endif; ?>
                     <a href="<?= $category->getUrl($country->domain_alias); ?>"><?= $category->name; ?></a>

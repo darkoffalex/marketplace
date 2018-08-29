@@ -38,7 +38,7 @@ class CountryController extends Controller
 
         /* @var $categories Category[] */
         $categories = Category::find()
-            ->where(['status_id' => Constants::STATUS_ENABLED])
+            ->where(['status_id' => Constants::STATUS_ENABLED, 'parent_category_id' => 0])
             ->all();
 
         return $this->render('index',compact('country','categories'));

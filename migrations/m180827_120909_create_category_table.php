@@ -23,6 +23,39 @@ class m180827_120909_create_category_table extends Migration
             'created_by_id' => $this->integer(),
             'updated_by_id' => $this->integer(),
         ]);
+
+        $this->insert('category',[
+            'parent_category_id' => 0,
+            'name' => 'Transport',
+            'status_id' => \app\helpers\Constants::STATUS_ENABLED,
+            'priority' => 1,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_by_id' => 0,
+            'updated_by_id' => 0,
+        ]);
+
+        $this->insert('category',[
+            'parent_category_id' => 0,
+            'name' => 'Realty',
+            'status_id' => \app\helpers\Constants::STATUS_ENABLED,
+            'priority' => 2,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_by_id' => 0,
+            'updated_by_id' => 0,
+        ]);
+
+        $this->insert('category',[
+            'parent_category_id' => 0,
+            'name' => 'Services',
+            'status_id' => \app\helpers\Constants::STATUS_ENABLED,
+            'priority' => 3,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_by_id' => 0,
+            'updated_by_id' => 0,
+        ]);
     }
 
     /**

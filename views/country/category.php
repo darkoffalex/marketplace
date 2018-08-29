@@ -16,7 +16,7 @@ $this->params['breadcrumbs'] = $category->getBreadCrumbs($country);
 <div class="row">
     <div class="col-md-12">
         <?php if(!empty($category->childrenActive)): ?>
-            <p class="lead">
+            <p>
                 <?php foreach ($category->childrenActive as $index => $childCategory): ?>
                     <?php if($index != 0): ?>|<?php endif; ?>
                     <a href="<?= $childCategory->getUrl($country->domain_alias); ?>"><?= $childCategory->name; ?></a>

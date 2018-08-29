@@ -4,6 +4,8 @@ namespace app\models\base;
 
 use Yii;
 
+use app\models\Cv;
+use app\models\Marketplace;
 
 /**
  * This is the base model class for table "user".
@@ -24,6 +26,9 @@ use Yii;
  * @property string $updated_at
  * @property int $created_by_id
  * @property int $updated_by_id
+ *
+ * @property Cv[] $cvs
+ * @property Marketplace[] $marketplaces
  */
 class UserBase extends \yii\db\ActiveRecord
 {
@@ -71,5 +76,21 @@ class UserBase extends \yii\db\ActiveRecord
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCvs()
+    {
+        return $this->hasMany(Cv::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMarketplaces()
+    {
+        return $this->hasMany(Marketplace::className(), ['user_id' => 'id']);
     }
 }

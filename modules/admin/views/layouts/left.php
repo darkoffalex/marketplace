@@ -67,6 +67,14 @@ use app\modules\admin\helpers\Access;
                         'visible' => true,
                         'url' => ['/admin/categories/index'],
                     ],
+
+                    [
+                        'label' => Yii::t('app','CVs'),
+                        'icon' => 'file-text-o',
+                        'active' => $c == 'cvs',
+                        'visible' => true,
+                        'url' => ['/admin/cvs/index'],
+                    ],
                     
                     [
                         'label' => Yii::t('app','Settings'),
