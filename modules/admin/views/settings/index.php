@@ -12,10 +12,10 @@ $controller = $this->context;
 $this->title = Yii::t('app','Settings');
 $this->params['breadcrumbs'][] = $this->title;
 
-if(!empty($model->fb_parse_client_id) && !empty($model->fb_parse_app_secret)){
+if(!empty($model->fb_auth_client_id) && !empty($model->fb_auth_client_id)){
     $fb = new Facebook([
-        'app_id' => $model->fb_parse_client_id,
-        'app_secret' => $model->fb_parse_app_secret,
+        'app_id' => $model->fb_auth_client_id,
+        'app_secret' => $model->fb_auth_client_id,
     ]);
     $fbLoginUrl = $fb->getRedirectLoginHelper()->getLoginUrl(Url::to(['/admin/settings/refresh-token'],true), ['email']);
 }else{

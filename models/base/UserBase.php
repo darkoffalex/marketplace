@@ -26,6 +26,8 @@ use app\models\Marketplace;
  * @property string $updated_at
  * @property int $created_by_id
  * @property int $updated_by_id
+ * @property string $facebook_id
+ * @property string $facebook_token
  *
  * @property Cv[] $cvs
  * @property Marketplace[] $marketplaces
@@ -49,7 +51,8 @@ class UserBase extends \yii\db\ActiveRecord
             [['username'], 'required'],
             [['role_id', 'status_id', 'created_by_id', 'updated_by_id'], 'integer'],
             [['last_login_at', 'last_online_at', 'created_at', 'updated_at'], 'safe'],
-            [['username', 'password_hash', 'auth_key', 'name', 'avatar_url', 'avatar_filename', 'preferred_language'], 'string', 'max' => 255],
+            [['facebook_token'], 'string'],
+            [['username', 'password_hash', 'auth_key', 'name', 'avatar_url', 'avatar_filename', 'preferred_language', 'facebook_id'], 'string', 'max' => 255],
         ];
     }
 
@@ -75,6 +78,8 @@ class UserBase extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('app', 'Updated At'),
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
+            'facebook_id' => Yii::t('app', 'Facebook ID'),
+            'facebook_token' => Yii::t('app', 'Facebook Token'),
         ];
     }
 

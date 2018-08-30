@@ -26,7 +26,6 @@ $this->params['breadcrumbs'] = $category->getBreadCrumbs($country);
 
         <div class="box">
             <div class="box-body">
-                ЗДЕСЬ БУДУТ ОБЪЯВЛЕНИЯ
             </div>
         </div>
     </div>

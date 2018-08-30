@@ -26,7 +26,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
         <div class="box">
             <div class="box-body">
-                ЗДЕСЬ БУДУТ ОБЪЯВЛЕНИЯ
             </div>
         </div>
     </div>

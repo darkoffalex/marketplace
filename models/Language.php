@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\helpers\Help;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
@@ -54,9 +55,10 @@ class Language extends \app\models\base\LanguageBase
     {
         $controllerId = Yii::$app->controller->id;
         $actionId = Yii::$app->controller->action->id;
+        $moduleId = Yii::$app->controller->module->id;
 
         $url = [
-            "/$controllerId/$actionId"
+            (!empty($moduleId) ? "/$moduleId" : "")."/$controllerId/$actionId"
         ];
 
         $url = ArrayHelper::merge($url,Yii::$app->request->get());

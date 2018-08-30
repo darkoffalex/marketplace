@@ -13,8 +13,9 @@ $config = [
     'language' => 'en',
 
     'modules' => [
-        'gridview' =>  'kartik\grid\Module',
-        'admin' => ['class' => 'app\modules\admin\AdminModule'],
+        'gridview' =>  kartik\grid\Module::class,
+        'admin' => ['class' => \app\modules\admin\AdminModule::class],
+        'group-admin' => ['class' => \app\modules\groupAdmin\GroupAdminModule::class],
     ],
 
     'components' => [
@@ -106,9 +107,19 @@ $config = [
             'rules' => [
                 //Админ панель
                 '<protocol:http|https>://<subDomain>.<domain>/admin' => 'admin/main/index',
-                '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>' => 'admin/main/index',
+                '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>' => 'admin/<controller>/index',
                 '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>/<action>/<id:\d+>' => 'admin/<controller>/<action>',
                 '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>/<action>' => 'admin/<controller>/<action>',
+
+                //Личный кабинет админа группы (черз поддомен .admin)
+                '<protocol:http|https>://admin.<subDomain>.<domain>/<language:\w{2}>' => 'group-admin/main/index',
+                '<protocol:http|https>://admin.<subDomain>.<domain>/' => 'group-admin/main/index',
+                '<protocol:http|https>://admin.<subDomain>.<domain>/<language:\w{2}>/<controller>' => 'group-admin/<controller>/index',
+                '<protocol:http|https>://admin.<subDomain>.<domain>/<controller>' => 'group-admin/<controller>/index',
+                '<protocol:http|https>://admin.<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>/<id:\d+>' => 'group-admin/<controller>/<action>',
+                '<protocol:http|https>://admin.<subDomain>.<domain>/<controller>/<action>/<id:\d+>' => 'group-admin/<controller>/<action>',
+                '<protocol:http|https>://admin.<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>' => 'group-admin/<controller>/<action>',
+                '<protocol:http|https>://admin.<subDomain>.<domain>/<controller>/<action>' => 'group-admin/<controller>/<action>',
 
                 //Страна (суб-домен)
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>' => 'country/index',
