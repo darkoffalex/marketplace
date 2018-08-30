@@ -167,6 +167,15 @@ class User extends UserBase implements IdentityInterface
      */
     public function getAvatar($width = 128, $height = 128)
     {
-        return Url::to('@web/frontend/img/profile_128.png');
+        return !empty($this->avatar_url) ? $this->avatar_url : Url::to('@web/frontend/img/profile_128.png');
+    }
+
+    /**
+     * Является ли пользователь подтвержденным админом груп
+     * @return bool
+     */
+    public function isApprovedGroupAdmin()
+    {
+        return Marketplace::find()->where(['user_id' => $this->id])->count() > 0;
     }
 }

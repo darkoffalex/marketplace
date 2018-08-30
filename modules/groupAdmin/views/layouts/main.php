@@ -54,14 +54,55 @@ $user = Yii::$app->user->identity;
                                 [
                                     [
                                         'label' => Yii::t('app','Home'),
-                                        'url' => Url::to(['/group-admin/main/index']),
-                                        'active' => Yii::$app->controller->id == 'main',
+                                        'url' => ['/group-admin/main/index'],
+                                        'active' => $c == 'main',
                                         'visible' => true,
                                     ],
                                     [
-                                        'label' => Yii::t('app','Marketplaces'),
-                                        'url' => Url::to(['/group-admin/marketplaces/index']),
-                                        'active' => Yii::$app->controller->id == 'marketplaces',
+                                        'label' => Yii::t('app','My marketplaces'),
+                                        'active' => $c == 'marketplaces' || $c == 'cvs',
+                                        'visible' => true,
+                                        'items' => [
+                                            [
+                                                'label' => Yii::t('app','Marketplaces'),
+                                                'url' => ['/group-admin/marketplaces/index'],
+                                                'active' => $c == 'marketplaces',
+                                                'visible' => true
+                                            ],
+                                            [
+                                                'label' => Yii::t('app','Proposals'),
+                                                'url' => ['/group-admin/cvs/index'],
+                                                'active' => $c == 'cvs',
+                                                'visible' => true
+                                            ],
+                                        ]
+                                    ],
+                                    [
+                                        'label' => Yii::t('app','Monitoring'),
+                                        'active' => in_array($c,['groups','dictionaries']),
+                                        'visible' => true,
+                                        'url' => $user->isApprovedGroupAdmin() ? null : Url::to(['/group-admin/messages/unavailable-common']),
+                                        'linkOptions' => $user->isApprovedGroupAdmin() ? null : ['data-toggle' => 'modal', 'data-target' => '.modal-main'],
+                                        'items' => !$user->isApprovedGroupAdmin() ? null : [
+                                            [
+                                                'label' => Yii::t('app','Dictionaries'),
+                                                'url' => ['/groups-admin/dictionaries/index'],
+                                                'active' => $c == 'dictionaries',
+                                                'visible' => true
+                                            ],
+                                            [
+                                                'label' => Yii::t('app','Groups'),
+                                                'url' => ['/groups-admin/groups/index'],
+                                                'active' => $c == 'groups',
+                                                'visible' => true
+                                            ],
+                                        ]
+                                    ],
+                                    [
+                                        'label' => Yii::t('app','Short links'),
+                                        'url' => $user->isApprovedGroupAdmin() ? ['/groups-admin/short-links/index'] : Url::to(['/group-admin/messages/unavailable-common']),
+                                        'linkOptions' => $user->isApprovedGroupAdmin() ? null : ['data-toggle' => 'modal', 'data-target' => '.modal-main'],
+                                        'active' => $c == 'short-links',
                                         'visible' => true,
                                     ],
                                 ],

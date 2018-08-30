@@ -5,9 +5,9 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "cv".
+ * This is the model class for table "marketplace_key".
  */
-class Cv extends \app\models\base\CvBase
+class MarketplaceKey extends \app\models\base\MarketplaceKeyBase
 {
     /**
      * @inheritdoc
@@ -15,7 +15,6 @@ class Cv extends \app\models\base\CvBase
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['name','group_name','group_popularity','group_url','email','phone'],'required'];
         return $rules;
     }
 

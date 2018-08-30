@@ -6,6 +6,8 @@ use Yii;
 
 use app\models\Country;
 use app\models\User;
+use app\models\MarketplaceKey;
+use app\models\Rate;
 
 /**
  * This is the base model class for table "marketplace".
@@ -36,6 +38,8 @@ use app\models\User;
  *
  * @property Country $country
  * @property User $user
+ * @property MarketplaceKey[] $marketplaceKeys
+ * @property Rate[] $rates
  */
 class MarketplaceBase extends \yii\db\ActiveRecord
 {
@@ -109,5 +113,21 @@ class MarketplaceBase extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMarketplaceKeys()
+    {
+        return $this->hasMany(MarketplaceKey::className(), ['marketplace_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRates()
+    {
+        return $this->hasMany(Rate::className(), ['marketplace_id' => 'id']);
     }
 }

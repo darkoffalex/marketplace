@@ -1,7 +1,8 @@
 <?php
 
-namespace app\modules\admin\controllers;
+namespace app\modules\groupAdmin\controllers;
 
+use app\helpers\Constants;
 use app\models\Cv;
 use app\models\CvSearch;
 use Yii;
@@ -18,7 +19,7 @@ use yii\web\Response;
  * @link 		https://github.com/darkoffalex
  * @author 		Alex Nem
  *
- * @package app\modules\admin\controllers
+ * @package app\modules\groupAdmin\controllers
  */
 class CvsController extends Controller
 {
@@ -29,25 +30,20 @@ class CvsController extends Controller
     public function actionIndex()
     {
         $searchModel = new CvSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams, Yii::$app->user->id);
         return $this->render('index', compact('searchModel','dataProvider'));
     }
 
     /**
-     * Просмотр и одобрение заявки
-     * @param $id
+     * Создание заявки
      * @return array|string
      * @throws NotFoundHttpException
      */
-    public function actionUpdate($id)
+    public function actionCreate()
     {
         /* @var Cv $model */
-        $model = Cv::findOne((int)$id);
-
-        //если не найден
-        if(empty($model)){
-            throw new NotFoundHttpException('Page not found',404);
-        }
+        $model = new Cv();
+        $model->user_id = Yii::$app->user->id;
 
         //AJAX валидация
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
@@ -62,17 +58,32 @@ class CvsController extends Controller
             if($model->validate()){
 
                 //базовые параметры, обновить
+                $model->status_id = Constants::CV_STATUS_NEW;
+                $model->created_at = date('Y-m-d H:i:s',time());
+                $model->created_by_id = Yii::$app->user->id;
                 $model->updated_at = date('Y-m-d H:i:s',time());
                 $model->updated_by_id = Yii::$app->user->id;
-                $model->update();
+                $model->save();
 
                 //к списку
-                $this->redirect(Url::to(['/admin/cvs/index']));
+                $this->redirect(Url::to(['/group-admin/cvs/index']));
             }
         }
 
         //вывести форму редактирования
         return $this->renderAjax('_edit',compact('model','flags'));
+    }
+
+    /**
+     * Просмотр заявки
+     * @param $id
+     * @return string
+     */
+    public function actionView($id)
+    {
+        /* @var Cv $model */
+        $model = Cv::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
+        return $this->renderPartial('_view',compact('model'));
     }
 
     /**
@@ -83,7 +94,7 @@ class CvsController extends Controller
     public function actionDelete($id)
     {
         /* @var Cv $model */
-        $model = Cv::findOne((int)$id);
+        $model = Cv::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
 
         //если не найден
         if(empty($model)){
@@ -94,6 +105,6 @@ class CvsController extends Controller
         $model->delete();
 
         //к списку
-        $this->redirect(Url::to(['/admin/cvs/index']));
+        $this->redirect(Url::to(['/group-admin/cvs/index']));
     }
 }

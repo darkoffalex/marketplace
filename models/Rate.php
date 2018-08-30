@@ -5,9 +5,9 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "cv".
+ * This is the model class for table "rate".
  */
-class Cv extends \app\models\base\CvBase
+class Rate extends \app\models\base\RateBase
 {
     /**
      * @inheritdoc
@@ -15,7 +15,6 @@ class Cv extends \app\models\base\CvBase
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['name','group_name','group_popularity','group_url','email','phone'],'required'];
         return $rules;
     }
 
