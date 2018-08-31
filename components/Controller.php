@@ -31,7 +31,7 @@ class Controller extends BaseController
         $this->title = $this->view->title;
 
         //Layout по умолчанию
-        $this->layout = 'main_landing';
+        $this->layout = 'main';
 
         //мета-теги
         $this->view->registerMetaTag(['name' => 'description', 'content' => ""]);

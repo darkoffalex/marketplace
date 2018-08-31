@@ -15,6 +15,7 @@ class Marketplace extends \app\models\base\MarketplaceBase
     public function rules()
     {
         $rules = parent::rules();
+        $rules[] = ['domain_alias','unique'];
         return $rules;
     }
 

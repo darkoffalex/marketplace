@@ -75,6 +75,14 @@ use app\modules\admin\helpers\Access;
                         'visible' => true,
                         'url' => ['/admin/cvs/index'],
                     ],
+
+                    [
+                        'label' => Yii::t('app','Marketplaces'),
+                        'icon' => 'square',
+                        'active' => $c == 'marketplaces',
+                        'visible' => true,
+                        'url' => ['/admin/marketplaces/index'],
+                    ],
                     
                     [
                         'label' => Yii::t('app','Settings'),

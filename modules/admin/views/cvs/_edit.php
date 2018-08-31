@@ -29,6 +29,8 @@ $controller = $this->context;
 
     <div class="modal-body">
         <p><strong><?= Yii::t('app','Group\'s name'); ?></strong> : <span><?= $model->group_name; ?></span></p>
+        <p><strong><?= Yii::t('app','Group\'s URL'); ?></strong> : <span><?= $model->group_url; ?></span></p>
+        <p><strong><?= Yii::t('app','Group admin\'s profile URL'); ?></strong> : <span><?= $model->group_admin_profile; ?></span></p>
         <p><strong><?= Yii::t('app','Group\'s thematics'); ?></strong> : <span><?= $model->group_thematics; ?></span></p>
         <p><strong><?= Yii::t('app','Group\'s popularity'); ?></strong> : <span><?= $model->group_popularity; ?></span></p>
         <p><strong><?= Yii::t('app','Group\'s description'); ?></strong> : <span><?= $model->group_description; ?></span></p>
@@ -43,7 +45,7 @@ $controller = $this->context;
         <p><strong><?= Yii::t('app','Phone'); ?></strong> : <span><?= $model->phone; ?></span></p>
         <p><strong><?= Yii::t('app','Has Viber'); ?></strong> : <span><?= Yii::t('app',$model->has_viber ? 'Yes' : 'No'); ?></span></p>
         <p><strong><?= Yii::t('app','Has WhatsApp'); ?></strong> : <span><?= Yii::t('app',$model->has_whatsapp ? 'Yes' : 'No'); ?></span></p>
-        <p><strong><?= Yii::t('app','Timezone'); ?></strong> : <span><?= $model->timezone; ?></span></p>
+        <p><strong><?= Yii::t('app','Timezone'); ?></strong> : <span><?= \app\helpers\Help::floatToTime($model->timezone/3600); ?></span></p>
         <p><strong><?= Yii::t('app','Comfortable call time'); ?></strong> : <span><?= $model->comfortable_call_time; ?></span></p>
 
         <hr>

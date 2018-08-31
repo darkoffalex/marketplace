@@ -58,7 +58,9 @@ $countries = Country::find()
         <?= $form->field($model,'phone')->textInput(); ?>
         <?= $form->field($model,'has_viber')->checkbox()->label('I have Viber'); ?>
         <?= $form->field($model,'has_whatsapp')->checkbox()->label('I have WhatsApp'); ?>
-        <?= $form->field($model,'timezone')->dropDownList(DateTimeZone::listIdentifiers(DateTimeZone::ALL)); ?>
+
+        <?= $form->field($model,'timezone')->dropDownList(\app\helpers\Help::getTimeZoneArray()); ?>
+
         <?= $form->field($model,'comfortable_call_time')->widget(TimePicker::class,[
             'name' => 'comfortable_call_time',
             'value' => '12:00',

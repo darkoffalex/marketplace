@@ -3,15 +3,16 @@
 use kartik\grid\GridView;
 use yii\helpers\Url;
 use app\helpers\Help;
-use yii\bootstrap\Html;
 use app\helpers\Constants;
 use app\models\Country;
 use yii\helpers\ArrayHelper;
+use kartik\select2\Select2;
+use yii\web\JsExpression;
 
 /* @var $searchModel \app\models\MarketplaceSearch */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 /* @var $this \yii\web\View */
-/* @var $controller \app\modules\groupAdmin\controllers\MarketplacesController */
+/* @var $controller \app\modules\admin\controllers\MarketplacesController */
 /* @var $user \app\models\User */
 
 $controller = $this->context;
@@ -38,13 +39,49 @@ $gridColumns = [
     ],
 
     [
+        'attribute' => 'user_id',
+        'enableSorting' => false,
+        'filter' => Select2::widget([
+            'model' => $searchModel,
+            'attribute' => 'user_id',
+            'initValueText' => !empty($searchModel->user) ? $searchModel->user->name : '',
+            'options' => ['placeholder' => Yii::t('app','Search for a user...')],
+            'language' => Yii::$app->language,
+            'theme' => Select2::THEME_DEFAULT,
+            'pluginOptions' => [
+                'allowClear' => true,
+                'minimumInputLength' => 2,
+                'language' => [
+                    'noResults' => new JsExpression("function () { return '".Yii::t('app','No results found')."'; }"),
+                    'searching' => new JsExpression("function () { return '".Yii::t('app','Searching...')."'; }"),
+                    'inputTooShort' => new JsExpression("function(args) {return '".Yii::t('app','Type more characters')."'}"),
+                    'errorLoading' => new JsExpression("function () { return '".Yii::t('app','Waiting for results')."'; }"),
+                ],
+                'ajax' => [
+                    'url' => Url::to(['/admin/users/ajax-search']),
+                    'dataType' => 'json',
+                    'data' => new JsExpression('function(params) { return {q:params.term}; }')
+                ],
+                'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                'templateResult' => new JsExpression('function(user) { return user.text; }'),
+                'templateSelection' => new JsExpression('function (user) { return user.text; }'),
+            ],
+        ]),
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\CvSearch */
+            return !empty($model->user) ? $model->user->name : null;
+        },
+    ],
+
+    [
         'attribute' => 'country_id',
         'filter' => ArrayHelper::map($countries,'id','name'),
         'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\MarketplaceSearch */
-           return !empty($model->country) ? $model->country->name : null;
+            return !empty($model->country) ? $model->country->name : null;
         },
     ],
 
@@ -88,25 +125,10 @@ $gridColumns = [
     ],
 
     [
-        'header' => Yii::t('app','Keys'),
-        'format' => 'raw',
-        'value' => function ($model, $key, $index, $column){
-            /* @var $model \app\models\MarketplaceSearch */
-            return Html::a(count($model->marketplaceKeys),Url::to(['/group-admin/marketplaces/keys', 'MarketplaceKeySearch[marketplace_id]' => $model->id]));
-        },
-    ],
-
-    [
         'class' => 'yii\grid\ActionColumn',
         'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
         'header' => Yii::t('app','Actions'),
         'template' => '{update} &nbsp; {delete}',
-        'buttons' => [
-            'update' => function ($url,$model,$key) {
-                /* @var $model \app\models\Cv */
-                return Html::a('<span class="glyphicon glyphicon-pencil"></span>', Url::to(['/group-admin/marketplaces/update', 'id' => $model->id]), ['title' => Yii::t('app','Edit'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']);
-            },
-        ],
     ],
 ];
 
@@ -125,7 +147,7 @@ $gridColumns = [
                 ]); ?>
             </div>
             <div class="box-footer">
-                <a href="<?php echo Url::to(['/group-admin/cvs/create']); ?>" data-toggle="modal" data-target=".modal-main" class="btn btn-primary"><?= Yii::t('app','New Proposal'); ?></a>
+                <a data-toggle="modal" data-target=".modal-main" href="<?php echo Url::to(['/admin/marketplaces/create']); ?>" class="btn btn-primary"><?= Yii::t('app','Create'); ?></a>
             </div>
         </div>
     </div>

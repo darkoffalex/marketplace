@@ -55,7 +55,7 @@ class Language extends \app\models\base\LanguageBase
     {
         $controllerId = Yii::$app->controller->id;
         $actionId = Yii::$app->controller->action->id;
-        $moduleId = Yii::$app->controller->module->id;
+        $moduleId = Yii::$app->controller->module->id == 'MarketplaceGuide' ? null : Yii::$app->controller->module->id;
 
         $url = [
             (!empty($moduleId) ? "/$moduleId" : "")."/$controllerId/$actionId"

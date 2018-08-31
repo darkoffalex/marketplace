@@ -55,8 +55,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 ]); ?>
 
                 <?= $form->field($model, 'status_id')->dropDownList([
-                    Constants::USR_STATUS_ENABLED => Constants::GetRoleName(Constants::USR_STATUS_ENABLED),
-                    Constants::USR_STATUS_DISABLED => Constants::GetRoleName(Constants::USR_STATUS_DISABLED),
+                    Constants::USR_STATUS_ENABLED => Constants::GetStatusName(Constants::USR_STATUS_ENABLED),
+                    Constants::USR_STATUS_DISABLED => Constants::GetStatusName(Constants::USR_STATUS_DISABLED),
                 ]); ?>
                 <hr>
 
