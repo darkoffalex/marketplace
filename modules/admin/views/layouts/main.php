@@ -32,7 +32,7 @@ $controller = $this->context;
 
     <?php $this->endBody() ?>
 
-    <div class="modal modal-main fade">
+    <div class="modal modal-main fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
             </div>
@@ -40,6 +40,7 @@ $controller = $this->context;
     </div>
 
     <script type="text/javascript">
+        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
         $('.modal').on('hide.bs.modal', function() {
             $(this).removeData();
         });

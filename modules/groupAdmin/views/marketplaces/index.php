@@ -100,13 +100,7 @@ $gridColumns = [
         'class' => 'yii\grid\ActionColumn',
         'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
         'header' => Yii::t('app','Actions'),
-        'template' => '{update} &nbsp; {delete}',
-        'buttons' => [
-            'update' => function ($url,$model,$key) {
-                /* @var $model \app\models\Cv */
-                return Html::a('<span class="glyphicon glyphicon-pencil"></span>', Url::to(['/group-admin/marketplaces/update', 'id' => $model->id]), ['title' => Yii::t('app','Edit'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']);
-            },
-        ],
+        'template' => '{update}',
     ],
 ];
 

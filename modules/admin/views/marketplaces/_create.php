@@ -6,6 +6,7 @@ use app\models\Country;
 use app\helpers\Constants;
 use kartik\select2\Select2;
 use yii\web\JsExpression;
+use yii\widgets\MaskedInput;
 
 /* @var $model \app\models\Marketplace*/
 /* @var $this \yii\web\View */
@@ -67,13 +68,17 @@ $countries = Country::find()
 
         <?= $form->field($model,'name')->textInput()->label(Yii::t('app','Name (reference to group name)')); ?>
 
-        <?= $form->field($model,'group_url')->textInput(); ?>
+        <?= $form->field($model,'group_url')->widget(MaskedInput::class,[
+            'mask' => 'https://www.f\acebook.com/*{*}',
+        ]); ?>
 
-        <?= $form->field($model,'group_admin_profile')->textInput(); ?>
-
-        <?= $form->field($model,'domain_alias')->textInput(); ?>
+        <?= $form->field($model,'group_admin_profile')->widget(MaskedInput::class,[
+            'mask' => 'https://www.f\acebook.com/*{*}',
+        ]); ?>
 
         <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
+
+        <?= $form->field($model,'domain_alias')->textInput(); ?>
 
         <?= $form->field($model, 'status_id')->dropDownList([
             Constants::USR_STATUS_ENABLED => Constants::GetStatusName(Constants::USR_STATUS_ENABLED),
