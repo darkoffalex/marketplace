@@ -24,6 +24,7 @@ class m180830_165127_create_rate_table extends Migration
             'days_count' => $this->integer(),
             'first_free_days' => $this->integer(),
             'admin_post_mode' => $this->integer(),
+            'status_id' => $this->integer()->defaultValue(\app\helpers\Constants::STATUS_DISABLED),
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime(),
             'created_by_id' => $this->integer(),

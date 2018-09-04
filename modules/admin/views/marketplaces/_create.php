@@ -37,24 +37,6 @@ $countries = Country::find()
 ]); ?>
 
     <div class="modal-body">
-        <?= $form->field($model,'name')->textInput()->label(Yii::t('app','Name (reference to group name)')); ?>
-
-        <?= $form->field($model,'group_url')->textInput(); ?>
-
-        <?= $form->field($model,'group_admin_profile')->textInput(); ?>
-
-        <?= $form->field($model,'domain_alias')->textInput(); ?>
-
-        <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
-
-        <?= $form->field($model, 'status_id')->dropDownList([
-            Constants::USR_STATUS_ENABLED => Constants::GetStatusName(Constants::USR_STATUS_ENABLED),
-            Constants::USR_STATUS_DISABLED => Constants::GetStatusName(Constants::USR_STATUS_DISABLED),
-        ]); ?>
-
-        <?= $form->field($model,'timezone')->dropDownList(\app\helpers\Help::getTimeZoneArray()); ?>
-
-        <?= $form->field($model,'geo')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
 
         <?= $form->field($model,'user_id')->widget(Select2::class,[
             'initValueText' => !empty($model->user) ? $model->user->name : '',
@@ -80,6 +62,27 @@ $countries = Country::find()
                 'templateSelection' => new JsExpression('function (user) { return user.text; }'),
             ],
         ]); ?>
+
+        <hr>
+
+        <?= $form->field($model,'name')->textInput()->label(Yii::t('app','Name (reference to group name)')); ?>
+
+        <?= $form->field($model,'group_url')->textInput(); ?>
+
+        <?= $form->field($model,'group_admin_profile')->textInput(); ?>
+
+        <?= $form->field($model,'domain_alias')->textInput(); ?>
+
+        <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
+
+        <?= $form->field($model, 'status_id')->dropDownList([
+            Constants::USR_STATUS_ENABLED => Constants::GetStatusName(Constants::USR_STATUS_ENABLED),
+            Constants::USR_STATUS_DISABLED => Constants::GetStatusName(Constants::USR_STATUS_DISABLED),
+        ]); ?>
+
+        <?= $form->field($model,'timezone')->dropDownList(\app\helpers\Help::getTimeZoneArray()); ?>
+
+        <?= $form->field($model,'geo')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
 
         <?= $form->field($model,'selling_rules')->textarea(); ?>
 

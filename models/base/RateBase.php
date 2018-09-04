@@ -17,6 +17,7 @@ use app\models\Marketplace;
  * @property int $days_count
  * @property int $first_free_days
  * @property int $admin_post_mode
+ * @property int $status_id
  * @property string $created_at
  * @property string $updated_at
  * @property int $created_by_id
@@ -40,7 +41,7 @@ class RateBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['marketplace_id', 'price', 'single_payment', 'days_count', 'first_free_days', 'admin_post_mode', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['marketplace_id', 'price', 'single_payment', 'days_count', 'first_free_days', 'admin_post_mode', 'status_id', 'created_by_id', 'updated_by_id'], 'integer'],
             [['name'], 'required'],
             [['created_at', 'updated_at'], 'safe'],
             [['name'], 'string', 'max' => 255],
@@ -62,6 +63,7 @@ class RateBase extends \yii\db\ActiveRecord
             'days_count' => Yii::t('app', 'Days Count'),
             'first_free_days' => Yii::t('app', 'First Free Days'),
             'admin_post_mode' => Yii::t('app', 'Admin Post Mode'),
+            'status_id' => Yii::t('app', 'Status ID'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
             'created_by_id' => Yii::t('app', 'Created By ID'),
