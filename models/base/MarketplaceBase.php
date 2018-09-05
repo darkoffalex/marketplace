@@ -7,6 +7,7 @@ use Yii;
 use app\models\Country;
 use app\models\User;
 use app\models\MarketplaceKey;
+use app\models\Poster;
 use app\models\Rate;
 
 /**
@@ -39,6 +40,7 @@ use app\models\Rate;
  * @property Country $country
  * @property User $user
  * @property MarketplaceKey[] $marketplaceKeys
+ * @property Poster[] $posters
  * @property Rate[] $rates
  */
 class MarketplaceBase extends \yii\db\ActiveRecord
@@ -121,6 +123,14 @@ class MarketplaceBase extends \yii\db\ActiveRecord
     public function getMarketplaceKeys()
     {
         return $this->hasMany(MarketplaceKey::className(), ['marketplace_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPosters()
+    {
+        return $this->hasMany(Poster::className(), ['marketplace_id' => 'id']);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace app\models\base;
 
 use Yii;
 
+use app\models\Poster;
 
 /**
  * This is the base model class for table "category".
@@ -17,6 +18,8 @@ use Yii;
  * @property string $updated_at
  * @property int $created_by_id
  * @property int $updated_by_id
+ *
+ * @property Poster[] $posters
  */
 class CategoryBase extends \yii\db\ActiveRecord
 {
@@ -57,5 +60,13 @@ class CategoryBase extends \yii\db\ActiveRecord
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPosters()
+    {
+        return $this->hasMany(Poster::className(), ['category_id' => 'id']);
     }
 }
