@@ -2,7 +2,6 @@
 
 use kartik\grid\GridView;
 use yii\helpers\Url;
-use app\helpers\Help;
 use yii\bootstrap\Html;
 use app\helpers\Constants;
 use app\models\Country;
@@ -11,7 +10,7 @@ use yii\helpers\ArrayHelper;
 /* @var $searchModel \app\models\MarketplaceSearch */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 /* @var $this \yii\web\View */
-/* @var $controller \app\modules\groupAdmin\controllers\MarketplacesController */
+/* @var $controller \app\modules\user\controllers\MarketplacesController */
 /* @var $user \app\models\User */
 
 $controller = $this->context;
@@ -49,6 +48,15 @@ $gridColumns = [
     ],
 
     [
+        'header' => Yii::t('app','Advertisements'),
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\MarketplaceSearch */
+            return Html::a(0,Url::to(['/user/advertisements/index']));
+        },
+    ],
+
+    [
         'attribute' => 'status_id',
         'filter' => [
             Constants::STATUS_ENABLED => Yii::t('app','Enabled'),
@@ -64,35 +72,7 @@ $gridColumns = [
             ];
             return !empty($names[$model->status_id]) ? $names[$model->status_id] : null;
         },
-    ],
-
-    [
-        'attribute' => 'created_at',
-        'filter' => \kartik\daterange\DateRangePicker::widget([
-            'model' => $searchModel,
-            'convertFormat' => true,
-            'attribute' => 'created_at',
-            'pluginOptions' => [
-                'locale' => [
-                    'format'=>'d.m.Y',
-                    'separator'=>' - ',
-                ],
-            ],
-        ]),
-        'enableSorting' => true,
-        'format' => 'raw',
-        'value' => function ($model, $key, $index, $column){
-            /* @var $model \app\models\MarketplaceSearch */
-            return Help::dateReformat($model->created_at);
-        },
-    ],
-
-    [
-        'class' => 'yii\grid\ActionColumn',
-        'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
-        'header' => Yii::t('app','Actions'),
-        'template' => '{update}',
-    ],
+    ]
 ];
 
 ?>
@@ -110,7 +90,7 @@ $gridColumns = [
                 ]); ?>
             </div>
             <div class="box-footer">
-                <a href="<?php echo Url::to(['/group-admin/cvs/create']); ?>" data-toggle="modal" data-target=".modal-main" class="btn btn-primary"><?= Yii::t('app','New Proposal'); ?></a>
+                <a href="<?php echo Url::to(['/user/marketplaces/bind']); ?>" data-toggle="modal" data-target=".modal-main" class="btn btn-primary"><?= Yii::t('app','Bind new marketplace'); ?></a>
             </div>
         </div>
     </div>

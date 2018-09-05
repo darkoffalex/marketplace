@@ -32,7 +32,7 @@ use yii\helpers\Url;
                 <a href="<?= Url::to(['/group-admin/main/index']); ?>" class="btn btn-default btn-flat"><?= Yii::t('app','Admin'); ?></a>
             </div>
             <div class="pull-left">
-                <a href="#" class="btn btn-default btn-flat"><?= Yii::t('app','Member'); ?></a>
+                <a href="<?= Url::to(['/user/main/index']); ?>" class="btn btn-default btn-flat"><?= Yii::t('app','Member'); ?></a>
             </div>
             <?php if(!empty($user)): ?>
                 <div class="pull-right">

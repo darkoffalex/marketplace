@@ -14,7 +14,7 @@ use app\models\User;
  * @property int $marketplace_id
  * @property string $code
  * @property int $used_by_id
- * @property int $used_at
+ * @property string $used_at
  * @property string $created_at
  * @property string $updated_at
  * @property int $created_by_id
@@ -39,8 +39,8 @@ class MarketplaceKeyBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['marketplace_id', 'used_by_id', 'used_at', 'created_by_id', 'updated_by_id'], 'integer'],
-            [['created_at', 'updated_at'], 'safe'],
+            [['marketplace_id', 'used_by_id', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['used_at', 'created_at', 'updated_at'], 'safe'],
             [['code'], 'string', 'max' => 255],
             [['marketplace_id'], 'exist', 'skipOnError' => true, 'targetClass' => Marketplace::className(), 'targetAttribute' => ['marketplace_id' => 'id']],
             [['used_by_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['used_by_id' => 'id']],

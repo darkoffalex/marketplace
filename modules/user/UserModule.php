@@ -1,30 +1,30 @@
 <?php
 
-namespace app\modules\groupAdmin;
+namespace app\modules\user;
 
-use app\models\Language;
-use app\models\User;
 use Yii;
+use app\models\User;
+use app\models\Language;
 use yii\helpers\Url;
 
 /**
- * group-admin module definition class
+ * user module definition class
  */
-class GroupAdminModule extends \yii\base\Module
+class UserModule extends \yii\base\Module
 {
     /**
      * {@inheritdoc}
      */
-    public $controllerNamespace = 'app\modules\groupAdmin\controllers';
+    public $controllerNamespace = 'app\modules\user\controllers';
 
     /**
      * {@inheritdoc}
      */
     public function init()
     {
-        Yii::$app->errorHandler->errorAction = 'group-admin/main/error';
-        $this->layoutPath = "@app/modules/groupAdmin/views/layouts";
-        $this->viewPath = "@app/modules/groupAdmin/views";
+        Yii::$app->errorHandler->errorAction = 'user/main/error';
+        $this->layoutPath = "@app/modules/user/views/layouts";
+        $this->viewPath = "@app/modules/user/views";
         $this->layout = 'main';
         parent::init();
     }
@@ -65,7 +65,7 @@ class GroupAdminModule extends \yii\base\Module
 
         //Если не авторизован и это не открытый путь - редирект
         if(Yii::$app->user->isGuest && !in_array($ca,$open)){
-            Yii::$app->response->redirect(Url::to(['/group-admin/main/login']));
+            Yii::$app->response->redirect(Url::to(['/user/main/login']));
             return false;
         }
         //Если авторизован

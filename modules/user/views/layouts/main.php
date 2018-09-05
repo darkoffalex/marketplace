@@ -8,7 +8,7 @@ use app\widgets\LanguageSwitchWidget;
 use yii\helpers\Url;
 
 /* @var $this \yii\web\View */
-/* @var $controller \app\modules\groupAdmin\controllers\MainController */
+/* @var $controller \app\modules\admin\controllers\MainController */
 /* @var $content string */
 /* @var $user \app\models\User */
 
@@ -39,7 +39,7 @@ $user = Yii::$app->user->identity;
             <nav class="navbar navbar-static-top">
                 <div class="container">
                     <div class="navbar-header">
-                        <a href="<?= Url::to(['/group-admin/main/index']); ?>" class="navbar-brand" style="padding: 8px 15px;"><b><?= Yii::$app->name; ?></b> <br> <h6 class="no-margin"><?= Yii::t('app','Group Admin') ?></h6></a>
+                        <a href="<?= Url::to(['/user/main/index']); ?>" class="navbar-brand" style="padding: 8px 15px;"><b><?= Yii::$app->name; ?></b> <br> <h6 class="no-margin"><?= Yii::t('app','Member') ?></h6></a>
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
                             <i class="fa fa-bars"></i>
                         </button>
@@ -54,55 +54,14 @@ $user = Yii::$app->user->identity;
                                 [
                                     [
                                         'label' => Yii::t('app','Home'),
-                                        'url' => ['/group-admin/main/index'],
+                                        'url' => ['/user/main/index'],
                                         'active' => $c == 'main',
                                         'visible' => true,
                                     ],
                                     [
-                                        'label' => Yii::t('app','My marketplaces'),
-                                        'active' => $c == 'marketplaces' || $c == 'cvs',
-                                        'visible' => true,
-                                        'items' => [
-                                            [
-                                                'label' => Yii::t('app','Marketplaces'),
-                                                'url' => ['/group-admin/marketplaces/index'],
-                                                'active' => $c == 'marketplaces',
-                                                'visible' => true
-                                            ],
-                                            [
-                                                'label' => Yii::t('app','Proposals'),
-                                                'url' => ['/group-admin/cvs/index'],
-                                                'active' => $c == 'cvs',
-                                                'visible' => true
-                                            ],
-                                        ]
-                                    ],
-                                    [
-                                        'label' => Yii::t('app','Monitoring'),
-                                        'active' => in_array($c,['groups','dictionaries']),
-                                        'visible' => true,
-                                        'url' => $user->isApprovedGroupAdmin() ? '#' : Url::to(['/group-admin/messages/unavailable-common']),
-                                        'linkOptions' => $user->isApprovedGroupAdmin() ? null : ['data-toggle' => 'modal', 'data-target' => '.modal-main'],
-                                        'items' => !$user->isApprovedGroupAdmin() ? null : [
-                                            [
-                                                'label' => Yii::t('app','Dictionaries'),
-                                                'url' => ['/groups-admin/dictionaries/index'],
-                                                'active' => $c == 'dictionaries',
-                                                'visible' => true
-                                            ],
-                                            [
-                                                'label' => Yii::t('app','Groups'),
-                                                'url' => ['/groups-admin/groups/index'],
-                                                'active' => $c == 'groups',
-                                                'visible' => true
-                                            ],
-                                        ]
-                                    ],
-                                    [
-                                        'label' => Yii::t('app','Short links'),
-                                        'url' => $user->isApprovedGroupAdmin() ? ['/groups-admin/short-links/index'] : Url::to(['/group-admin/messages/unavailable-common']),
-                                        'linkOptions' => $user->isApprovedGroupAdmin() ? null : ['data-toggle' => 'modal', 'data-target' => '.modal-main'],
-                                        'active' => $c == 'short-links',
+                                        'label' => Yii::t('app','Marketplaces'),
+                                        'active' => $c == 'marketplaces',
+                                        'url' => ['/user/marketplaces/index'],
                                         'visible' => true,
                                     ],
                                 ],

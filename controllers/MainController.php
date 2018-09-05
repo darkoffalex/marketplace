@@ -57,11 +57,11 @@ class MainController extends Controller
     }
 
     /**
-     * Авторизация через Facebook
-     * @return \yii\web\Response
-     * @throws ServerErrorHttpException
+     * Общая авторизация через FB
+     * @param $redirectUrl
+     * @return bool
      */
-    public function actionAuthFbGroupAdmin()
+    private function facebookAuthentication($redirectUrl)
     {
         if (!session_id()) {
             session_start();
@@ -76,11 +76,11 @@ class MainController extends Controller
             $helper = $fb->getRedirectLoginHelper();
 
             //Хотфикс
-            //if (isset($_GET['state'])) {
-            //    $helper->getPersistentDataHandler()->set('state', $_GET['state']);
-            //}
+            if (isset($_GET['state'])) {
+                $helper->getPersistentDataHandler()->set('state', $_GET['state']);
+            }
 
-            $accessToken = $helper->getAccessToken(Url::to(['/main/auth-fb-group-admin', 'language' => null], true));
+            $accessToken = $helper->getAccessToken($redirectUrl);
 
             if(empty($accessToken)){
                 throw new Exception("Can't retrieve token",500);
@@ -121,11 +121,37 @@ class MainController extends Controller
             $user->save();
 
             Yii::$app->user->login($user);
-
-            return $this->redirect(Url::to(['/group-admin/main/index'],'http'));
-
+            return true;
         }catch (\Exception $ex){
-            throw new ServerErrorHttpException($ex->getMessage(),500);
+            Yii::info($ex->getMessage(),'info');
         }
+
+        return false;
+    }
+
+    /**
+     * Авторизация через Facebook для личного кабинета админа группы
+     * @return \yii\web\Response
+     * @throws ServerErrorHttpException
+     */
+    public function actionAuthFbGroupAdmin()
+    {
+        if($this->facebookAuthentication(Url::to(['/main/auth-fb-group-admin', 'language' => null], 'https'))){
+            return $this->redirect(Url::to(['/group-admin/main/index'],'http'));
+        }
+        throw new ServerErrorHttpException('Facebook authorization failed',500);
+    }
+
+    /**
+     * Авторизация через Facebook для личного кабинета обычного пользователя
+     * @return \yii\web\Response
+     * @throws ServerErrorHttpException
+     */
+    public function actionAuthFbUser()
+    {
+        if($this->facebookAuthentication(Url::to(['/main/auth-fb-user', 'language' => null], 'https'))){
+            return $this->redirect(Url::to(['/user/main/index'],'http'));
+        }
+        throw new ServerErrorHttpException('Facebook authorization failed',500);
     }
 }

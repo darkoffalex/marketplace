@@ -22,7 +22,7 @@ use yii\helpers\Url;
 class MarketplacesController extends Controller
 {
     /**
-     * Сообщение о недоступности опции мониторинга
+     * Список маркетплейсов
      * @return string
      */
     public function actionIndex()

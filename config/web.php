@@ -16,6 +16,7 @@ $config = [
         'gridview' =>  kartik\grid\Module::class,
         'admin' => ['class' => \app\modules\admin\AdminModule::class],
         'group-admin' => ['class' => \app\modules\groupAdmin\GroupAdminModule::class],
+        'user' => ['class' => \app\modules\user\UserModule::class],
     ],
 
     'components' => [
@@ -120,6 +121,16 @@ $config = [
                 '<protocol:http|https>://admin.<subDomain>.<domain>/<controller>/<action>/<id:\d+>' => 'group-admin/<controller>/<action>',
                 '<protocol:http|https>://admin.<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>' => 'group-admin/<controller>/<action>',
                 '<protocol:http|https>://admin.<subDomain>.<domain>/<controller>/<action>' => 'group-admin/<controller>/<action>',
+
+                //Личный кабинет пользователя (черз поддомен .user)
+                '<protocol:http|https>://user.<subDomain>.<domain>/<language:\w{2}>' => 'user/main/index',
+                '<protocol:http|https>://user.<subDomain>.<domain>/' => 'user/main/index',
+                '<protocol:http|https>://user.<subDomain>.<domain>/<language:\w{2}>/<controller>' => 'user/<controller>/index',
+                '<protocol:http|https>://user.<subDomain>.<domain>/<controller>' => 'user/<controller>/index',
+                '<protocol:http|https>://user.<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>/<id:\d+>' => 'user/<controller>/<action>',
+                '<protocol:http|https>://user.<subDomain>.<domain>/<controller>/<action>/<id:\d+>' => 'user/<controller>/<action>',
+                '<protocol:http|https>://user.<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>' => 'user/<controller>/<action>',
+                '<protocol:http|https>://user.<subDomain>.<domain>/<controller>/<action>' => 'user/<controller>/<action>',
 
                 //Страна (суб-домен)
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>' => 'country/index',
