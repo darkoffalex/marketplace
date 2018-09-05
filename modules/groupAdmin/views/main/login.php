@@ -22,7 +22,7 @@ $fb = new Facebook([
     'app_secret' => SettingsForm::getInstance()->fb_auth_app_secret,
 ]);
 
-$fbLoginUrl = $fb->getRedirectLoginHelper()->getLoginUrl(Url::to(['/main/auth-fb-group-admin', 'language' => null],true), ['email']);
+$fbLoginUrl = $fb->getRedirectLoginHelper()->getLoginUrl(Url::to(['/main/auth-fb-group-admin', 'language' => null],'https'), ['email']);
 ?>
 
 <div class="login-box">

@@ -2,7 +2,7 @@
 return [
     // Параметры локализации
     'localization' => [
-        'addMissing' => true,
+        'addMissing' => false,
         'markMissing' => false,
     ],
 ];

@@ -122,7 +122,7 @@ class MainController extends Controller
 
             Yii::$app->user->login($user);
 
-            return $this->redirect(Url::to(['/group-admin/main/index']));
+            return $this->redirect(Url::to(['/group-admin/main/index'],'http'));
 
         }catch (\Exception $ex){
             throw new ServerErrorHttpException($ex->getMessage(),500);

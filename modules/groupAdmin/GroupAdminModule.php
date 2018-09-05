@@ -71,7 +71,7 @@ class GroupAdminModule extends \yii\base\Module
         }
         //Если авторизован
         elseif(!empty($user)){
-            $user->last_login_at = date('Y-m-d H:i:s',time());
+            $user->last_online_at = date('Y-m-d H:i:s',time());
             $user->preferred_language = Yii::$app->language;
             $user->update();
         }

@@ -30,10 +30,10 @@ class Country extends \app\models\base\CountryBase
 
     /**
      * Получить ссылку на страницу страны
-     * @param bool $scheme
+     * @param bool|string $scheme
      * @return string
      */
-    public function getUrl($scheme = false)
+    public function getUrl($scheme = 'http')
     {
         return Url::to(['country/index','subSubDomain' => $this->domain_alias],$scheme);
     }

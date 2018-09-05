@@ -76,17 +76,15 @@ $gridColumns = [
     [
         'attribute' => 'role_id',
         'filter' => [
-            Constants::ROLE_ADMIN => Yii::t('app','Admin')
+            Constants::ROLE_ADMIN => Constants::GetRoleName(Constants::ROLE_ADMIN),
+            Constants::ROLE_BOOKKEEPER => Constants::GetRoleName(Constants::ROLE_BOOKKEEPER),
+            Constants::ROLE_USER => Constants::GetRoleName(Constants::ROLE_USER),
         ],
         'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
-            $roles = [
-                Constants::ROLE_ADMIN => Yii::t('app','Admin')
-            ];
-
             /* @var $model \app\models\User */
-            return !empty($roles[$model->role_id]) ? $roles[$model->role_id] : null;
+            return Constants::GetRoleName($model->role_id);
         },
     ],
 

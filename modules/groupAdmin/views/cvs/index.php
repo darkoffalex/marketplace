@@ -18,7 +18,7 @@ use app\helpers\Constants;
 $controller = $this->context;
 $user = Yii::$app->user->identity;
 
-$this->title = Yii::t('app','CVs');
+$this->title = Yii::t('app','Proposals');
 $this->params['breadcrumbs'][] = $this->title;
 
 $gridColumns = [
