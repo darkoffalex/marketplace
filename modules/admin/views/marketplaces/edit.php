@@ -3,7 +3,6 @@ use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
 use app\models\User;
 use branchonline\lightbox\LightboxAsset;
-use app\helpers\Help;
 use app\helpers\Constants;
 use kartik\select2\Select2;
 use yii\web\JsExpression;
@@ -12,10 +11,12 @@ use app\models\Country;
 use app\helpers\FileLoad;
 use app\helpers\CropHelper;
 use yii\helpers\Html;
+use app\helpers\Help;
 
 /* @var $model \app\models\Marketplace */
 /* @var $this \yii\web\View */
 /* @var $user User */
+/* @var $tariffs \app\models\Tariff[] */
 
 $this->registerAssetBundle(LightboxAsset::class);
 
@@ -113,6 +114,46 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                 <?= $form->field($model,'admin_phone_wa')->textInput(); ?>
 
                 <?= $form->field($model,'group_description')->textarea(); ?>
+
+                <?php if(!empty($tariffs)): ?>
+                    <hr>
+                    <h4><?= Yii::t('app','Tariffs'); ?></h4>
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <th><?= Yii::t('app','Name'); ?></th>
+                            <th><?= Yii::t('app','Enabled'); ?></th>
+                            <th><?= Yii::t('app','Price'); ?></th>
+                            <th><?= Yii::t('app','Period time units'); ?></th>
+                            <th><?= Yii::t('app','Period time'); ?></th>
+                            <th><?= Yii::t('app','Recurring'); ?></th>
+                        </tr>
+                        <?php foreach($tariffs as $tariff): ?>
+                            <tr>
+                                <td><?= Yii::t('app',$tariff->name); ?><?= Html::hiddenInput('Marketplace[tariffs]['.$tariff->id.'][id]',$tariff->id); ?></td>
+                                <td><?= Html::checkbox('Marketplace[tariffs]['.$tariff->id.'][enabled]',$model->getTariffPrice($tariff->id) !== null); ?></td>
+                                <td><?= Html::textInput('Marketplace[tariffs]['.$tariff->id.'][price]',Help::toPrice($model->getTariffPrice($tariff->id,true)->price),['class' => 'form-control']); ?></td>
+                                <td>
+                                    <?php $names = [
+                                        Constants::PERIOD_DAYS => Yii::t('app','Days'),
+                                        Constants::PERIOD_WEEKS => Yii::t('app','Weeks'),
+                                        Constants::PERIOD_MONTHS => Yii::t('app','Months'),
+                                    ]; echo !empty($names[$tariff->period_unit_type]) ? $names[$tariff->period_unit_type] : null; ?>
+                                </td>
+                                <td>
+                                    <?= $tariff->period_amount; ?>
+                                </td>
+                                <td>
+                                    <?php $names = [
+                                        1 => '<span class="label label-success">'.Yii::t('app','Yes').'</span>',
+                                        0 => '<span class="label label-danger">'.Yii::t('app','No').'</span>',
+                                    ]; echo !empty($names[$tariff->subscription]) ? $names[$tariff->subscription] : null; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
             </div>
 
             <div class="box-footer">
@@ -120,61 +161,6 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                 <button type="submit" class="btn btn-primary"><?= Yii::t('app','Save'); ?></button>
             </div>
             <?php ActiveForm::end(); ?>
-        </div>
-
-
-        <a id="rates" name="rates"></a>
-        <div class="box box-primary">
-            <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('app','Available rates'); ?></h3></div>
-            <div class="box-body no-padding">
-                <table class="table">
-                    <tbody>
-                    <tr>
-                        <th style="width: 10px">#</th>
-                        <th><?= Yii::t('app','Name'); ?></th>
-                        <th><?= Yii::t('app','Price'); ?></th>
-                        <th><?= Yii::t('app','Period (days)'); ?></th>
-                        <th><?= Yii::t('app','Free days'); ?></th>
-                        <th><?= Yii::t('app','Single payment'); ?></th>
-                        <th><?= Yii::t('app','Admin\'s post'); ?></th>
-                        <th><?= Yii::t('app','Status'); ?></th>
-                        <th><?= Yii::t('app','Actions'); ?></th>
-                    </tr>
-
-                    <?php if(!empty($model->rates)): ?>
-                        <?php foreach ($model->rates as $rate): ?>
-                            <tr>
-                                <td><?= $rate->id; ?></td>
-                                <td><?= $rate->name; ?></td>
-                                <td><?= Help::toPrice($rate->price); ?></td>
-                                <td><?= $rate->days_count; ?></td>
-                                <td><?= $rate->first_free_days; ?></td>
-                                <td><?= $rate->single_payment ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>' : '<span class="label label-warning">'.Yii::t('app','No').'</span>'; ?></td>
-                                <td><?= $rate->admin_post_mode ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>' : '<span class="label label-warning">'.Yii::t('app','No').'</span>'; ?></td>
-                                <td>
-                                    <?php if($rate->status_id == Constants::STATUS_ENABLED): ?>
-                                        <span class="label label-success"><?= Yii::t('app','Enabled'); ?></span>
-                                    <?php else: ?>
-                                        <span class="label label-danger"><?= Yii::t('app','Disabled'); ?></span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <a data-confirm="<?= Yii::t('app','Are you sure?'); ?>" class="btn btn-primary btn-xs" href="<?= Url::to(['/admin/marketplaces/delete-rate', 'id' => $rate->id]); ?>"><?= Yii::t('app','Delete'); ?></a>
-                                    <a data-target=".modal-main" data-toggle="modal" class="btn btn-primary btn-xs" href="<?= Url::to(['/admin/marketplaces/edit-rate', 'id' => $rate->id]); ?>"><?= Yii::t('app','Edit'); ?></a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="9"><?= Yii::t('app','Rates not found'); ?></td>
-                        </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-            <div class="box-footer">
-                <a class="btn btn-primary" data-target=".modal-main" data-toggle="modal" href="<?= Url::to(['/admin/marketplaces/create-rate', 'id' => $model->id]); ?>"><?= Yii::t('app','Add new rate'); ?></a>
-            </div>
         </div>
 
 

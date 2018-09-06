@@ -83,7 +83,15 @@ use app\modules\admin\helpers\Access;
                         'visible' => true,
                         'url' => ['/admin/marketplaces/index'],
                     ],
-                    
+
+                    [
+                        'label' => Yii::t('app','Tariffs'),
+                        'icon' => 'dollar',
+                        'active' => $c == 'tariffs',
+                        'visible' => true,
+                        'url' => ['/admin/tariffs/index'],
+                    ],
+
                     [
                         'label' => Yii::t('app','Settings'),
                         'icon' => 'gear',

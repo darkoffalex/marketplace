@@ -53,12 +53,6 @@ $user = Yii::$app->user->identity;
                             'items' =>
                                 [
                                     [
-                                        'label' => Yii::t('app','Home'),
-                                        'url' => ['/group-admin/main/index'],
-                                        'active' => $c == 'main',
-                                        'visible' => true,
-                                    ],
-                                    [
                                         'label' => Yii::t('app','My marketplaces'),
                                         'active' => $c == 'marketplaces' || $c == 'cvs',
                                         'visible' => true,

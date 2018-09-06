@@ -7,7 +7,7 @@ return [
         'domain' => '.marketplace.loc',
     ]
     */
-
+    'savePath' => __DIR__.'/../sessions',
     'cookieParams' => [
         'domain' => '.marketplace.loc',
         'path' => '/',

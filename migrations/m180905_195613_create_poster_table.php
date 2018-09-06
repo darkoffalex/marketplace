@@ -41,7 +41,8 @@ class m180905_195613_create_poster_table extends Migration
             'admin_post_image_filename' => $this->string(),
 
             'paid_at' => $this->dateTime(),
-            'free_period_expired' => $this->integer(),
+            'period_seconds' => $this->integer(),
+            'period_free_seconds' => $this->integer(),
 
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime(),

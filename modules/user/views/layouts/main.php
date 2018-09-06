@@ -53,12 +53,6 @@ $user = Yii::$app->user->identity;
                             'items' =>
                                 [
                                     [
-                                        'label' => Yii::t('app','Home'),
-                                        'url' => ['/user/main/index'],
-                                        'active' => $c == 'main',
-                                        'visible' => true,
-                                    ],
-                                    [
                                         'label' => Yii::t('app','Marketplaces'),
                                         'active' => $c == 'marketplaces',
                                         'url' => ['/user/marketplaces/index'],

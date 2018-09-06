@@ -5,9 +5,9 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "rate".
+ * This is the model class for table "marketplace_tariff_price".
  */
-class Rate extends \app\models\base\RateBase
+class MarketplaceTariffPrice extends \app\models\base\MarketplaceTariffPriceBase
 {
     /**
      * @inheritdoc

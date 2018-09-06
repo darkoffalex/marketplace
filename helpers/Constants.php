@@ -35,6 +35,16 @@ class Constants
     const CV_STATUS_APPROVED = 2;
     const CV_STATUS_REJECTED = 3;
 
+    //Тип периода (используется в тарифах)
+    const PERIOD_DAYS = 1;
+    const PERIOD_WEEKS = 2;
+    const PERIOD_MONTHS = 3;
+
+    //Спец-тип тарифа
+    const TARIFF_SUB_TYPE_REGULAR = 0;
+    const TARIFF_SUB_TYPE_ADMIN_POST = 1;
+    const TARIFF_SUB_TYPE_COMPETITIONS = 2;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

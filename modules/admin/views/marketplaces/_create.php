@@ -7,11 +7,14 @@ use app\helpers\Constants;
 use kartik\select2\Select2;
 use yii\web\JsExpression;
 use yii\widgets\MaskedInput;
+use yii\helpers\Html;
+use app\helpers\Help;
 
 /* @var $model \app\models\Marketplace*/
 /* @var $this \yii\web\View */
 /* @var $controller \app\modules\admin\controllers\MarketplacesController */
 /* @var $flags array[] */
+/* @var $tariffs \app\models\Tariff[] */
 
 $this->registerJsFile(Url::to('@web/common/js/show-hide.js'));
 $controller = $this->context;
@@ -98,6 +101,46 @@ $countries = Country::find()
         <?= $form->field($model,'admin_phone_wa')->textInput(); ?>
 
         <?= $form->field($model,'group_description')->textarea(); ?>
+
+        <?php if(!empty($tariffs)): ?>
+            <hr>
+            <h4><?= Yii::t('app','Tariffs'); ?></h4>
+            <table class="table">
+                <tbody>
+                <tr>
+                    <th><?= Yii::t('app','Name'); ?></th>
+                    <th><?= Yii::t('app','Enabled'); ?></th>
+                    <th><?= Yii::t('app','Price'); ?></th>
+                    <th><?= Yii::t('app','Period time units'); ?></th>
+                    <th><?= Yii::t('app','Period time'); ?></th>
+                    <th><?= Yii::t('app','Recurring'); ?></th>
+                </tr>
+                <?php foreach($tariffs as $tariff): ?>
+                    <tr>
+                        <td><?= Yii::t('app',$tariff->name); ?><?= Html::hiddenInput('Marketplace[tariffs]['.$tariff->id.'][id]',$tariff->id); ?></td>
+                        <td><?= Html::checkbox('Marketplace[tariffs]['.$tariff->id.'][enabled]',$model->getTariffPrice($tariff->id) !== null); ?></td>
+                        <td><?= Html::textInput('Marketplace[tariffs]['.$tariff->id.'][price]',Help::toPrice($model->getTariffPrice($tariff->id,true)->price),['class' => 'form-control']); ?></td>
+                        <td>
+                            <?php $names = [
+                                Constants::PERIOD_DAYS => Yii::t('app','Days'),
+                                Constants::PERIOD_WEEKS => Yii::t('app','Weeks'),
+                                Constants::PERIOD_MONTHS => Yii::t('app','Months'),
+                            ]; echo !empty($names[$tariff->period_unit_type]) ? $names[$tariff->period_unit_type] : null; ?>
+                        </td>
+                        <td>
+                            <?= $tariff->period_amount; ?>
+                        </td>
+                        <td>
+                            <?php $names = [
+                                1 => '<span class="label label-success">'.Yii::t('app','Yes').'</span>',
+                                0 => '<span class="label label-danger">'.Yii::t('app','No').'</span>',
+                            ]; echo !empty($names[$tariff->subscription]) ? $names[$tariff->subscription] : null; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
     </div>
 
     <div class="modal-footer">

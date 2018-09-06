@@ -5,6 +5,7 @@ namespace app\modules\admin\controllers;
 use app\helpers\FileLoad;
 use app\helpers\Help;
 use app\models\Rate;
+use app\models\Tariff;
 use Yii;
 use yii\helpers\Url;
 use yii\web\Controller;
@@ -44,6 +45,9 @@ class MarketplacesController extends Controller
      */
     public function actionCreate()
     {
+        /* @var $tariffs Tariff */
+        $tariffs = Tariff::find()->all();
+
         /* @var Marketplace $model */
         $model = new Marketplace();
         $model->user_id = Yii::$app->user->id;
@@ -65,7 +69,11 @@ class MarketplacesController extends Controller
                 $model->created_by_id = Yii::$app->user->id;
                 $model->updated_at = date('Y-m-d H:i:s',time());
                 $model->updated_by_id = Yii::$app->user->id;
-                $model->save();
+
+                if($model->save()){
+                    //Синхронизация тарифов
+                    $model->syncTariffs($model->tariffs);
+                }
 
                 //к детальному редактированию
                 $this->redirect(Url::to(['/admin/marketplaces/update','id' => $model->id]));
@@ -73,7 +81,7 @@ class MarketplacesController extends Controller
         }
 
         //вывести форму редактирования
-        return $this->renderAjax('_create',compact('model'));
+        return $this->renderAjax('_create',compact('model','tariffs'));
     }
 
     /**
@@ -84,6 +92,9 @@ class MarketplacesController extends Controller
      */
     public function actionUpdate($id)
     {
+        /* @var $tariffs Tariff */
+        $tariffs = Tariff::find()->all();
+
         /* @var Marketplace $model */
         $model = Marketplace::findOne((int)$id);
 
@@ -109,6 +120,9 @@ class MarketplacesController extends Controller
                 //Сохранение изображения
                 FileLoad::loadAndClearOld($model,'header_image','header_image_filename',!empty($model->header_image));
 
+                //Синхронизация тарифов
+                $model->syncTariffs($model->tariffs);
+
                 //базовые параметры, обновить
                 $model->updated_at = date('Y-m-d H:i:s',time());
                 $model->updated_by_id = Yii::$app->user->id;
@@ -121,8 +135,11 @@ class MarketplacesController extends Controller
             }
         }
 
+        //обновить связанные данные
+        $model->refresh();
+
         //вывести форму редактирования
-        return $this->render('edit',compact('model'));
+        return $this->render('edit',compact('model','tariffs'));
     }
 
     /**
@@ -143,102 +160,6 @@ class MarketplacesController extends Controller
 
         $model->delete();
         return $this->redirect(Yii::$app->request->referrer);
-    }
-
-    /**
-     * Создать тариф
-     * @param $id
-     * @return array|string
-     * @throws NotFoundHttpException
-     */
-    public function actionCreateRate($id)
-    {
-        /* @var Marketplace $model */
-        $marketplace = Marketplace::findOne((int)$id);
-
-        //если не найден
-        if(empty($marketplace)){
-            throw new NotFoundHttpException('Page not found',404);
-        }
-
-        $model = new Rate();
-        $model->marketplace_id = $marketplace->id;
-
-        //AJAX валидация
-        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
-            $model->price = Help::toCents($model->price);
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-
-        //если пришли данные из POST и они успешно заружены в объект
-        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
-            $model->price = Help::toCents($model->price);
-            if($model->validate()){
-                $model->save();
-                return $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $model->marketplace_id]).'#rates');
-            }
-        }
-
-        //вывести форму редактирования
-        return $this->renderAjax('_edit_rate',compact('model'));
-    }
-
-    /**
-     * Редактировать тариф
-     * @param $id
-     * @return array|string|Response
-     * @throws NotFoundHttpException
-     */
-    public function actionEditRate($id)
-    {
-        /* @var $model Rate */
-        $model = Rate::find()->where(['id' => (int)$id])->one();
-
-        //если не найден
-        if(empty($model)){
-            throw new NotFoundHttpException('Page not found',404);
-        }
-
-        //AJAX валидация
-        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
-            $model->price = Help::toCents($model->price);
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            return ActiveForm::validate($model);
-        }
-
-        //если пришли данные из POST и они успешно заружены в объект
-        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
-            $model->price = Help::toCents($model->price);
-            if($model->validate()){
-                $model->save();
-                return $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $model->marketplace_id]).'#rates');
-            }
-        }
-
-        //вывести форму редактирования
-        return $this->renderAjax('_edit_rate',compact('model'));
-    }
-
-    /**
-     * Удалить тариф
-     * @param $id
-     * @return Response
-     * @throws NotFoundHttpException
-     */
-    public function actionDeleteRate($id)
-    {
-        /* @var $model Rate */
-        $model = Rate::find()->where(['id' => (int)$id])->one();
-
-        //если не найден
-        if(empty($model)){
-            throw new NotFoundHttpException('Page not found',404);
-        }
-
-        $mpId = $model->marketplace_id;
-        $model->delete();
-        return $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $mpId]).'#rates');
     }
 
     /**

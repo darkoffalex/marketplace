@@ -6,7 +6,7 @@ use Yii;
 
 use app\models\Category;
 use app\models\Marketplace;
-use app\models\Rate;
+use app\models\MarketplaceTariffPrice;
 use app\models\User;
 
 /**
@@ -15,7 +15,6 @@ use app\models\User;
  * @property int $id
  * @property int $marketplace_id
  * @property int $category_id
- * @property int $rate_id
  * @property int $user_id
  * @property int $country_id
  * @property int $status_id
@@ -30,15 +29,17 @@ use app\models\User;
  * @property string $admin_post_text
  * @property string $admin_post_image_filename
  * @property string $paid_at
- * @property int $free_period_expired
+ * @property int $period_seconds
+ * @property int $period_free_seconds
  * @property string $created_at
  * @property string $updated_at
  * @property int $created_by_id
  * @property int $updated_by_id
+ * @property int $marketplace_tariff_id
  *
  * @property Category $category
  * @property Marketplace $marketplace
- * @property Rate $rate
+ * @property MarketplaceTariffPrice $marketplaceTariff
  * @property User $user
  */
 class PosterBase extends \yii\db\ActiveRecord
@@ -57,13 +58,13 @@ class PosterBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['marketplace_id', 'category_id', 'rate_id', 'user_id', 'country_id', 'status_id', 'free_period_expired', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['marketplace_id', 'category_id', 'user_id', 'country_id', 'status_id', 'period_seconds', 'period_free_seconds', 'created_by_id', 'updated_by_id', 'marketplace_tariff_id'], 'integer'],
             [['description', 'description_approved', 'admin_post_text'], 'string'],
             [['paid_at', 'created_at', 'updated_at'], 'safe'],
             [['title', 'phone', 'whats_app', 'title_approved', 'phone_approved', 'whats_app_approved', 'admin_post_image_filename'], 'string', 'max' => 255],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['marketplace_id'], 'exist', 'skipOnError' => true, 'targetClass' => Marketplace::className(), 'targetAttribute' => ['marketplace_id' => 'id']],
-            [['rate_id'], 'exist', 'skipOnError' => true, 'targetClass' => Rate::className(), 'targetAttribute' => ['rate_id' => 'id']],
+            [['marketplace_tariff_id'], 'exist', 'skipOnError' => true, 'targetClass' => MarketplaceTariffPrice::className(), 'targetAttribute' => ['marketplace_tariff_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -77,7 +78,6 @@ class PosterBase extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'marketplace_id' => Yii::t('app', 'Marketplace ID'),
             'category_id' => Yii::t('app', 'Category ID'),
-            'rate_id' => Yii::t('app', 'Rate ID'),
             'user_id' => Yii::t('app', 'User ID'),
             'country_id' => Yii::t('app', 'Country ID'),
             'status_id' => Yii::t('app', 'Status ID'),
@@ -92,11 +92,13 @@ class PosterBase extends \yii\db\ActiveRecord
             'admin_post_text' => Yii::t('app', 'Admin Post Text'),
             'admin_post_image_filename' => Yii::t('app', 'Admin Post Image Filename'),
             'paid_at' => Yii::t('app', 'Paid At'),
-            'free_period_expired' => Yii::t('app', 'Free Period Expired'),
+            'period_seconds' => Yii::t('app', 'Period Seconds'),
+            'period_free_seconds' => Yii::t('app', 'Period Free Seconds'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
+            'marketplace_tariff_id' => Yii::t('app', 'Marketplace Tariff ID'),
         ];
     }
 
@@ -119,9 +121,9 @@ class PosterBase extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getRate()
+    public function getMarketplaceTariff()
     {
-        return $this->hasOne(Rate::className(), ['id' => 'rate_id']);
+        return $this->hasOne(MarketplaceTariffPrice::className(), ['id' => 'marketplace_tariff_id']);
     }
 
     /**
