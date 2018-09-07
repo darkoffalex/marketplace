@@ -20,6 +20,7 @@ class m180830_170258_create_marketplace_key_table extends Migration
             'id' => $this->primaryKey(),
             'marketplace_id' => $this->integer(),
             'code' => $this->string(),
+            'note' => $this->text(),
             'used_by_id' => $this->integer(),
             'used_at' => $this->dateTime(),
             'created_at' => $this->dateTime(),

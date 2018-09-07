@@ -12,6 +12,7 @@ use app\helpers\FileLoad;
 use app\helpers\CropHelper;
 use yii\helpers\Html;
 use app\helpers\Help;
+use yii\widgets\MaskedInput;
 
 /* @var $model \app\models\Marketplace */
 /* @var $this \yii\web\View */
@@ -22,7 +23,7 @@ $this->registerAssetBundle(LightboxAsset::class);
 
 $user = Yii::$app->user->identity;
 
-$this->title = Yii::t('app','Edit marketplace');
+$this->title = Yii::t('app',$model->isNewRecord ? 'Create marketplace' : 'Edit marketplace');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('app','Marketplaces'), 'url' => Url::to(['/admin/marketplaces/index'])];
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -88,9 +89,13 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
 
                 <?= $form->field($model,'name')->textInput()->label(Yii::t('app','Name (reference to group name)')); ?>
 
-                <?= $form->field($model,'group_url')->textInput(); ?>
+                <?= $form->field($model,'group_url')->widget(MaskedInput::class,[
+                    'mask' => 'https://www.f\acebook.com/*{*}',
+                ]); ?>
 
-                <?= $form->field($model,'group_admin_profile')->textInput(); ?>
+                <?= $form->field($model,'group_admin_profile')->widget(MaskedInput::class,[
+                    'mask' => 'https://www.f\acebook.com/*{*}',
+                ]); ?>
 
                 <?= $form->field($model,'domain_alias')->textInput(); ?>
 
@@ -124,7 +129,6 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                             <th><?= Yii::t('app','Name'); ?></th>
                             <th><?= Yii::t('app','Enabled'); ?></th>
                             <th><?= Yii::t('app','Price'); ?></th>
-                            <th><?= Yii::t('app','Period time units'); ?></th>
                             <th><?= Yii::t('app','Period time'); ?></th>
                             <th><?= Yii::t('app','Recurring'); ?></th>
                         </tr>
@@ -135,13 +139,11 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                                 <td><?= Html::textInput('Marketplace[tariffs]['.$tariff->id.'][price]',Help::toPrice($model->getTariffPrice($tariff->id,true)->price),['class' => 'form-control']); ?></td>
                                 <td>
                                     <?php $names = [
-                                        Constants::PERIOD_DAYS => Yii::t('app','Days'),
-                                        Constants::PERIOD_WEEKS => Yii::t('app','Weeks'),
-                                        Constants::PERIOD_MONTHS => Yii::t('app','Months'),
-                                    ]; echo !empty($names[$tariff->period_unit_type]) ? $names[$tariff->period_unit_type] : null; ?>
-                                </td>
-                                <td>
-                                    <?= $tariff->period_amount; ?>
+                                        Constants::PERIOD_DAYS => Yii::t('app','Day(s)'),
+                                        Constants::PERIOD_WEEKS => Yii::t('app','Week(s)'),
+                                        Constants::PERIOD_MONTHS => Yii::t('app','Month(s)'),
+                                    ];?>
+                                    <?= $tariff->period_amount.' '.(!empty($names[$tariff->period_unit_type]) ? $names[$tariff->period_unit_type] : null); ?>
                                 </td>
                                 <td>
                                     <?php $names = [
@@ -154,31 +156,10 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                         </tbody>
                     </table>
                 <?php endif; ?>
-            </div>
 
-            <div class="box-footer">
-                <a class="btn btn-primary" href="<?= Url::to(['/admin/marketplaces/index']); ?>"><?= Yii::t('app','Back to list'); ?></a>
-                <button type="submit" class="btn btn-primary"><?= Yii::t('app','Save'); ?></button>
-            </div>
-            <?php ActiveForm::end(); ?>
-        </div>
-
-
-        <a id="rates" name="picture"></a>
-        <div class="box box-primary">
-            <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('app','Picture'); ?></h3></div>
-            <?php $form = ActiveForm::begin([
-                'id' => 'edit-marketplace-form',
-                'options' => ['role' => 'form', 'method' => 'post', 'enctype' => 'multipart/form-data'],
-                'enableClientValidation'=>false,
-                'fieldConfig' => [
-                    'template' => "{label}\n{input}\n{error}\n",
-                    //'labelOptions' => ['class' => 'col-lg-1 control-label'],
-                ],
-            ]); ?>
-            <div class="box-body">
+                <hr>
+                <a id="picture" name="picture"></a>
                 <?= Html::hiddenInput('image_editing',1); ?>
-
                 <?= $form->field($model,'header_image')->fileInput(); ?>
                 <?= $form->field($model,'header_image_crop_settings')->hiddenInput(['class' => 'crop-data'])->label(false); ?>
 
@@ -200,8 +181,10 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                     <a class="btn btn-primary btn-xs" href="<?= Url::to(['/admin/marketplaces/delete-image', 'id' => $model->id]); ?>"><?= Yii::t('app','Delete picture'); ?></a>
                 <?php endif; ?>
             </div>
+
             <div class="box-footer">
-                <button type="submit" class="btn btn-primary"><?= Yii::t('app','Upload / Save changes'); ?></button>
+                <a class="btn btn-primary" href="<?= Url::to(['/admin/marketplaces/index']); ?>"><?= Yii::t('app','Back to list'); ?></a>
+                <button type="submit" class="btn btn-primary"><?= Yii::t('app','Save'); ?></button>
             </div>
             <?php ActiveForm::end(); ?>
         </div>

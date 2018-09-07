@@ -26,7 +26,7 @@ class m180821_211715_create_settings_table extends Migration
 
         $this->insert('settings',[
             'name' => 'fb_auth_app_secret',
-            'value_text' => 'EAAEUdaWy7vQBAP2qfm62OXLyZBD8zFA2Yo81ulgsNenhhTy2Ap2paPNgATZASbGHmqIUIu42y3QiZA6l4pBm3TK5GtgAV9ux2lnvWiNJCPYPIhRPKHlOpvpYAdjZCMWDj0js3eJ8iZAZC1QfZCFMkYDRjksiFITkWikJqkPjqfwPgZDZD',
+            'value_text' => '25483980ab16864505fd22076f9876b5',
         ]);
     }
 

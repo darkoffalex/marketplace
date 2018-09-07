@@ -1,11 +1,10 @@
 <?php
 namespace app\modules\groupAdmin\controllers;
 
-use app\helpers\Constants;
 use app\helpers\Help;
 use app\models\MarketplaceKey;
 use app\models\MarketplaceSearch;
-use app\models\Rate;
+use app\models\Tariff;
 use yii\web\Controller;
 use Yii;
 use app\models\Marketplace;
@@ -40,6 +39,9 @@ class MarketplacesController extends Controller
      */
     public function actionUpdate($id)
     {
+        /* @var $tariffs Tariff[] */
+        $tariffs = Tariff::find()->all();
+
         /* @var Marketplace $model */
         $model = Marketplace::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
 
@@ -78,35 +80,7 @@ class MarketplacesController extends Controller
         }
 
         //вывести форму редактирования
-        return $this->render('edit',compact('model'));
-    }
-
-    /**
-     * Смена статуса из списка (ajax)
-     * @param $id
-     * @param $status
-     * @return string
-     * @throws NotFoundHttpException
-     */
-    public function actionRateStatusChange($id, $status)
-    {
-        Yii::$app->response->format = Response::FORMAT_RAW;
-
-        /* @var $model Rate */
-        $model = Rate::find()->alias('r')->joinWith(['marketplace mp'])->where(['r.id' => (int)$id, 'mp.user_id' => Yii::$app->user->id])->one();
-
-        //если не найден
-        if(empty($model)){
-            throw new NotFoundHttpException('Page not found',404);
-        }
-
-        //установить в зависимости от значения status
-        $model->status_id = $status == 'true' ? Constants::STATUS_ENABLED : Constants::STATUS_DISABLED;
-        if($model->save()){
-            return 'OK';
-        }
-
-        return 'FAILED';
+        return $this->render('edit',compact('model','tariffs'));
     }
 
     /**
@@ -165,5 +139,39 @@ class MarketplacesController extends Controller
         $model->delete();
 
         return $this->redirect(Url::to(['/group-admin/marketplaces/update', 'id' => $mpId]).'#keys');
+    }
+
+    /**
+     * Редактировать заметку ключа
+     * @param $id
+     * @return array
+     * @throws NotFoundHttpException
+     */
+    public function actionUpdateKeyNote($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        /* @var $model MarketplaceKey */
+        $model = MarketplaceKey::find()
+            ->alias('mpk')->joinWith(['marketplace mp'])
+            ->where(['mpk.id' => $id, 'mp.user_id' => Yii::$app->user->id])
+            ->one();
+
+        //если не найден
+        if(empty($model)){
+            throw new NotFoundHttpException('Page not found',404);
+        }
+
+        if (isset($_POST['hasEditable'])) {
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+                if ($model->save()) {
+                    return ['output' => $model->note, 'message' => ''];
+                }
+            } else {
+                return ['output' => $model->note, 'message' => $model->getFirstError('note')];
+            }
+        }
+
+        return ['output' => '', 'message' => ''];
     }
 }

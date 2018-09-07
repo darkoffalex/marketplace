@@ -5,18 +5,17 @@ use app\models\User;
 use branchonline\lightbox\LightboxAsset;
 use app\helpers\Help;
 use app\helpers\Constants;
-use yii\helpers\ArrayHelper;
 use app\models\Country;
 use app\helpers\FileLoad;
 use app\helpers\CropHelper;
 use yii\helpers\Html;
-use kartik\widgets\SwitchInput;
-use yii\web\JsExpression;
 use yii\widgets\MaskedInput;
+use kartik\editable\Editable;
 
 /* @var $model \app\models\Marketplace */
 /* @var $this \yii\web\View */
 /* @var $user User */
+/* @var $tariffs \app\models\Tariff[] */
 
 $this->registerAssetBundle(LightboxAsset::class);
 
@@ -72,8 +71,6 @@ $this->registerJsFile('@web/common/js/clipboard.js');
 
                 <?= $form->field($model,'timezone')->dropDownList(\app\helpers\Help::getTimeZoneArray()); ?>
 
-                <?= $form->field($model,'geo')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
-
                 <?= $form->field($model,'selling_rules')->textarea(); ?>
 
                 <?= $form->field($model,'display_empty_categories')->checkbox(); ?>
@@ -93,60 +90,47 @@ $this->registerJsFile('@web/common/js/clipboard.js');
         </div>
 
 
-        <a id="rates" name="rates"></a>
-        <div class="box box-primary">
-            <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('app','Available rates'); ?></h3></div>
-            <div class="box-body no-padding table-responsive">
-                <table class="table">
-                    <tbody>
-                    <tr>
-                        <th style="width: 10px">#</th>
-                        <th><?= Yii::t('app','Name'); ?></th>
-                        <th><?= Yii::t('app','Price'); ?></th>
-                        <th><?= Yii::t('app','Period (days)'); ?></th>
-                        <th><?= Yii::t('app','Free days'); ?></th>
-                        <th><?= Yii::t('app','Single payment'); ?></th>
-                        <th><?= Yii::t('app','Admin\'s post'); ?></th>
-                        <th><?= Yii::t('app','Status'); ?></th>
-                    </tr>
-
-                    <?php if(!empty($model->rates)): ?>
-                        <?php foreach ($model->rates as $rate): ?>
-                            <tr>
-                                <td><?= $rate->id; ?></td>
-                                <td><?= $rate->name; ?></td>
-                                <td><?= Help::toPrice($rate->price); ?></td>
-                                <td><?= $rate->days_count; ?></td>
-                                <td><?= $rate->first_free_days; ?></td>
-                                <td><?= $rate->single_payment ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>' : '<span class="label label-warning">'.Yii::t('app','No').'</span>'; ?></td>
-                                <td><?= $rate->admin_post_mode ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>' : '<span class="label label-warning">'.Yii::t('app','No').'</span>'; ?></td>
-                                <td>
-
-                                    <?php $changeUrl = Url::to(['/group-admin/marketplaces/rate-status-change', 'id' => $rate->id]); ?>
-                                    <?= SwitchInput::widget([
-                                        'name'=>'enabled',
-                                        'value'=>$rate->status_id == Constants::STATUS_ENABLED,
-                                        'pluginOptions' => [
-                                            'onColor' => 'success',
-                                            'offColor' => 'danger',
-                                            'size' => 'mini',
-                                            'onText' => 'Да',
-                                            'offText' => 'Нет',
-                                            'onSwitchChange' => new JsExpression("function(event, state){ $.ajax({url : '{$changeUrl}?status='+state, success: function (response) {}}); return true;}")
-                                        ],
-                                    ]); ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+        <?php if(!empty($tariffs)): ?>
+            <a id="rates" name="rates"></a>
+            <div class="box box-primary">
+                <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('app','Available tariffs'); ?></h3></div>
+                <div class="box-body no-padding table-responsive">
+                    <table class="table">
+                        <tbody>
                         <tr>
-                            <td colspan="9"><?= Yii::t('app','Rates not found'); ?></td>
+                            <th><?= Yii::t('app','Name'); ?></th>
+                            <th><?= Yii::t('app','Price'); ?></th>
+                            <th><?= Yii::t('app','Period time'); ?></th>
+                            <th><?= Yii::t('app','Recurring'); ?></th>
                         </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
+                        <?php foreach($tariffs as $tariff): ?>
+                            <?php if($model->getTariffPrice($tariff->id) !== null): ?>
+                                <tr>
+                                    <td><?= Yii::t('app',$tariff->name); ?></td>
+                                    <td><?= Help::toPrice($model->getTariffPrice($tariff->id,true)->price); ?></td>
+                                    <td>
+                                        <?php $names = [
+                                            Constants::PERIOD_DAYS => Yii::t('app','Day(s)'),
+                                            Constants::PERIOD_WEEKS => Yii::t('app','Week(s)'),
+                                            Constants::PERIOD_MONTHS => Yii::t('app','Month(s)'),
+                                        ];?>
+                                        <?= $tariff->period_amount.' '.(!empty($names[$tariff->period_unit_type]) ? $names[$tariff->period_unit_type] : null); ?>
+                                    </td>
+                                    <td>
+                                        <?php $names = [
+                                            1 => '<span class="label label-success">'.Yii::t('app','Yes').'</span>',
+                                            0 => '<span class="label label-danger">'.Yii::t('app','No').'</span>',
+                                        ]; echo !empty($names[$tariff->subscription]) ? $names[$tariff->subscription] : null; ?>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
+
 
 
         <a id="rates" name="picture"></a>
@@ -201,6 +185,7 @@ $this->registerJsFile('@web/common/js/clipboard.js');
                     <tr>
                         <th style="width: 10px">#</th>
                         <th><?= Yii::t('app','Key'); ?></th>
+                        <th><?= Yii::t('app','Note'); ?></th>
                         <th><?= Yii::t('app','Used'); ?></th>
                         <th><?= Yii::t('app','Actions'); ?></th>
                     </tr>
@@ -210,6 +195,19 @@ $this->registerJsFile('@web/common/js/clipboard.js');
                             <tr>
                                 <td><?= $key->id; ?></td>
                                 <td><?= '<div class="input-group input-group-sm" style="width: 100%; max-width: 200px;"><input id="copy-link-'.$key->id.'" class="form-control" readonly type="text" value="'.$key->code.'"><span class="input-group-btn"><button title="'.Yii::t('app','Copy').'" type="button" data-clipboard-target="#copy-link-'.$key->id.'" class="btn btn-info btn-flat copy-text"><i class="fa fa-fw fa-clipboard"></i></button></span></div>'; ?></td>
+                                <td>
+                                    <?= Editable::widget([
+                                        'formOptions' => ['action' => Url::to(['/group-admin/marketplaces/update-key-note','id' => $key->id])],
+                                        'name'=>'MarketplaceKey[note]',
+                                        'asPopover' => true,
+                                        'inputType' => Editable::INPUT_TEXTAREA,
+                                        'value' => $key->note,
+                                        'displayValue' => !empty($key->note) ? $key->note : Yii::t('app','(Not set)'),
+                                        'header' => Yii::t('app','note'),
+                                        'size'=>'md',
+                                        'options' => ['class'=>'form-control', 'placeholder'=>Yii::t('app','Type your note here')]
+                                    ]); ?>
+                                </td>
                                 <td><?= !empty($key->usedBy) ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>'  : '<span class="label label-warning">'.Yii::t('app','No').'</span>'; ?></td>
                                 <td>
                                     <a data-confirm="<?= Yii::t('app','Are you sure?'); ?>" class="btn btn-primary btn-xs" href="<?= Url::to(['/group-admin/marketplaces/delete-key', 'id' => $key->id]); ?>"><?= Yii::t('app','Delete'); ?></a>

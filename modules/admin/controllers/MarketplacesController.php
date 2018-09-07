@@ -61,8 +61,14 @@ class MarketplacesController extends Controller
         //если пришли данные из POST и они успешно заружены в объект
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
 
+            //Загрузка изображение
+            $model->header_image = UploadedFile::getInstance($model,'header_image');
+
             //если все данные в итоге корректны
             if($model->validate()){
+
+                //Сохранение изображения
+                FileLoad::loadAndClearOld($model,'header_image','header_image_filename',!empty($model->header_image));
 
                 //базовые параметры, обновить
                 $model->created_at = date('Y-m-d H:i:s',time());
@@ -76,12 +82,12 @@ class MarketplacesController extends Controller
                 }
 
                 //к детальному редактированию
-                $this->redirect(Url::to(['/admin/marketplaces/update','id' => $model->id]));
+                $this->redirect(Url::to(['/admin/marketplaces/index']));
             }
         }
 
         //вывести форму редактирования
-        return $this->renderAjax('_create',compact('model','tariffs'));
+        return $this->render('edit',compact('model','tariffs'));
     }
 
     /**

@@ -13,6 +13,7 @@ use app\models\User;
  * @property int $id
  * @property int $marketplace_id
  * @property string $code
+ * @property string $note
  * @property int $used_by_id
  * @property string $used_at
  * @property string $created_at
@@ -40,6 +41,7 @@ class MarketplaceKeyBase extends \yii\db\ActiveRecord
     {
         return [
             [['marketplace_id', 'used_by_id', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['note'], 'string'],
             [['used_at', 'created_at', 'updated_at'], 'safe'],
             [['code'], 'string', 'max' => 255],
             [['marketplace_id'], 'exist', 'skipOnError' => true, 'targetClass' => Marketplace::className(), 'targetAttribute' => ['marketplace_id' => 'id']],
@@ -56,6 +58,7 @@ class MarketplaceKeyBase extends \yii\db\ActiveRecord
             'id' => Yii::t('app', 'ID'),
             'marketplace_id' => Yii::t('app', 'Marketplace ID'),
             'code' => Yii::t('app', 'Code'),
+            'note' => Yii::t('app', 'Note'),
             'used_by_id' => Yii::t('app', 'Used By ID'),
             'used_at' => Yii::t('app', 'Used At'),
             'created_at' => Yii::t('app', 'Created At'),
