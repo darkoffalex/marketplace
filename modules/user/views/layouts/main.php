@@ -58,6 +58,12 @@ $user = Yii::$app->user->identity;
                                         'url' => ['/user/marketplaces/index'],
                                         'visible' => true,
                                     ],
+                                    [
+                                        'label' => Yii::t('app','Advertisements'),
+                                        'active' => $c == 'posters',
+                                        'url' => ['/user/posters/index'],
+                                        'visible' => true,
+                                    ]
                                 ],
                             'options' => ['class' => 'navbar-nav'],
                         ]); ?>

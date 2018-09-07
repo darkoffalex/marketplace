@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\helpers\Constants;
+use Carbon\Carbon;
 use Yii;
 use yii\web\UploadedFile;
 
@@ -32,5 +34,29 @@ class Tariff extends \app\models\base\TariffBase
     {
         $labels = parent::attributeLabels();
         return $labels;
+    }
+
+    /**
+     * Получить интекрвал от текущего момента до окончания оплаты (в секундах)
+     * @return int
+     */
+    public function getIntervalInSeconds()
+    {
+        $now = time();
+        $until = $now;
+
+        switch ($this->period_unit_type){
+            case Constants::PERIOD_DAYS:
+                $until = Carbon::parse($now)->addDay($this->period_amount)->getTimestamp();
+                break;
+            case Constants::PERIOD_WEEKS:
+                $until = Carbon::parse($now)->addWeek($this->period_amount)->getTimestamp();
+                break;
+            case Constants::PERIOD_MONTHS:
+                $until = Carbon::parse($now)->addMonth((int)$this->period_amount)->getTimestamp();
+                break;
+        }
+
+        return $until - $now;
     }
 }

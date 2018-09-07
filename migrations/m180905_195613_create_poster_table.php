@@ -25,7 +25,7 @@ class m180905_195613_create_poster_table extends Migration
             'rate_id' => $this->integer(),
             'user_id' => $this->integer(),
             'country_id' => $this->integer(),
-            'status_id' => $this->integer()->defaultValue(\app\helpers\Constants::STATUS_DELETED),
+            'status_id' => $this->integer()->defaultValue(\app\helpers\Constants::STATUS_TEMPORARY),
 
             'title' => $this->string(),
             'description' => $this->text(),

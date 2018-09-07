@@ -8,6 +8,7 @@ use app\models\Category;
 use app\models\Marketplace;
 use app\models\MarketplaceTariffPrice;
 use app\models\User;
+use app\models\PosterImage;
 
 /**
  * This is the base model class for table "poster".
@@ -36,11 +37,16 @@ use app\models\User;
  * @property int $created_by_id
  * @property int $updated_by_id
  * @property int $marketplace_tariff_id
+ * @property int $approved_by_ga
+ * @property int $approved_by_sa
+ * @property int $published
+ * @property string $refuse_reason
  *
  * @property Category $category
  * @property Marketplace $marketplace
  * @property MarketplaceTariffPrice $marketplaceTariff
  * @property User $user
+ * @property PosterImage[] $posterImages
  */
 class PosterBase extends \yii\db\ActiveRecord
 {
@@ -58,8 +64,8 @@ class PosterBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['marketplace_id', 'category_id', 'user_id', 'country_id', 'status_id', 'period_seconds', 'period_free_seconds', 'created_by_id', 'updated_by_id', 'marketplace_tariff_id'], 'integer'],
-            [['description', 'description_approved', 'admin_post_text'], 'string'],
+            [['marketplace_id', 'category_id', 'user_id', 'country_id', 'status_id', 'period_seconds', 'period_free_seconds', 'created_by_id', 'updated_by_id', 'marketplace_tariff_id', 'approved_by_ga', 'approved_by_sa', 'published'], 'integer'],
+            [['description', 'description_approved', 'admin_post_text', 'refuse_reason'], 'string'],
             [['paid_at', 'created_at', 'updated_at'], 'safe'],
             [['title', 'phone', 'whats_app', 'title_approved', 'phone_approved', 'whats_app_approved', 'admin_post_image_filename'], 'string', 'max' => 255],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
@@ -99,6 +105,10 @@ class PosterBase extends \yii\db\ActiveRecord
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
             'marketplace_tariff_id' => Yii::t('app', 'Marketplace Tariff ID'),
+            'approved_by_ga' => Yii::t('app', 'Approved By Ga'),
+            'approved_by_sa' => Yii::t('app', 'Approved By Sa'),
+            'published' => Yii::t('app', 'Published'),
+            'refuse_reason' => Yii::t('app', 'Refuse Reason'),
         ];
     }
 
@@ -132,5 +142,13 @@ class PosterBase extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPosterImages()
+    {
+        return $this->hasMany(PosterImage::className(), ['poster_id' => 'id']);
     }
 }

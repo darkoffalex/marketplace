@@ -36,6 +36,7 @@ use app\models\Poster;
  * @property string $updated_at
  * @property int $created_by_id
  * @property int $updated_by_id
+ * @property int $trusted
  *
  * @property Country $country
  * @property User $user
@@ -59,7 +60,7 @@ class MarketplaceBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'country_id', 'display_empty_categories', 'status_id', 'group_popularity', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['user_id', 'country_id', 'display_empty_categories', 'status_id', 'group_popularity', 'created_by_id', 'updated_by_id', 'trusted'], 'integer'],
             [['name', 'domain_alias'], 'required'],
             [['selling_rules', 'pm_theme_description', 'group_description'], 'string'],
             [['created_at', 'updated_at'], 'safe'],
@@ -98,6 +99,7 @@ class MarketplaceBase extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('app', 'Updated At'),
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
+            'trusted' => Yii::t('app', 'Trusted'),
         ];
     }
 

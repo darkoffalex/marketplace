@@ -1,10 +1,13 @@
 <?php
 namespace app\modules\user\controllers;
 
-use app\helpers\Help;
+use app\helpers\Constants;
+use app\models\Marketplace;
+use app\models\Poster;
 use yii\helpers\Url;
 use yii\web\Controller;
 use app\models\MarketplaceSearch;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use app\models\forms\BindMarketplaceForm;
 use kartik\form\ActiveForm;
@@ -50,5 +53,37 @@ class MarketplacesController extends Controller
         }
 
         return $this->renderAjax('_bind',compact('model'));
+    }
+
+    /**
+     * Создание нового объявления
+     * @param $id
+     * @return Response
+     * @throws NotFoundHttpException
+     */
+    public function actionNewPoster($id)
+    {
+        /* @var $marketplace Marketplace */
+        $marketplace = Marketplace::find()
+            ->alias('mp')
+            ->joinWith('marketplaceKeys k')
+            ->where(['mp.id' => (int)$id, 'k.used_by_id' => Yii::$app->user->id])
+            ->one();
+
+        if(empty($marketplace)){
+            throw new NotFoundHttpException(Yii::t('app','Marketplace unavailable'),404);
+        }
+
+        //Создать временное объявление
+        $model = new Poster();
+        $model->marketplace_id = $marketplace->id;
+        $model->user_id = Yii::$app->user-$id;
+        $model->status_id = Constants::STATUS_TEMPORARY;
+        $model->created_at = date('Y-m-d H:i:s',time());
+        $model->created_by_id = Yii::$app->user->id;
+        $model->save();
+
+        //Перейти к редактированию
+        return $this->redirect(Url::to(['/user/posters/update','id' => $model->id]));
     }
 }
