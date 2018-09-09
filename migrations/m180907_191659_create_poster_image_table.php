@@ -18,10 +18,12 @@ class m180907_191659_create_poster_image_table extends Migration
         $this->createTable('poster_image', [
             'id' => $this->primaryKey(),
             'poster_id' => $this->integer(),
+            'priority' => $this->integer(),
             'main_pic' => $this->integer()->defaultValue(0),
             'title' => $this->string(),
             'description' => $this->string(),
             'filename' => $this->string(),
+            'size' => $this->integer(),
             'crop_settings' => $this->string(),
             'status_id' => $this->integer()->defaultValue(\app\helpers\Constants::STATUS_TEMPORARY),
             'created_at' => $this->dateTime(),

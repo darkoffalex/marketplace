@@ -124,4 +124,46 @@ class CropHelper
         //Вернуть URL на обрезанное фото
         return Url::to("@web/upload/images/cropped/{$croppedFilename}.{$croppedFilenameExt}", $scheme).$rnd;
     }
+
+    /**
+     * Получить thumbnail изображения
+     * @param $filename
+     * @param $width
+     * @param $height
+     * @param bool $scheme
+     * @param bool $randomize
+     * @param string $directory
+     * @return null|string
+     */
+    public static function ThumbnailUrl($filename,$width,$height,$scheme = true,$randomize = false,$directory = '@webroot/upload/images/')
+    {
+        if(!file_exists(Yii::getAlias( $directory.$filename))){
+            return null;
+        }
+
+        //Получить полный путь к загруженному файлу
+        $originalImagePath = Yii::getAlias($directory.$filename);
+
+        //Получить имя и расширение нового файла
+        $croppedFilename = md5($filename.'_'.$width.'_'.$height.'_DEFAULT');
+        $croppedFilenameExt = pathinfo($originalImagePath, PATHINFO_EXTENSION);
+
+        //Создать директорию в случае ее отсутствия
+        FileHelper::createDirectory(Yii::getAlias('@webroot/upload/images/cropped/'));
+
+        //Оригинальный файл
+        $imageUploaded = Image::getImagine()->open($originalImagePath);
+
+        //Сохранить обрезанный файл если он отсутствует
+        if(!file_exists(Yii::getAlias('@webroot/upload/images/cropped/'.$croppedFilename.'.'.$croppedFilenameExt))){
+            $imageUploaded
+                ->thumbnail(new Box($width,$height),ManipulatorInterface::THUMBNAIL_OUTBOUND)
+                ->save(Yii::getAlias('@webroot/upload/images/cropped/'.$croppedFilename.'.'.$croppedFilenameExt),['quality' => 100]);
+        }
+
+        //Если включена рандомизация ссылки - сгенерировать случайное число добавляемое к URL
+        $rnd = $randomize ? '?r='.rand(0,999) : '';
+        //Вернуть URL на обрезанное фото
+        return Url::to("@web/upload/images/cropped/{$croppedFilename}.{$croppedFilenameExt}", $scheme).$rnd;
+    }
 }

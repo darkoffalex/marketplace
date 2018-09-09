@@ -26,4 +26,18 @@ class PosterImage extends \app\models\base\PosterImageBase
         $labels = parent::attributeLabels();
         return $labels;
     }
+
+    /**
+     * Удаление изображения
+     * @return bool
+     */
+    public function deleteImage()
+    {
+        if(!empty($this->filename)){
+            if(file_exists(Yii::getAlias("@webroot/upload/images/{$this->filename}"))){
+                return unlink(Yii::getAlias("@webroot/upload/images/{$this->filename}"));
+            }
+        }
+        return false;
+    }
 }

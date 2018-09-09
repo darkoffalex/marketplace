@@ -11,9 +11,12 @@ use app\models\Poster;
  *
  * @property int $id
  * @property int $poster_id
+ * @property int $priority
+ * @property int $main_pic
  * @property string $title
  * @property string $description
  * @property string $filename
+ * @property int $size
  * @property string $crop_settings
  * @property int $status_id
  * @property string $created_at
@@ -39,7 +42,7 @@ class PosterImageBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['poster_id', 'status_id', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['poster_id', 'priority', 'main_pic', 'size', 'status_id', 'created_by_id', 'updated_by_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['title', 'description', 'filename', 'crop_settings'], 'string', 'max' => 255],
             [['poster_id'], 'exist', 'skipOnError' => true, 'targetClass' => Poster::className(), 'targetAttribute' => ['poster_id' => 'id']],
@@ -54,9 +57,12 @@ class PosterImageBase extends \yii\db\ActiveRecord
         return [
             'id' => Yii::t('app', 'ID'),
             'poster_id' => Yii::t('app', 'Poster ID'),
+            'priority' => Yii::t('app', 'Priority'),
+            'main_pic' => Yii::t('app', 'Main Pic'),
             'title' => Yii::t('app', 'Title'),
             'description' => Yii::t('app', 'Description'),
             'filename' => Yii::t('app', 'Filename'),
+            'size' => Yii::t('app', 'Size'),
             'crop_settings' => Yii::t('app', 'Crop Settings'),
             'status_id' => Yii::t('app', 'Status ID'),
             'created_at' => Yii::t('app', 'Created At'),

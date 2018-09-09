@@ -2,6 +2,7 @@
 namespace app\modules\user\controllers;
 
 use app\helpers\Constants;
+use app\helpers\Help;
 use app\models\Marketplace;
 use app\models\Poster;
 use yii\helpers\Url;
@@ -77,11 +78,14 @@ class MarketplacesController extends Controller
         //Создать временное объявление
         $model = new Poster();
         $model->marketplace_id = $marketplace->id;
-        $model->user_id = Yii::$app->user-$id;
+        $model->user_id = Yii::$app->user->id;
         $model->status_id = Constants::STATUS_TEMPORARY;
         $model->created_at = date('Y-m-d H:i:s',time());
         $model->created_by_id = Yii::$app->user->id;
-        $model->save();
+
+        if(!$model->save()){
+            Yii::info($model->errors,'info');
+        }
 
         //Перейти к редактированию
         return $this->redirect(Url::to(['/user/posters/update','id' => $model->id]));

@@ -52,7 +52,7 @@ $gridColumns = [
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\MarketplaceSearch */
-            $countLink = Html::a($model->getPosters()->where(['user_id' => Yii::$app->user->id])->count(),Url::to(['/user/posters/index']));
+            $countLink = Html::a($model->getPosters()->where(['user_id' => Yii::$app->user->id, 'status_id' => [Constants::STATUS_ENABLED,Constants::STATUS_DISABLED]])->count(),Url::to(['/user/posters/index']));
             $createLink = Html::a(Yii::t('app','Create new'),Url::to(['/user/marketplaces/new-poster','id' => $model->id]),['class' => 'btn btn-primary btn-xs']);
             return "{$countLink} {$createLink}";
         },

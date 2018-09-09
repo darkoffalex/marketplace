@@ -78,7 +78,7 @@ $gridColumns = [
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\PosterSearch */
-            return !empty($model->marketplace) ? $model->marketplace->name.' '.Yii::t('app',$model->marketplace->country->name): null;
+            return !empty($model->marketplace) ? $model->marketplace->name.' ('.Yii::t('app',$model->marketplace->country->name).')': null;
         },
     ],
 
@@ -89,7 +89,7 @@ $gridColumns = [
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\PosterSearch */
-            return !empty($model->marketplaceTariff) ? $model->marketplaceTariff->marketplace->name.' > '.$model->marketplaceTariff->tariff->name.' ('.Help::toPrice($model->marketplaceTariff->price).')' : null;
+            return $model->getTariffInformation();
         },
     ],
 
@@ -126,21 +126,7 @@ $gridColumns = [
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\PosterSearch */
-
-            if(!empty($model->paid_at)){
-                if($model->marketplaceTariff->tariff->special_type == Constants::TARIFF_SUB_TYPE_REGULAR){
-                    $ends = Carbon::parse($model->paid_at)->addSeconds($model->period_seconds);
-                    if($ends->getTimestamp() > time()){
-                        return '<span class="label label-success">'.Yii::t('app','Paid (until {date})',['date' => $ends->format('d.m.Y H:i')]).'</span>';
-                    }else{
-                        return '<span class="label label-success">'.Yii::t('app','Not paid (until {date})',['date' => $ends->format('d.m.Y H:i')]).'</span>';
-                    }
-                }else{
-                    /* TODO: Выводить информациб по иным типам тарифов */
-                    return 'INFORMATION OUTPUT NOT READY';
-                }
-            }
-            return '<span class="label label-danger">'.Yii::t('app','Not paid').'</span>';
+            return $model->getPaymentInformation();
         },
     ],
 

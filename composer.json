@@ -35,7 +35,8 @@
         "claudejanz/yii2-mygii": "^0.0.11",
         "nesbot/carbon": "^1.22",
         "facebook/graph-sdk": "^5.6",
-        "pimax/fb-messenger-php": "^1.0"
+        "pimax/fb-messenger-php": "^1.0",
+        "2amigos/yii2-file-upload-widget": "^1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
