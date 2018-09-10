@@ -137,14 +137,7 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                                 <td><?= Yii::t('app',$tariff->name); ?><?= Html::hiddenInput('Marketplace[tariffs]['.$tariff->id.'][id]',$tariff->id); ?></td>
                                 <td><?= Html::checkbox('Marketplace[tariffs]['.$tariff->id.'][enabled]',$model->getTariffPrice($tariff->id) !== null); ?></td>
                                 <td><?= Html::textInput('Marketplace[tariffs]['.$tariff->id.'][price]',Help::toPrice($model->getTariffPrice($tariff->id,true)->price),['class' => 'form-control']); ?></td>
-                                <td>
-                                    <?php $names = [
-                                        Constants::PERIOD_DAYS => Yii::t('app','Day(s)'),
-                                        Constants::PERIOD_WEEKS => Yii::t('app','Week(s)'),
-                                        Constants::PERIOD_MONTHS => Yii::t('app','Month(s)'),
-                                    ];?>
-                                    <?= $tariff->period_amount.' '.(!empty($names[$tariff->period_unit_type]) ? $names[$tariff->period_unit_type] : null); ?>
-                                </td>
+                                <td><?= $tariff->getIntervalName(); ?></td>
                                 <td>
                                     <?php $names = [
                                         1 => '<span class="label label-success">'.Yii::t('app','Yes').'</span>',

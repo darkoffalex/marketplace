@@ -5,8 +5,7 @@ use app\helpers\Constants;
 use app\models\Marketplace;
 use yii\helpers\ArrayHelper;
 use app\models\MarketplaceTariffPrice;
-use app\helpers\Help;
-use Carbon\Carbon;
+use yii\helpers\Html;
 
 /* @var $searchModel \app\models\PosterSearch */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
@@ -49,12 +48,20 @@ $gridColumns = [
     ],
 
     [
-        'attribute' => 'description',
-        'enableSorting' => false,
+        'header' => Yii::t('app','Picture'),
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\PosterSearch */
+            if(!empty($model->mainImage)){
+                return Html::img($model->mainImage->getThumbnailUrl(64,64),['class' => 'img thumbnail-img']);
+            }
+            return null;
+        },
     ],
 
     [
         'attribute' => 'status_id',
+        'label' => Yii::t('app','Status'),
         'filter' => [
             Constants::STATUS_ENABLED => Yii::t('app','Enabled'),
             Constants::STATUS_DISABLED => Yii::t('app','Disabled'),
@@ -73,6 +80,7 @@ $gridColumns = [
 
     [
         'attribute' => 'marketplace_id',
+        'label' => Yii::t('app','Marketplace'),
         'filter' => ArrayHelper::map($marketplaces,'id','name'),
         'enableSorting' => false,
         'format' => 'raw',
@@ -84,12 +92,13 @@ $gridColumns = [
 
     [
         'attribute' => 'marketplace_tariff_id',
-        'filter' => ArrayHelper::map($marketplaceTariffs,'id',function($item){/* @var $item MarketplaceTariffPrice */ return $item->marketplace->name.' > '.$item->tariff->name.' ('.(Help::toPrice($item->price)).')'; }),
+        'label' => Yii::t('app','Tariff'),
+        'filter' => ArrayHelper::map($marketplaceTariffs,'id',function($item){/* @var $item MarketplaceTariffPrice */ return $item->getNameWithDetails(); }),
         'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\PosterSearch */
-            return $model->getTariffInformation();
+            return $model->marketplaceTariff->getNameWithDetails();
         },
     ],
 
@@ -118,6 +127,7 @@ $gridColumns = [
 
     [
         'attribute' => 'paid_at',
+        'label' => Yii::t('app','Paid'),
         'filter' => [
             1 => Yii::t('app','Yes'),
             0 => Yii::t('app','No'),
@@ -134,7 +144,7 @@ $gridColumns = [
         'class' => 'yii\grid\ActionColumn',
         'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
         'header' => Yii::t('app','Actions'),
-        'template' => '{update}',
+        'template' => '{update} {delete}',
     ],
 ];
 

@@ -47,16 +47,53 @@ class Tariff extends \app\models\base\TariffBase
 
         switch ($this->period_unit_type){
             case Constants::PERIOD_DAYS:
-                $until = Carbon::parse($now)->addDay($this->period_amount)->getTimestamp();
+                $until = Carbon::now()->addDay($this->period_amount)->getTimestamp();
                 break;
             case Constants::PERIOD_WEEKS:
-                $until = Carbon::parse($now)->addWeek($this->period_amount)->getTimestamp();
+                $until = Carbon::now()->addWeek($this->period_amount)->getTimestamp();
                 break;
             case Constants::PERIOD_MONTHS:
-                $until = Carbon::parse($now)->addMonth((int)$this->period_amount)->getTimestamp();
+                $until = Carbon::now()->addMonth((int)$this->period_amount)->getTimestamp();
                 break;
         }
 
         return $until - $now;
+    }
+
+    /**
+     * Получить дату окончания тарифа
+     * @param string $format
+     * @return false|string
+     */
+    public function getUntilDate($format = 'd-m-Y H:i')
+    {
+        switch ($this->period_unit_type){
+            case Constants::PERIOD_DAYS:
+                return Carbon::now()->addDay($this->period_amount)->format($format);
+                break;
+            case Constants::PERIOD_WEEKS:
+                return Carbon::now()->addWeek($this->period_amount)->format($format);
+                break;
+            case Constants::PERIOD_MONTHS:
+                return Carbon::now()->addMonth((int)$this->period_amount)->format($format);
+                break;
+        }
+
+        return date($format);
+    }
+
+    /**
+     * Получить наименование интервала
+     * @return string
+     */
+    public function getIntervalName()
+    {
+        $names = [
+            Constants::PERIOD_DAYS => Yii::t('app','Day(s)'),
+            Constants::PERIOD_WEEKS => Yii::t('app','Week(s)'),
+            Constants::PERIOD_MONTHS => Yii::t('app','Month(s)'),
+        ];
+
+        return $this->period_amount.' '.(!empty($names[$this->period_unit_type]) ? $names[$this->period_unit_type] : null);
     }
 }

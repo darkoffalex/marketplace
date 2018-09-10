@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\helpers\Help;
 use Yii;
 
 /**
@@ -25,5 +26,17 @@ class MarketplaceTariffPrice extends \app\models\base\MarketplaceTariffPriceBase
     {
         $labels = parent::attributeLabels();
         return $labels;
+    }
+
+    /**
+     * Получить наименование тарифа с деталями (цена, период)
+     * @param string $currencySign
+     * @return string
+     */
+    public function getNameWithDetails($currencySign = '₽')
+    {
+        $price = Help::toPrice($this->price);
+        $interval = $this->tariff->getIntervalName();
+        return "{$this->tariff->name} [{$price} {$currencySign} / $interval]";
     }
 }

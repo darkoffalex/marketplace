@@ -5,22 +5,30 @@ namespace app\models;
 use app\helpers\Constants;
 use app\helpers\CropHelper;
 use Carbon\Carbon;
-use app\helpers\Help;
 use Yii;
 use yii\helpers\Url;
 
 /**
- * This is the model class for table "poster".
+ * Class Poster
+ * @package app\models
+ * @property PosterImage $mainImageActive
+ * @property PosterImage $mainImage
  */
 class Poster extends \app\models\base\PosterBase
 {
+    /**
+     * @var bool|int
+     */
+    public $agreement;
+
     /**
      * @inheritdoc
      */
     public function rules()
     {
         $rules = parent::rules();
-        $rules[] = [['title','description','phone'], 'required', 'on' => 'editing'];
+        $rules[] = [['title','description','phone'], 'required', 'on' => ['editing','creating']];
+        $rules[] = [['agreement'], 'required', 'requiredValue' => 1, 'on' => 'creating', 'message' => Yii::t('app','Please accept the terms')];
         return $rules;
     }
 
@@ -30,6 +38,7 @@ class Poster extends \app\models\base\PosterBase
     public function attributeLabels()
     {
         $labels = parent::attributeLabels();
+        $labels['agreement'] = Yii::t('app','I agree');
         return $labels;
     }
 
@@ -66,6 +75,10 @@ class Poster extends \app\models\base\PosterBase
             return false;
         }
 
+        if(empty($this->paid_at)){
+            return false;
+        }
+
         switch ($this->marketplaceTariff->tariff->special_type){
             case Constants::TARIFF_SUB_TYPE_REGULAR:
                 return Carbon::parse($this->paid_at)->addSeconds($this->period_seconds)->getTimestamp() > time();
@@ -99,19 +112,6 @@ class Poster extends \app\models\base\PosterBase
     }
 
     /**
-     * Получить информацию о тарифе
-     * @return string
-     */
-    public function getTariffInformation()
-    {
-        if($this->status_id == Constants::STATUS_TEMPORARY){
-            return Yii::t('app','Not selected yet');
-        }
-
-        return !empty($this->marketplaceTariff) ? $this->marketplaceTariff->marketplace->name.' > '.$this->marketplaceTariff->tariff->name.' ('.Help::toPrice($this->marketplaceTariff->price).')' : Yii::t('app','No info');
-    }
-
-    /**
      * Получить список-массив загруженных изображений (сортировка по приоритету)
      * @param null|int|array $status
      * @param bool $json
@@ -141,5 +141,24 @@ class Poster extends \app\models\base\PosterBase
         }
 
         return $items;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMainImageActive()
+    {
+        return $this->hasOne(PosterImage::class, ['poster_id' => 'id'])
+            ->where(['status_id' => Constants::STATUS_ENABLED])
+            ->orderBy('main_pic, priority ASC');
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMainImage()
+    {
+        return $this->hasOne(PosterImage::class, ['poster_id' => 'id'])
+            ->orderBy('main_pic, priority ASC');
     }
 }

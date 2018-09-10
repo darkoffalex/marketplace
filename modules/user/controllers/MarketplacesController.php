@@ -90,4 +90,26 @@ class MarketplacesController extends Controller
         //Перейти к редактированию
         return $this->redirect(Url::to(['/user/posters/update','id' => $model->id]));
     }
+
+    /**
+     * Условия публикации (текст в иодальном окне)
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionTerms($id)
+    {
+        /* @var $marketplace Marketplace */
+        $model = Marketplace::find()
+            ->alias('mp')
+            ->joinWith('marketplaceKeys k')
+            ->where(['mp.id' => (int)$id, 'k.used_by_id' => Yii::$app->user->id])
+            ->one();
+
+        if(empty($model)){
+            throw new NotFoundHttpException(Yii::t('app','Marketplace unavailable'),404);
+        }
+
+        return $this->renderAjax('_terms',compact('model'));
+    }
 }

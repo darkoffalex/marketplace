@@ -1,3 +1,16 @@
+/**
+ * Вспомогательная функция для добавление параметров к URL
+ * @param url
+ * @param data
+ * @returns {*}
+ */
+var addParamsToUrl = function(url, data) {
+    if (!$.isEmptyObject(data)) {
+        url += ( url.indexOf('?') >= 0 ? '&' : '?' ) + $.param(data);
+    }
+    return url;
+};
+
 $(document).ready(function () {
 
     /**
@@ -38,6 +51,23 @@ $(document).ready(function () {
         });
 
         return false;
+    });
+
+    /**
+     * При нажатии на такие ссылки к их URL добавляются параметры формы
+     */
+    $('[data-add-form-params]').click(function () {
+        var href = $(this).data('original-url') ? $(this).data('original-url') : $(this).attr('href');
+        var formParams = $($(this).data('add-form-params')).serializeArray();
+
+        var formParamsPrepared = {};
+        $.each(formParams,function (index,item) {
+            formParamsPrepared[item.name] = item.value;
+        });
+
+        var hrefNew = addParamsToUrl(href,formParamsPrepared);
+        $(this).attr('href',hrefNew);
+        return true;
     });
 
 });

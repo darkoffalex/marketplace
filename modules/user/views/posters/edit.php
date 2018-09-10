@@ -2,22 +2,20 @@
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
 use app\models\User;
-use branchonline\lightbox\LightboxAsset;
 use app\helpers\Constants;
 use app\models\Category;
 use yii\helpers\ArrayHelper;
 use dosamigos\fileupload\FileUploadUI;
+use yii\helpers\Html;
 
 /* @var $model \app\models\Poster*/
 /* @var $this \yii\web\View */
 /* @var $user User */
 
-$this->registerAssetBundle(LightboxAsset::class);
-
 $user = Yii::$app->user->identity;
 
 $this->title = Yii::t('app',$model->status_id == Constants::STATUS_TEMPORARY ? 'Create advertisement' : 'Edit advertisement');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app','Marketplaces'), 'url' => Url::to(['/user/posters/index'])];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('app','Advertisements'), 'url' => Url::to(['/user/posters/index'])];
 $this->params['breadcrumbs'][] = $this->title;
 
 
@@ -31,7 +29,7 @@ $categories = ArrayHelper::map(Category::getRecursiveCats(),'id',function($curre
 
 $tariffs = ArrayHelper::map($model->marketplace->marketplaceTariffPrices,'id',function($item){
     /* @var $item \app\models\MarketplaceTariffPrice */
-    return $item->tariff->name.' ('.\app\helpers\Help::toPrice($item->price).')';
+    return $item->getNameWithDetails();
 });
 ?>
 
@@ -44,7 +42,7 @@ $tariffs = ArrayHelper::map($model->marketplace->marketplaceTariffPrices,'id',fu
                 <p><strong><?= Yii::t('app','Marketplace'); ?>:</strong> <?= $model->marketplace->name; ?></p>
                 <p><strong><?= Yii::t('app','Country'); ?>:</strong> <?= Yii::t('app',$model->marketplace->country->name); ?></p>
                 <p><strong><?= Yii::t('app','Payment'); ?>:</strong> <?= $model->getPaymentInformation(); ?></p>
-                <p><strong><?= Yii::t('app','Tariff'); ?>:</strong> <?= $model->getTariffInformation(); ?></strong></p>
+                <p><strong><?= Yii::t('app','Tariff'); ?>:</strong> <?= !empty($model->marketplaceTariff) ? $model->marketplaceTariff->getNameWithDetails() : Yii::t('app','Not selected yet'); ?></p>
             </div>
         </div>
 
@@ -76,8 +74,15 @@ $tariffs = ArrayHelper::map($model->marketplace->marketplaceTariffPrices,'id',fu
                 <?= $form->field($model,'whats_app')->textInput(); ?>
 
                 <hr>
+                <?= $form->field($model,'status_id')->dropDownList([
+                    Constants::STATUS_ENABLED => Yii::t('app','Enabled'),
+                    Constants::STATUS_DISABLED => Yii::t('app','Disabled'),
+                ]); ?>
                 <?= $form->field($model,'category_id')->dropDownList($categories); ?>
-                <?= $form->field($model,'marketplace_tariff_id')->dropDownList($tariffs); ?>
+
+                <?php if($model->status_id == Constants::STATUS_TEMPORARY): ?>
+                    <?= $form->field($model,'marketplace_tariff_id')->dropDownList($tariffs); ?>
+                <?php endif; ?>
 
                 <hr>
                 <h4><?= Yii::t('app','Images'); ?>:</h4>
@@ -105,14 +110,23 @@ $tariffs = ArrayHelper::map($model->marketplace->marketplaceTariffPrices,'id',fu
                 ]);
                 $this->registerJs('$("#w0-fileupload").fileupload("option", "done").call($("#w0-fileupload"), $.Event("done"), {result: {files: '.$model->getImagesListed(null,true).'}})',\yii\web\View::POS_READY);
                 ?>
+                <?php if($model->status_id == Constants::STATUS_TEMPORARY): ?>
+                    <hr>
+                    <?php $privacyTermsLink = Html::a(Yii::t('app','privacy terms'),'#',['target' => '_blank']); ?>
+                    <?php $userAgreementLink = Html::a(Yii::t('app','user agreement'),'#',['target' => '_blank']); ?>
+                    <?php $publishingTerms = Html::a(Yii::t('app','publishing terms'),['/user/marketplaces/terms', 'id' => $model->marketplace_id],['data-target' => '.modal-main','data-toggle' => 'modal']); ?>
+                    <?php $text = Yii::t('app','I agree with {privacy}, {user} and {publishing}', ['privacy' => $privacyTermsLink, 'user' => $userAgreementLink, 'publishing' => $publishingTerms]); ?>
+                    <?= $form->field($model,'agreement')->checkbox()->label($text); ?>
+                <?php endif; ?>
             </div>
 
             <div class="box-footer">
                 <a class="btn btn-primary" href="<?= Url::to(['/user/posters/index']); ?>"><?= Yii::t('app','Back to list'); ?></a>
                 <?php if($model->status_id != Constants::STATUS_TEMPORARY && !$model->isPaid()): ?>
-                    <a href="<?= Url::to(['/user/posters/pay', 'id' => $model->id]); ?>" class="btn btn-primary"><?= Yii::t('app','Pay'); ?></a>
+                    <a href="<?= Url::to(['/user/posters/payment', 'id' => $model->id]); ?>" class="btn btn-primary"><?= Yii::t('app','Pay'); ?></a>
                 <?php endif; ?>
                 <button type="submit" class="btn btn-primary"><?= Yii::t('app',$model->status_id == Constants::STATUS_TEMPORARY ? 'Create & pay' : 'Update'); ?></button>
+                <a data-target=".modal-main" data-original-url="<?= Url::to(['/user/posters/preview', 'id' => $model->id]) ?>" data-add-form-params="#edit-poster-form" data-toggle="modal" class="btn btn-primary" href="<?= Url::to(['/user/posters/preview', 'id' => $model->id]) ?>"><?= Yii::t('app','Preview'); ?></a>
             </div>
             <?php ActiveForm::end(); ?>
         </div>

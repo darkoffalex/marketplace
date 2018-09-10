@@ -52,9 +52,10 @@ $gridColumns = [
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\MarketplaceSearch */
-            $countLink = Html::a($model->getPosters()->where(['user_id' => Yii::$app->user->id, 'status_id' => [Constants::STATUS_ENABLED,Constants::STATUS_DISABLED]])->count(),Url::to(['/user/posters/index']));
-            $createLink = Html::a(Yii::t('app','Create new'),Url::to(['/user/marketplaces/new-poster','id' => $model->id]),['class' => 'btn btn-primary btn-xs']);
-            return "{$countLink} {$createLink}";
+            $count = $model->getPosters()
+                ->where(['user_id' => Yii::$app->user->id, 'status_id' => [Constants::STATUS_ENABLED,Constants::STATUS_DISABLED]])
+                ->count();
+            return Html::a($count ,Url::to(['/user/posters/index', 'PosterSearch[marketplace_id]' => $model->id]));
         },
     ],
 
@@ -73,6 +74,14 @@ $gridColumns = [
                 Constants::STATUS_DISABLED => '<span class="label label-danger">'.Yii::t('app','Disabled').'</span>',
             ];
             return !empty($names[$model->status_id]) ? $names[$model->status_id] : null;
+        },
+    ],
+    [
+        'header' => '',
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\MarketplaceSearch */
+            return Html::a(Yii::t('app','New advertisement'),Url::to(['/user/marketplaces/new-poster','id' => $model->id]),['class' => 'btn btn-primary btn-xs']);
         },
     ]
 ];

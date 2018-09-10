@@ -1,6 +1,7 @@
 <?php
 namespace app\modules\user\controllers;
 
+use Yii;
 use app\helpers\Constants;
 use app\helpers\CropHelper;
 use app\helpers\Sort;
@@ -10,10 +11,10 @@ use app\models\PosterSearch;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\Controller;
-use Yii;
-use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\UploadedFile;
+use yii\bootstrap\ActiveForm;
+use yii\web\NotFoundHttpException;
 
 /**
  * Class MessagesController
@@ -33,9 +34,10 @@ class PostersController extends Controller
     }
 
     /**
-     * Редактировать
+     * Редактировать/создать
+     * Важным моментом являтся то, что создание (добавление объекта в базу) уже должно быть произведено ранее
      * @param $id
-     * @return string|\yii\web\Response
+     * @return array|string|Response
      * @throws NotFoundHttpException
      */
     public function actionUpdate($id)
@@ -48,35 +50,141 @@ class PostersController extends Controller
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
         }
 
+        //Если о объявления временный статус - значит оно создается в данный момент (не редактируется)
         if($model->status_id == Constants::STATUS_TEMPORARY){
             $model->created_at = date('Y-m-d H:i:s',time());
             $model->created_by_id = Yii::$app->user->id;
+            $model->scenario = 'creating';
         }
 
+        //AJAX валидация
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        //Загрузка данных из POST и их валидация
         if($model->load(Yii::$app->request->post()) && $model->validate()){
 
+            //Если есть изменения в основных полях - сбросить подтверждения
             if($model->hasNewChanges()){
                 $model->approved_by_ga = (int)false;
                 $model->approved_by_sa = (int)false;
             }
 
+            //Если статус по каком-то причинам все еще времнный - перевести в "активный"
             if(empty($model->status_id) || $model->status_id == Constants::STATUS_TEMPORARY){
                 $model->status_id = Constants::STATUS_ENABLED;
             }
 
-            if(!empty($model->marketplace_tariff_id)){
+            //Получить интервал по выбранному тарифу (устанавливается только в случае создания)
+            if(!empty($model->marketplace_tariff_id) && $model->scenario == 'creating'){
                 $model->period_seconds = $model->marketplaceTariff->tariff->getIntervalInSeconds();
             }
 
             $model->updated_at = date('Y-m-d H:i:s',time());
             $model->updated_by_id = Yii::$app->user->id;
+            $model->save();
 
-            if($model->save()){
+            //Если это создание - перенаправляем на оплату
+            if($model->scenario == 'creating'){
                 return $this->redirect(Url::to(['/user/posters/payment', 'id' => $model->id]));
             }
         }
 
+        //Вывод формы
         return $this->render('edit',compact('model'));
+    }
+
+    /**
+     * Удаление
+     * @param $id
+     * @return Response
+     * @throws NotFoundHttpException
+     */
+    public function actionDelete($id)
+    {
+        /* @var $model Poster */
+        $model = Poster::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
+
+        if(empty($model)){
+            throw new NotFoundHttpException(Yii::t('app','Not found'),404);
+        }
+
+        if(!empty($model->posterImages)){
+            foreach ($model->posterImages as $image){
+                $image->deleteImage();
+            }
+        }
+
+        $model->delete();
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * Предпросмотр (в модальном окне)
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionPreview($id)
+    {
+        /* @var $model Poster */
+        $model = Poster::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
+
+        if(empty($model)){
+            throw new NotFoundHttpException(Yii::t('app','Not found'),404);
+        }
+
+        $model->load(Yii::$app->request->get());
+
+        return $this->renderAjax('_preview',  compact('model'));
+    }
+
+    /**
+     * Страница оплаты
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionPayment($id)
+    {
+        /* @var $model Poster */
+        $model = Poster::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
+
+        if(empty($model) || $model->status_id == Constants::STATUS_TEMPORARY || $model->isPaid()){
+            throw new NotFoundHttpException(Yii::t('app','Not found'),404);
+        }
+
+        //Тестовый режим
+        //В этом месте происходит эмитация оплаты
+        //TODO: убрать этот блок в бальнейшем
+        if(Yii::$app->request->post('test-mode')){
+            $model->paid_at = date('Y-m-d H:i:s');
+            $model->save();
+
+            return $this->redirect(Url::to(['/user/posters/payment-done', 'id' => $model->id]));
+        }
+
+        return $this->render('payment-regular',compact('model'));
+    }
+
+    /**
+     * Страница "после оплаты"
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionPaymentDone($id)
+    {
+        /* @var $model Poster */
+        $model = Poster::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
+
+        if(empty($model) || !$model->isPaid()){
+            throw new NotFoundHttpException(Yii::t('app','Not found'),404);
+        }
+
+        return $this->render('payment-done',compact('model'));
     }
 
     /**
