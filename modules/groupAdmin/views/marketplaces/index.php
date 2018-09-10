@@ -88,6 +88,20 @@ $gridColumns = [
     ],
 
     [
+        'header' => Yii::t('app','Advertisements'),
+        'enableSorting' => false,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\MarketplaceSearch */
+            $count = $model
+                ->getPosters()
+                ->andWhere('status_id != :tempStatus',['tempStatus' => Constants::STATUS_TEMPORARY])
+                ->count();
+            return Html::a($count ,Url::to(['/group-admin/posters/index', 'PosterSearch[marketplace_id]' => $model->id]));
+        },
+    ],
+
+    [
         'class' => 'yii\grid\ActionColumn',
         'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
         'header' => Yii::t('app','Actions'),

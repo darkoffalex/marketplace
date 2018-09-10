@@ -47,92 +47,100 @@ class PosterSearch extends Poster
      * Build search query and return as result data provider
      * @param $params
      * @param null $userId
+     * @param null $adminId
      * @return ActiveDataProvider
      */
-    public function search($params, $userId = null)
+    public function search($params, $userId = null, $adminId = null)
     {
-        $q = parent::find()->where('status_id != :excepted', ['excepted' => Constants::STATUS_TEMPORARY]);
+        $q = parent::find()
+            ->alias('p')
+            ->joinWith('marketplace mp')
+            ->where('p.status_id != :excepted', ['excepted' => Constants::STATUS_TEMPORARY]);
 
         $this->load($params);
 
         if(!empty($userId)){
-            $q->andWhere(['user_id' => (int)$userId]);
+            $q->andWhere(['p.user_id' => (int)$userId]);
+        }
+
+        if(!empty($adminId)){
+            $q->andWhere(['mp.user_id' => (int)$adminId]);
         }
 
         if($this->validate()){
 
             if(!empty($this->id)){
-                $q->andWhere(['id' => $this->id]);
+                $q->andWhere(['p.id' => $this->id]);
             }
 
             if(!empty($this->user_id)){
-                $q->andWhere(['user_id' => $this->user_id]);
+                $q->andWhere(['p.user_id' => $this->user_id]);
             }
 
             if(!empty($this->title)){
-                $q->andWhere(['like','title', $this->title]);
+                $q->andWhere(['like','p.title', $this->title]);
             }
 
             if(!empty($this->title_approved)){
-                $q->andWhere(['like','title_approved', $this->title_approved]);
+                $q->andWhere(['like','p.title_approved', $this->title_approved]);
             }
 
             if(!empty($this->description)){
-                $q->andWhere(['like','description', $this->description]);
+                $q->andWhere(['like','p.description', $this->description]);
             }
 
             if(!empty($this->status_id)){
-                $q->andWhere(['status_id' => $this->status_id]);
+                $q->andWhere(['p.status_id' => $this->status_id]);
             }
 
             if(!empty($this->phone)){
-                $q->andWhere(['like','phone', $this->phone]);
+                $q->andWhere(['like','p.phone', $this->phone]);
             }
 
             if(!empty($this->phone_approved)){
-                $q->andWhere(['like','phone_approved', $this->phone_approved]);
+                $q->andWhere(['like','p.phone_approved', $this->phone_approved]);
             }
 
             if(!empty($this->whats_app)){
-                $q->andWhere(['like','whats_app', $this->whats_app]);
+                $q->andWhere(['like','p.whats_app', $this->whats_app]);
             }
 
             if(!empty($this->whats_app_approved)){
-                $q->andWhere(['like','whats_app_approved', $this->whats_app_approved]);
+                $q->andWhere(['like','p.whats_app_approved', $this->whats_app_approved]);
             }
 
             if(is_numeric($this->approved_by_ga)){
-                $q->andFilterWhere(['approved_by_ga' => (int)$this->approved_by_ga]);
+                $q->andFilterWhere(['p.approved_by_ga' => (int)$this->approved_by_ga]);
             }
 
             if(is_numeric($this->approved_by_sa)){
-                $q->andFilterWhere(['approved_by_sa' => (int)$this->approved_by_sa]);
+                $q->andFilterWhere(['p.approved_by_sa' => (int)$this->approved_by_sa]);
             }
 
             if(is_numeric($this->published)){
-                $q->andFilterWhere(['published' => (int)$this->published]);
+                $q->andFilterWhere(['p.published' => (int)$this->published]);
             }
 
             if(!empty($this->marketplace_tariff_id)){
-                $q->andFilterWhere(['marketplace_tariff_id' => (int)$this->marketplace_tariff_id]);
+                $q->andFilterWhere(['p.marketplace_tariff_id' => (int)$this->marketplace_tariff_id]);
             }
 
             if(is_numeric($this->refuse_reason)){
                if(!empty($this->refuse_reason)){
-                   $q->andWhere('refuse_reason IS NOT NULL');
+                   $q->andWhere('p.refuse_reason IS NOT NULL');
                }else{
-                   $q->andWhere('refuse_reason IS NULL');
+                   $q->andWhere('p.refuse_reason IS NULL');
                }
             }
 
             if(is_numeric($this->approved)){
                 if(!empty($this->approved)){
-                    $q->andWhere(['approved_by_ga' => (int)true, 'approved_by_sa' => (int)true]);
+                    $q->andWhere(['p.approved_by_ga' => (int)true, 'p.approved_by_sa' => (int)true]);
                 }else{
                     $q->andFilterWhere([
                         'or',
-                        ['approved_by_ga' => (int)false],
-                        ['approved_by_sa' => (int)false]
+                        ['p.approved_by_ga' => (int)false],
+                        ['p.approved_by_sa' => (int)false]
                     ]);
                 }
             }
@@ -164,6 +172,8 @@ class PosterSearch extends Poster
                 $q->andWhere('created_at >= :from2 AND created_at <= :to2',['from2' => $date_from, 'to2' => $date_to]);
             }
         }
+
+        $q->distinct();
 
         return new ActiveDataProvider([
             'query' => $q,

@@ -72,6 +72,12 @@ $user = Yii::$app->user->identity;
                                         ]
                                     ],
                                     [
+                                        'label' => Yii::t('app','Advertisements'),
+                                        'url' => ['/group-admin/posters/index'],
+                                        'active' => $c == 'posters',
+                                        'visible' => true,
+                                    ],
+                                    [
                                         'label' => Yii::t('app','Monitoring'),
                                         'active' => in_array($c,['groups','dictionaries']),
                                         'visible' => true,
