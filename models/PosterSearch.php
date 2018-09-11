@@ -20,6 +20,11 @@ class PosterSearch extends Poster
     public $common_status;
 
     /**
+     * @var int базовый тариф
+     */
+    public $tariff_id;
+
+    /**
      * Validation rules for search
      * @return array
      */
@@ -27,7 +32,7 @@ class PosterSearch extends Poster
     {
         return [
             [['title','description','phone','whats_app','title_approved','description_approved','phone_approved','whats_app_approved'], 'string', 'max' => 255],
-            [['id','status_id','user_id','approved_by_ga','approved_by_sa','approved','published','marketplace_tariff_id','refuse_reason','paid_at','common_status','category_id','marketplace_id'], 'integer'],
+            [['id','status_id','user_id','approved_by_ga','approved_by_sa','approved','published','marketplace_tariff_id','refuse_reason','paid_at','common_status','category_id','marketplace_id','tariff_id'], 'integer'],
             [['created_at'], 'date', 'format' => 'dd.MM.yyyy - dd.MM.yyyy']
         ];
     }
@@ -40,6 +45,7 @@ class PosterSearch extends Poster
         $baseLabels = parent::attributeLabels();
         $baseLabels['approved'] = Yii::t('app','Approved');
         $baseLabels['common_status'] = Yii::t('app','Publication Status');
+        $baseLabels['tariff_id'] = Yii::t('app','Tariff');
         return $baseLabels;
     }
 
@@ -55,6 +61,7 @@ class PosterSearch extends Poster
         $q = parent::find()
             ->alias('p')
             ->joinWith('marketplace mp')
+            ->joinWith('marketplaceTariff mpt')
             ->where('p.status_id != :excepted', ['excepted' => Constants::STATUS_TEMPORARY]);
 
         $this->load($params);
@@ -75,6 +82,10 @@ class PosterSearch extends Poster
 
             if(!empty($this->user_id)){
                 $q->andWhere(['p.user_id' => $this->user_id]);
+            }
+
+            if(!empty($this->tariff_id)){
+                $q->andWhere(['mpt.tariff_id' => $this->tariff_id]);
             }
 
             if(!empty($this->title)){

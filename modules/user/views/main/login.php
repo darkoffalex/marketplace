@@ -22,7 +22,7 @@ if(!empty(SettingsForm::getInstance()->fb_auth_client_id) && !empty(SettingsForm
         'app_id' => SettingsForm::getInstance()->fb_auth_client_id,
         'app_secret' => SettingsForm::getInstance()->fb_auth_app_secret,
     ]);
-    $fbLoginUrl = $fb->getRedirectLoginHelper()->getLoginUrl(Url::to(['/main/auth-fb-group-admin', 'language' => null],'https'), ['email']);
+    $fbLoginUrl = $fb->getRedirectLoginHelper()->getLoginUrl(Url::to(['/main/auth-fb-user', 'language' => null],'https'), ['email']);
 }else{
     $fbLoginUrl = null;
 }

@@ -73,7 +73,7 @@ class Constants
         $names = [
             Constants::STATUS_ENABLED => Yii::t('app','Enabled/Active'),
             Constants::STATUS_DISABLED => Yii::t('app','Disabled'),
-            Constants::STATUS_DELETED => Yii::t('app','Deleted')
+            Constants::STATUS_TEMPORARY => Yii::t('app','Temporary')
         ];
 
         return ArrayHelper::getValue($names,$statusId);

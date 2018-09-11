@@ -178,4 +178,24 @@ class User extends UserBase implements IdentityInterface
     {
         return Marketplace::find()->where(['user_id' => $this->id])->count() > 0;
     }
+
+    /**
+     * Есть ли у пользователя доступ (через ключ) к конкретному маркетплейсу
+     * @param $id
+     * @return bool
+     */
+    public function hasAccessToMarketplace($id)
+    {
+        if(empty($this->marketplaceKeys)){
+            return false;
+        }
+
+        foreach ($this->marketplaceKeys as $key){
+            if($key->marketplace_id == $id){
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

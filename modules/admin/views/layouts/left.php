@@ -85,6 +85,14 @@ use app\modules\admin\helpers\Access;
                     ],
 
                     [
+                        'label' => Yii::t('app','Advertisements'),
+                        'icon' => 'newspaper-o',
+                        'active' => $c == 'posters',
+                        'visible' => true,
+                        'url' => ['/admin/posters/index'],
+                    ],
+
+                    [
                         'label' => Yii::t('app','Tariffs'),
                         'icon' => 'dollar',
                         'active' => $c == 'tariffs',

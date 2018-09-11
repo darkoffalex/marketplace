@@ -4,7 +4,7 @@ use yii\helpers\Url;
 
 /* @var $model \app\models\Poster*/
 /* @var $this \yii\web\View */
-/* @var $controller \app\modules\groupAdmin\controllers\PostersController */
+/* @var $controller \app\modules\admin\controllers\PostersController */
 
 $this->registerJsFile(Url::to('@web/common/js/show-hide.js'));
 $controller = $this->context;
@@ -47,7 +47,7 @@ $controller = $this->context;
 
         <hr>
 
-        <?= $form->field($model,'approved_by_ga')->dropDownList([
+        <?= $form->field($model,'approved_by_sa')->dropDownList([
             1 => Yii::t('app','Yes'),
             0 => Yii::t('app','No'),
         ],['data-activate' => "#reason-block:0"])->label(Yii::t('app','Approved (can be published)')); ?>

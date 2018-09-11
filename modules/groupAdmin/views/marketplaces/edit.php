@@ -187,6 +187,7 @@ $this->registerJsFile('@web/common/js/clipboard.js');
                         <th><?= Yii::t('app','Key'); ?></th>
                         <th><?= Yii::t('app','Note'); ?></th>
                         <th><?= Yii::t('app','Used'); ?></th>
+                        <th><?= Yii::t('app','User'); ?></th>
                         <th><?= Yii::t('app','Actions'); ?></th>
                     </tr>
 
@@ -209,6 +210,7 @@ $this->registerJsFile('@web/common/js/clipboard.js');
                                     ]); ?>
                                 </td>
                                 <td><?= !empty($key->usedBy) ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>'  : '<span class="label label-warning">'.Yii::t('app','No').'</span>'; ?></td>
+                                <td><?= !empty($key->usedBy) ? Html::a($key->usedBy->name,'#') : '<span class="label label-warning">'.Yii::t('app','No').'</span>'; ?></td>
                                 <td>
                                     <a data-confirm="<?= Yii::t('app','Are you sure?'); ?>" class="btn btn-primary btn-xs" href="<?= Url::to(['/group-admin/marketplaces/delete-key', 'id' => $key->id]); ?>"><?= Yii::t('app','Delete'); ?></a>
                                 </td>
@@ -216,7 +218,7 @@ $this->registerJsFile('@web/common/js/clipboard.js');
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="9"><?= Yii::t('app','Keys not found'); ?></td>
+                            <td colspan="10"><?= Yii::t('app','Keys not found'); ?></td>
                         </tr>
                     <?php endif; ?>
                     </tbody>

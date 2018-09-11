@@ -113,11 +113,12 @@ class Poster extends \app\models\base\PosterBase
 
     /**
      * Получить список-массив загруженных изображений (сортировка по приоритету)
-     * @param null|int|array $status
+     * @param null $status
      * @param bool $json
+     * @param string $deleteBaseUrl
      * @return array|string
      */
-    public function getImagesListed($status = null, $json = false)
+    public function getImagesListed($status = null, $json = false, $deleteBaseUrl = '/user/posters/delete-image')
     {
         $q = PosterImage::find()->where(['poster_id' => $this->id]);
         if($status)$q->andWhere(['stats_id' => $status]);
@@ -131,7 +132,7 @@ class Poster extends \app\models\base\PosterBase
                 'size' => $posterImage->size,
                 'url' => Url::to("@web/upload/images/{$posterImage->filename}"),
                 'thumbnailUrl' => CropHelper::ThumbnailUrl($posterImage->filename,100,100),
-                'deleteUrl' => Url::to(['/user/posters/delete-image', 'id' => $posterImage->id]),
+                'deleteUrl' => Url::to([$deleteBaseUrl, 'id' => $posterImage->id]),
                 'deleteType' => 'GET',
             ];
         }
@@ -141,6 +142,33 @@ class Poster extends \app\models\base\PosterBase
         }
 
         return $items;
+    }
+
+    /**
+     * Подтверждено ли объявление и админом группы и супер-админом
+     * @return bool
+     */
+    public function isApprovedByAll()
+    {
+        return $this->approved_by_sa && $this->approved_by_ga;
+    }
+
+    /**
+     * Перенести данные в "раздел" подтвержденных
+     * @param bool $publish
+     */
+    public function approveData($publish = true)
+    {
+        $this->title_approved = $this->title;
+        $this->description_approved = $this->description;
+        $this->phone_approved = $this->phone;
+        $this->whats_app_approved = $this->whats_app;
+
+        PosterImage::updateAll(['status_id' => Constants::STATUS_ENABLED],['poster_id' => $this->id]);
+
+        if($publish){
+            $this->published = (int)true;
+        }
     }
 
     /**

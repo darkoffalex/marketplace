@@ -3,14 +3,17 @@
 use kartik\grid\GridView;
 use app\models\Marketplace;
 use yii\helpers\ArrayHelper;
-use app\models\MarketplaceTariffPrice;
+use app\models\Tariff;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use app\modules\admin\helpers\Access;
+use yii\web\JsExpression;
+use kartik\select2\Select2;
 
 /* @var $searchModel \app\models\PosterSearch */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 /* @var $this \yii\web\View */
-/* @var $controller \app\modules\groupAdmin\controllers\PostersController */
+/* @var $controller \app\modules\admin\controllers\PostersController */
 /* @var $user \app\models\User */
 
 $controller = $this->context;
@@ -21,17 +24,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 /* @var $marketplaces Marketplace[] */
-$marketplaces = Marketplace::find()
-    ->where(['user_id' => Yii::$app->user->id])
-    ->all();
+$marketplaces = Marketplace::find()->all();
 
-/* @var $marketplaceTariffs MarketplaceTariffPrice[] */
-$marketplaceTariffs = MarketplaceTariffPrice::find()
-    ->alias('mpt')
-    ->joinWith('marketplace mp')
-    ->where(['mp.user_id' => Yii::$app->user->id])
-    ->distinct()
-    ->all();
+/* @var $tariffs Tariff[] */
+$tariffs = Tariff::find()->all();
 
 $gridColumns = [
     [
@@ -43,6 +39,43 @@ $gridColumns = [
     [
         'attribute' => 'title',
         'enableSorting' => false,
+    ],
+
+    [
+        'attribute' => 'user_id',
+        'label' => Yii::t('app','User'),
+        'filter' => Select2::widget([
+            'model' => $searchModel,
+            'attribute' => 'user_id',
+            'initValueText' => !empty($searchModel->user) ? $searchModel->user->name.' ('.$searchModel->user_id.')' : '',
+            'options' => ['placeholder' => Yii::t('app','Search for a user...')],
+            'language' => Yii::$app->language,
+            'theme' => Select2::THEME_DEFAULT,
+            'pluginOptions' => [
+                'allowClear' => true,
+                'minimumInputLength' => 1,
+                'language' => [
+                    'noResults' => new JsExpression("function () { return '".Yii::t('app','No results found')."'; }"),
+                    'searching' => new JsExpression("function () { return '".Yii::t('app','Searching...')."'; }"),
+                    'inputTooShort' => new JsExpression("function(args) {return '".Yii::t('app','Type more characters')."'}"),
+                    'errorLoading' => new JsExpression("function () { return '".Yii::t('app','Waiting for results')."'; }"),
+                ],
+                'ajax' => [
+                    'url' => Url::to(['/admin/users/ajax-search']),
+                    'dataType' => 'json',
+                    'data' => new JsExpression('function(params) { return {q:params.term}; }')
+                ],
+                'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                'templateResult' => new JsExpression('function(user) { return user.text; }'),
+                'templateSelection' => new JsExpression('function (user) { return user.text; }'),
+            ]
+        ]),
+        'enableSorting' => false,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\PosterSearch */
+            return !empty($model->user) ? $model->user->name : null;
+        },
     ],
 
     [
@@ -58,9 +91,9 @@ $gridColumns = [
     ],
 
     [
-        'attribute' => 'marketplace_tariff_id',
+        'attribute' => 'tariff_id',
         'label' => Yii::t('app','Tariff'),
-        'filter' => ArrayHelper::map($marketplaceTariffs,'id',function($item){/* @var $item MarketplaceTariffPrice */ return $item->getNameWithDetails(); }),
+        'filter' => ArrayHelper::map($tariffs,'id','name'),
         'enableSorting' => false,
         'format' => 'raw',
         'value' => function ($model, $key, $index, $column){
@@ -130,8 +163,13 @@ $gridColumns = [
         'buttons' => [
             'check' => function ($url,$model,$key) {
                 /* @var $model \app\models\PosterSearch */
-                return Html::a('<span class="glyphicon glyphicon-check"></span>', Url::to(['/group-admin/posters/check', 'id' => $model->id]), ['title' => Yii::t('app','Check'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']);
+                return Html::a('<span class="glyphicon glyphicon-check"></span>', Url::to(['/admin/posters/check', 'id' => $model->id]), ['title' => Yii::t('app','Check'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']);
             },
+        ],
+        'visibleButtons' => [
+            'delete' => function ($model, $key, $index) use ($user) {/* @var $model \app\models\Tariff */ return Access::has($user,'posters','delete');},
+            'update' => function ($model, $key, $index) use ($user) {/* @var $model \app\models\Tariff */ return Access::has($user,'posters','update');},
+            'check' => function ($model, $key, $index) use ($user) {/* @var $model \app\models\Tariff */ return Access::has($user,'posters','check');},
         ],
     ],
 ];
@@ -150,6 +188,11 @@ $gridColumns = [
                     'pjax' => false,
                 ]); ?>
             </div>
+            <?php if(Access::has($user,'posters','create')): ?>
+                <div class="box-footer">
+                    <a data-toggle="modal" data-target=".modal-main" href="<?php echo Url::to(['/admin/posters/create']); ?>" class="btn btn-primary"><?= Yii::t('app','Create'); ?></a>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

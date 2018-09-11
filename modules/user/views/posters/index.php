@@ -121,7 +121,7 @@ $gridColumns = [
                 return $names[1];
             }
 
-            return $names[0];
+            return $names[0].(!empty($model->refuse_reason) ? ' <small><cite>'.Html::a(Yii::t('app','(Reason)'),['/user/posters/reason', 'id' => $model->id],['data-target' => '.modal-main', 'data-toggle' => 'modal']).'</cite></small>' : '');
         },
     ],
 

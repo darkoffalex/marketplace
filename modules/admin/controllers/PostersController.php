@@ -1,24 +1,34 @@
 <?php
-namespace app\modules\groupAdmin\controllers;
 
+namespace app\modules\admin\controllers;
+
+use app\helpers\Constants;
 use app\helpers\CropHelper;
+use app\helpers\Help;
 use app\helpers\Sort;
+use app\models\Marketplace;
+use app\models\MarketplaceKey;
 use app\models\Poster;
 use app\models\PosterImage;
-use Yii;
 use app\models\PosterSearch;
+use app\models\User;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\Controller;
-use app\helpers\Constants;
 use yii\web\NotFoundHttpException;
-use yii\bootstrap\ActiveForm;
 use yii\web\Response;
+use yii\bootstrap\ActiveForm;
+use Yii;
 use yii\web\UploadedFile;
 
 /**
- * Class MessagesController
- * @package app\modules\groupAdmin\controllers
+ * Управление объявлениями
+ *
+ * @copyright 	2018 Alex Nem
+ * @link 		https://github.com/darkoffalex
+ * @author 		Alex Nem
+ *
+ * @package app\modules\admin\controllers
  */
 class PostersController extends Controller
 {
@@ -29,12 +39,71 @@ class PostersController extends Controller
     public function actionIndex()
     {
         $searchModel = new PosterSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams,null,Yii::$app->user->id);
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
         return $this->render('index', compact('searchModel','dataProvider'));
     }
 
     /**
-     * Редактировать
+     * Создание объявления
+     * @return array|string|Response
+     */
+    public function actionCreate()
+    {
+        $model = new Poster();
+
+        //AJAX валидация
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        //если пришли данные из POST и они успешно заружены в объект
+        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
+
+            //если все данные в итоге корректны
+            if($model->validate()){
+
+                /* @var $ownerUser User */
+                $ownerUser = User::find()->where(['id' => (int)$model->user_id])->one();
+
+                //если у пользователя нет доступа к маркетплейсу - связать через ключ
+                if(!$ownerUser->hasAccessToMarketplace($model->marketplace_id)){
+
+                    //создать ключ маркетплейса
+                    $key = new MarketplaceKey();
+                    $key->marketplace_id = $model->marketplace_id;
+                    $key->code = Help::randomString(10);
+                    $key->used_by_id = $ownerUser->id;
+
+                    //убедиться в уникальности ключа
+                    while (MarketplaceKey::find()->where(['code' => $key->code])->count() > 0){
+                        $key->code = Help::randomString(10);
+                    }
+
+                    //сохранить
+                    $key->save();
+                }
+
+                //базовые параметры
+                $model->created_at = date('Y-m-d H:i:s',time());
+                $model->created_by_id = Yii::$app->user->id;
+
+                //если не удалось сохранить
+                if(!$model->save()){
+                    //логировать ошибки валидации модели
+                    Yii::info($model->getFirstErrors(),'info');
+                }
+
+                return $this->redirect(Url::to(['/admin/posters/update', 'id' => $model->id]));
+            }
+        }
+
+        //вывести форму редактирования
+        return $this->renderAjax('_create',compact('model'));
+    }
+
+    /**
+     * Редактирование
      * @param $id
      * @return array|string
      * @throws NotFoundHttpException
@@ -42,12 +111,7 @@ class PostersController extends Controller
     public function actionUpdate($id)
     {
         /* @var $model Poster */
-        $model = Poster::find()->alias('p')
-            ->joinWith('marketplace mp')
-            ->where(['p.id' => (int)$id])
-            ->andWhere('p.status_id != :excepted', ['excepted' => Constants::STATUS_TEMPORARY])
-            ->andWhere(['mp.user_id' => Yii::$app->user->id])
-            ->one();
+        $model = Poster::find()->where(['id' => (int)$id])->one();
 
         if(empty($model)){
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
@@ -84,12 +148,7 @@ class PostersController extends Controller
     public function actionDelete($id)
     {
         /* @var $model Poster */
-        $model = Poster::find()->alias('p')
-            ->joinWith('marketplace mp')
-            ->where(['p.id' => (int)$id])
-            ->andWhere('p.status_id != :excepted', ['excepted' => Constants::STATUS_TEMPORARY])
-            ->andWhere(['mp.user_id' => Yii::$app->user->id])
-            ->one();
+        $model = Poster::find()->where(['id' => (int)$id])->one();
 
         if(empty($model)){
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
@@ -102,6 +161,7 @@ class PostersController extends Controller
         }
 
         $model->delete();
+
         return $this->redirect(Yii::$app->request->referrer);
     }
 
@@ -114,12 +174,7 @@ class PostersController extends Controller
     public function actionCheck($id)
     {
         /* @var $model Poster */
-        $model = Poster::find()->alias('p')
-            ->joinWith('marketplace mp')
-            ->where(['p.id' => (int)$id])
-            ->andWhere('p.status_id != :excepted', ['excepted' => Constants::STATUS_TEMPORARY])
-            ->andWhere(['mp.user_id' => Yii::$app->user->id])
-            ->one();
+        $model = Poster::find()->where(['id' => (int)$id])->one();
 
         if(empty($model)){
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
@@ -160,11 +215,7 @@ class PostersController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         /* @var $poster Poster */
-        $poster = Poster::find()->alias('p')
-            ->joinWith('marketplace mp')
-            ->where(['p.id' => (int)$id])
-            ->andWhere(['mp.user_id' => Yii::$app->user->id])
-            ->one();
+        $poster = Poster::find()->where(['id' => (int)$id])->one();
 
         if(empty($poster)){
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
@@ -202,7 +253,7 @@ class PostersController extends Controller
                         'size' => $pi->size,
                         'url' => Url::to("@web/upload/images/{$pi->filename}"),
                         'thumbnailUrl' => CropHelper::ThumbnailUrl($pi->filename,100,100),
-                        'deleteUrl' => Url::to(['/group-admin/posters/delete-image', 'id' => $pi->id]),
+                        'deleteUrl' => Url::to(['/admin/posters/delete-image', 'id' => $pi->id]),
                         'deleteType' => 'GET',
                     ]
                 ]];
@@ -223,11 +274,7 @@ class PostersController extends Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         /* @var $model PosterImage */
-        $model = PosterImage::find()
-            ->alias('i')
-            ->joinWith('poster.marketplace mp')
-            ->where(['i.id' => (int)$id, 'mp.user_id' => Yii::$app->user->id])
-            ->one();
+        $model = PosterImage::find()->where(['id' => (int)$id])->one();
 
         if(empty($model)){
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
@@ -247,7 +294,7 @@ class PostersController extends Controller
                 'size' => $posterImage->size,
                 'url' => Url::to("@web/upload/images/{$posterImage->filename}"),
                 'thumbnailUrl' => CropHelper::ThumbnailUrl($posterImage->filename,100,100),
-                'deleteUrl' => Url::to(['/group-admin/posters/delete-image', 'id' => $posterImage->id]),
+                'deleteUrl' => Url::to(['/admin/posters/delete-image', 'id' => $posterImage->id]),
                 'deleteType' => 'GET',
             ];
         }

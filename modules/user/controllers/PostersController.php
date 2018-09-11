@@ -142,6 +142,26 @@ class PostersController extends Controller
     }
 
     /**
+     * Показать причину отказа
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionReason($id)
+    {
+        /* @var $model Poster */
+        $model = Poster::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
+
+        if(empty($model)){
+            throw new NotFoundHttpException(Yii::t('app','Not found'),404);
+        }
+
+        $model->load(Yii::$app->request->get());
+
+        return $this->renderAjax('_reason',  compact('model'));
+    }
+
+    /**
      * Страница оплаты
      * @param $id
      * @return string
