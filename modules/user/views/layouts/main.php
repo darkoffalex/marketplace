@@ -63,6 +63,12 @@ $user = Yii::$app->user->identity;
                                         'active' => $c == 'posters',
                                         'url' => ['/user/posters/index'],
                                         'visible' => true,
+                                    ],
+                                    [
+                                        'label' => Yii::t('app','Payment history'),
+                                        'active' => $c == 'operations',
+                                        'url' => ['/user/operations/index'],
+                                        'visible' => true,
                                     ]
                                 ],
                             'options' => ['class' => 'navbar-nav'],

@@ -1,6 +1,9 @@
 <?php
 namespace app\modules\user\controllers;
 
+use app\helpers\AccountsHelper;
+use app\models\MoneyAccount;
+use app\models\User;
 use Yii;
 use app\helpers\Constants;
 use app\helpers\CropHelper;
@@ -180,6 +183,42 @@ class PostersController extends Controller
         //В этом месте происходит эмитация оплаты
         //TODO: убрать этот блок в бальнейшем
         if(Yii::$app->request->post('test-mode')){
+
+            //Если есть цена
+            if(!empty($model->marketplaceTariff->price)){
+                /* @var $user User */
+                $user = Yii::$app->user->identity;
+                /* @var $memberAccount MoneyAccount */
+                $memberAccount = $user->getMoneyAccount(Constants::MEMBER_ACCOUNT);
+                /* @var $sysIncomeAccount MoneyAccount */
+                $sysIncomeAccount = AccountsHelper::getSysIncomeAccount();
+                /* @var $groupAdminAccount MoneyAccount */
+                $groupAdminAccount = $model->marketplace->user->getMoneyAccount(Constants::GROUP_ADMIN_ACCOUNT);
+
+                // Зачисление суммы на системный счет (это должно будет происходить после подтверждения платежа)
+                $mainOperation = AccountsHelper::makeOperation(
+                    $memberAccount->id,
+                    $sysIncomeAccount->id,
+                    $model->marketplaceTariff->price,
+                    Constants::PAYMENT_STATUS_DONE,
+                    Constants::PAYMENT_WEB_INITIATED,
+                    null,
+                    Yii::t('app','Payment for advertisement «{name}» ({rateName})',['name' => $model->title, 'rateName' => $model->marketplaceTariff->getNameWithDetails()]));
+
+                // Если процент обладателя маркетплейсом больше ноля - ему нужно зачилить (на счет админа группы) процент от суммы
+                if(!empty($mainOperation) && $model->marketplace->user->ag_income_percentage > 0){
+                    $percentAmount = (int)($mainOperation->amount / 100 * $model->marketplace->user->ag_income_percentage);
+                    AccountsHelper::makeOperation(
+                        $sysIncomeAccount->id,
+                        $groupAdminAccount->id,
+                        $percentAmount,
+                        Constants::PAYMENT_STATUS_DONE,
+                        Constants::PAYMENT_INTERNAL_INITIATED,
+                        null,
+                        Yii::t('app','Payment for advertisement «{name}» ({id})', ['name' => $model->title, 'id' => $model->id]));
+                }
+            }
+
             $model->paid_at = date('Y-m-d H:i:s');
             $model->save();
 

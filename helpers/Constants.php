@@ -25,6 +25,17 @@ class Constants
     const USR_STATUS_ENABLED = 1;
     const USR_STATUS_DISABLED = 2;
 
+    //Статус транзакций и платежей
+    const PAYMENT_STATUS_NEW = 1;
+    const PAYMENT_STATUS_DONE = 2;
+    const PAYMENT_STATUS_CANCELED = 3;
+
+    //Типы транзакций и платежей
+    const PAYMENT_WEB_INITIATED = 1;
+    const PAYMENT_WEB_RECURRENT_INITIATED = 4;
+    const PAYMENT_CASH_INITIATED = 2;
+    const PAYMENT_INTERNAL_INITIATED = 3;
+
     //Роли пользователей
     const ROLE_ADMIN = 1;
     const ROLE_BOOKKEEPER = 2;
@@ -44,6 +55,13 @@ class Constants
     const TARIFF_SUB_TYPE_REGULAR = 0;
     const TARIFF_SUB_TYPE_ADMIN_POST = 1;
     const TARIFF_SUB_TYPE_COMPETITIONS = 2;
+
+    //Типы счетов
+    const SYSTEM_INCOME_ACCOUNT = 1;
+    const SYSTEM_OUTGO_ACCOUNT = 2;
+    const MANAGER_ACCOUNT = 3;
+    const GROUP_ADMIN_ACCOUNT = 4;
+    const MEMBER_ACCOUNT = 5;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

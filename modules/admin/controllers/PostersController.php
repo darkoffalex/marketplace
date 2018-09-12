@@ -6,7 +6,6 @@ use app\helpers\Constants;
 use app\helpers\CropHelper;
 use app\helpers\Help;
 use app\helpers\Sort;
-use app\models\Marketplace;
 use app\models\MarketplaceKey;
 use app\models\Poster;
 use app\models\PosterImage;

@@ -7,7 +7,9 @@ use Yii;
 use app\models\Cv;
 use app\models\Marketplace;
 use app\models\MarketplaceKey;
+use app\models\MoneyAccount;
 use app\models\Poster;
+use app\models\UsedWebPaymentType;
 
 /**
  * This is the base model class for table "user".
@@ -30,11 +32,14 @@ use app\models\Poster;
  * @property int $updated_by_id
  * @property string $facebook_id
  * @property string $facebook_token
+ * @property int $ag_income_percentage
  *
  * @property Cv[] $cvs
  * @property Marketplace[] $marketplaces
  * @property MarketplaceKey[] $marketplaceKeys
+ * @property MoneyAccount[] $moneyAccounts
  * @property Poster[] $posters
+ * @property UsedWebPaymentType[] $usedWebPaymentTypes
  */
 class UserBase extends \yii\db\ActiveRecord
 {
@@ -53,7 +58,7 @@ class UserBase extends \yii\db\ActiveRecord
     {
         return [
             [['username'], 'required'],
-            [['role_id', 'status_id', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['role_id', 'status_id', 'created_by_id', 'updated_by_id', 'ag_income_percentage'], 'integer'],
             [['last_login_at', 'last_online_at', 'created_at', 'updated_at'], 'safe'],
             [['facebook_token'], 'string'],
             [['username', 'password_hash', 'auth_key', 'name', 'avatar_url', 'avatar_filename', 'preferred_language', 'facebook_id'], 'string', 'max' => 255],
@@ -84,6 +89,7 @@ class UserBase extends \yii\db\ActiveRecord
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
             'facebook_id' => Yii::t('app', 'Facebook ID'),
             'facebook_token' => Yii::t('app', 'Facebook Token'),
+            'ag_income_percentage' => Yii::t('app', 'Ag Income Percentage'),
         ];
     }
 
@@ -114,8 +120,24 @@ class UserBase extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getMoneyAccounts()
+    {
+        return $this->hasMany(MoneyAccount::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getPosters()
     {
         return $this->hasMany(Poster::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUsedWebPaymentTypes()
+    {
+        return $this->hasMany(UsedWebPaymentType::className(), ['user_id' => 'id']);
     }
 }

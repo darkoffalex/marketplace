@@ -20,7 +20,6 @@ class User extends UserBase implements IdentityInterface
      */
     public $password;
 
-
     /**
      * @inheritdoc
      */
@@ -197,5 +196,43 @@ class User extends UserBase implements IdentityInterface
         }
 
         return false;
+    }
+
+    /**
+     * Получить счет нужного типа пользователя
+     * @param int $type
+     * @return MoneyAccount
+     */
+    public function getMoneyAccount($type = Constants::MEMBER_ACCOUNT){
+
+        $allowedTypes = [
+            Constants::MEMBER_ACCOUNT,
+            Constants::GROUP_ADMIN_ACCOUNT
+        ];
+
+        if(in_array($this->role_id,[Constants::ROLE_BOOKKEEPER,Constants::ROLE_ADMIN])){
+            $allowedTypes[] = Constants::MANAGER_ACCOUNT;
+        }
+
+        if(!in_array($type,$allowedTypes)){
+            return null;
+        }
+
+        /* @var $account MoneyAccount */
+        $account = MoneyAccount::find()->where(['user_id' => $this->id, 'account_type_id' => $type])->one();
+
+        if(empty($account)){
+            $account = new MoneyAccount();
+            $account -> user_id = $this->id;
+            $account -> account_type_id = $type;
+            $account -> amount = 0;
+            $account -> created_at = date('Y-m-d H:i:s', time());
+            $account -> updated_at = date('Y-m-d H:i:s', time());
+            $account -> created_by_id = 0;
+            $account -> updated_by_id = 0;
+            $account -> save();
+        }
+
+        return $account;
     }
 }
