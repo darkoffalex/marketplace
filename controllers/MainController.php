@@ -63,10 +63,6 @@ class MainController extends Controller
      */
     private function facebookAuthentication($redirectUrl)
     {
-        if (!session_id()) {
-            session_start();
-        }
-
         try{
             $fb = new Facebook([
                 'app_id' => SettingsForm::getInstance()->fb_auth_client_id,
@@ -120,8 +116,7 @@ class MainController extends Controller
             $user->facebook_token = $accessToken->getValue();
             $user->save();
 
-            Yii::$app->user->login($user);
-            return true;
+            return Yii::$app->user->login($user, 0);
         }catch (\Exception $ex){
             Yii::info($ex->getMessage(),'info');
         }

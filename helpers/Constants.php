@@ -63,6 +63,10 @@ class Constants
     const GROUP_ADMIN_ACCOUNT = 4;
     const MEMBER_ACCOUNT = 5;
 
+    //Тип платежных систем
+    const PAYMENT_SYSTEM_YM = 1;
+    const PAYMENT_SYSTEM_PAYPAL = 2;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

@@ -18,6 +18,9 @@ use app\models\User;
  * @property string $updated_at
  * @property int $created_by_id
  * @property int $updated_by_id
+ * @property string $last_operation_key
+ * @property int $system_type
+ * @property int $recurring
  *
  * @property MoneyTransaction[] $moneyTransactions
  * @property User $user
@@ -38,9 +41,9 @@ class UsedWebPaymentTypeBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['user_id', 'created_by_id', 'updated_by_id', 'system_type', 'recurring'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
-            [['code', 'cdd_pan_mask'], 'string', 'max' => 255],
+            [['code', 'cdd_pan_mask', 'last_operation_key'], 'string', 'max' => 255],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -59,6 +62,9 @@ class UsedWebPaymentTypeBase extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('app', 'Updated At'),
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
+            'last_operation_key' => Yii::t('app', 'Last Operation Key'),
+            'system_type' => Yii::t('app', 'System Type'),
+            'recurring' => Yii::t('app', 'Recurring'),
         ];
     }
 

@@ -54,7 +54,7 @@ $user = Yii::$app->user->identity;
                                 [
                                     [
                                         'label' => Yii::t('app','My marketplaces'),
-                                        'active' => $c == 'marketplaces' || $c == 'cvs',
+                                        'active' => $c == 'marketplaces' || $c == 'cvs' || $c == 'posters',
                                         'visible' => true,
                                         'items' => [
                                             [
@@ -69,12 +69,18 @@ $user = Yii::$app->user->identity;
                                                 'active' => $c == 'cvs',
                                                 'visible' => true
                                             ],
+                                            [
+                                                'label' => Yii::t('app','Advertisements'),
+                                                'url' => ['/group-admin/posters/index'],
+                                                'active' => $c == 'posters',
+                                                'visible' => true,
+                                            ],
                                         ]
                                     ],
                                     [
-                                        'label' => Yii::t('app','Advertisements'),
-                                        'url' => ['/group-admin/posters/index'],
-                                        'active' => $c == 'posters',
+                                        'label' => Yii::t('app','Income'),
+                                        'active' => $c == 'operations',
+                                        'url' => ['/group-admin/operations/index'],
                                         'visible' => true,
                                     ],
                                     [

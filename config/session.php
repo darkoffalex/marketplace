@@ -10,7 +10,7 @@ return [
     'savePath' => __DIR__.'/../sessions',
     'cookieParams' => [
         'domain' => '.marketplace.loc',
-        'path' => '/',
+//        'path' => '/',
         'httpOnly' => true,
         'secure' => false,
     ],

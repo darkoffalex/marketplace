@@ -13,10 +13,6 @@ $user = Yii::$app->user->identity;
 $this->title = Yii::t('app','Sign in as group admin');
 $this->params['breadcrumbs'][] = $this->title;
 
-if (!session_id()) {
-    session_start();
-}
-
 if(!empty(SettingsForm::getInstance()->fb_auth_client_id) && !empty(SettingsForm::getInstance()->fb_auth_app_secret)){
     $fb = new Facebook([
         'app_id' => SettingsForm::getInstance()->fb_auth_client_id,
