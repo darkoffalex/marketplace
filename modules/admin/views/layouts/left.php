@@ -94,10 +94,32 @@ use app\modules\admin\helpers\Access;
 
                     [
                         'label' => Yii::t('app','Tariffs'),
-                        'icon' => 'dollar',
+                        'icon' => 'shopping-cart',
                         'active' => $c == 'tariffs',
                         'visible' => true,
                         'url' => ['/admin/tariffs/index'],
+                    ],
+
+                    [
+                        'label' => Yii::t('app','Accounts & operations'),
+                        'icon' => 'dollar',
+                        'active' => in_array($c,['accounts','operations']),
+                        'visible' => Access::has($user,'accounts') || Access::has($user,'operations'),
+                        'items' => [
+                            [
+                                'label' => Yii::t('app','Accounts'),
+                                'active' => $c == 'accounts',
+                                'visible' => Access::has($user,'accounts'),
+                                'url' => ['/admin/accounts/index'],
+                            ],
+                            [
+                                'label' => Yii::t('app','Operations'),
+                                'active' => $c == 'operations',
+                                'visible' => Access::has($user,'operations'),
+                                'url' => ['/admin/operations/index'],
+                            ],
+
+                        ],
                     ],
 
                     [

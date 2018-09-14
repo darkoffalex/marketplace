@@ -16,13 +16,19 @@ class MoneyTransactionSearch extends MoneyTransaction
     public $user_id = null;
 
     /**
+     * ID счета
+     * @var null|int
+     */
+    public $account_id = null;
+
+    /**
      * Validation rules for search
      * @return array
      */
     public function rules()
     {
         return [
-            [['id', 'from_account_id', 'to_account_id', 'amount', 'status_id', 'type_id', 'web_payment_type_id', 'user_id'], 'integer'],
+            [['id', 'from_account_id', 'to_account_id', 'amount', 'status_id', 'type_id', 'web_payment_type_id', 'user_id', 'account_id'], 'integer'],
             [['note', 'description'], 'string'],
             [['created_at'], 'date', 'format' => 'dd.MM.yyyy - dd.MM.yyyy']
         ];
@@ -36,6 +42,7 @@ class MoneyTransactionSearch extends MoneyTransaction
         $baseLabels = parent::attributeLabels();
         $baseLabels['user_id'] = Yii::t('app','Owner user');
         $baseLabels['account_type_id'] = Yii::t('app','Account type');
+        $baseLabels['account_id'] = Yii::t('app','Account');
         return $baseLabels;
     }
 
@@ -61,8 +68,12 @@ class MoneyTransactionSearch extends MoneyTransaction
                 $q->andWhere(['mt.id' => $this->id]);
             }
 
+            if(!empty($this->account_id)){
+                $q->andFilterWhere(['or',['mt.from_account_id' => $this->account_id], ['mt.to_account_id' => $this->account_id]]);
+            }
+
             if(!empty($this->user_id)){
-                $q->andFilterWhere(['or',['fa.user_id' => $this->user_id, 'ta.user_id' => $this->user_id]]);
+                $q->andFilterWhere(['or',['fa.user_id' => $this->user_id], ['ta.user_id' => $this->user_id]]);
             }
 
             if(!empty($this->from_account_id)){

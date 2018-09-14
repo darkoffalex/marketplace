@@ -53,7 +53,7 @@ class AccountsHelper
     {
         self::$outgoSysAccount_ = MoneyAccount::find()
             ->where('user_id IS NULL')
-            ->andWhere(['account_type_id' => Constants::SYSTEM_INCOME_ACCOUNT])
+            ->andWhere(['account_type_id' => Constants::SYSTEM_OUTGO_ACCOUNT])
             ->one();
 
         if(empty(self::$outgoSysAccount_)){
