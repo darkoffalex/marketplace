@@ -2,6 +2,7 @@
 
 namespace app\modules\admin\controllers;
 
+use app\helpers\AccountsHelper;
 use app\helpers\Constants;
 use app\helpers\Help;
 use app\models\MoneyTransaction;
@@ -105,20 +106,15 @@ class OperationsController extends Controller
         if($model->load(Yii::$app->request->post())){
             if($model->validate()){
                 $model->updated_by_id = Yii::$app->user->id;
-                $model->created_at = date('Y-m-d H:i:s',time());
+                $model->updated_at = date('Y-m-d H:i:s',time());
 
-                //Если статус был сменен на "выполнено" - произвести начисление и списание
-                if($model->save() && $model->status_id == Constants::PAYMENT_STATUS_DONE && $oldStatus != $model->status_id){
-
-                    $model->fromAccount->amount -= $model->amount;
-                    $model->fromAccount->updated_at = date('Y-m-d H:i:s',time());
-                    $model->fromAccount->updated_by_id = Yii::$app->user->id;
-                    $model->fromAccount->save();
-
-                    $model->toAccount->amount += $model->amount;
-                    $model->toAccount->updated_at = date('Y-m-d H:i:s',time());
-                    $model->toAccount->updated_by_id = Yii::$app->user->id;
-                    $model->toAccount->save();
+                //Если статус был сменен с любого на "отменено" - вернуть средства
+                if($model->save() && $model->status_id == Constants::PAYMENT_STATUS_CANCELED && $oldStatus != $model->status_id){
+                    AccountsHelper::moveMoney($model->to_account_id,$model->from_account_id,$model->amount);
+                }
+                //Если статус был сменен с "отмененного" на любой другой - перевести средства
+                elseif ($oldStatus == Constants::PAYMENT_STATUS_CANCELED && $model->status_id != $oldStatus){
+                    AccountsHelper::moveMoney($model->from_account_id,$model->to_account_id,$model->amount);
                 }
 
                 return $this->redirect(Url::to(['/admin/operations/index']));

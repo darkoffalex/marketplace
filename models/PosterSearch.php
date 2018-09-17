@@ -180,7 +180,7 @@ class PosterSearch extends Poster
                 $range = explode(' - ',$this->created_at);
                 $date_from = Carbon::parse($range[0])->format('Y-m-d H:i:s');
                 $date_to = Carbon::parse($range[1])->format('Y-m-d H:i:s');
-                $q->andWhere('created_at >= :from2 AND created_at <= :to2',['from2' => $date_from, 'to2' => $date_to]);
+                $q->andWhere('p.created_at >= :from2 AND p.created_at <= :to2',['from2' => $date_from, 'to2' => $date_to]);
             }
         }
 

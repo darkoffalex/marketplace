@@ -23,6 +23,7 @@ use app\modules\admin\helpers\Access;
                         'visible' => Access::has($user,'main'),
                         'url' => ['/admin/main/index'],
                     ],
+
                     [
                         'label' => Yii::t('app','Users'),
                         'icon' => 'users',
@@ -30,6 +31,7 @@ use app\modules\admin\helpers\Access;
                         'visible' => Access::has($user,'users'),
                         'url' => ['/admin/users/index'],
                     ],
+
                     [
                         'label' => Yii::t('app','Localization'),
                         'icon' => 'globe',
@@ -103,7 +105,7 @@ use app\modules\admin\helpers\Access;
                     [
                         'label' => Yii::t('app','Accounts & operations'),
                         'icon' => 'dollar',
-                        'active' => in_array($c,['accounts','operations']),
+                        'active' => in_array($c,['accounts','operations','payout-proposals']),
                         'visible' => Access::has($user,'accounts') || Access::has($user,'operations'),
                         'items' => [
                             [
@@ -118,7 +120,12 @@ use app\modules\admin\helpers\Access;
                                 'visible' => Access::has($user,'operations'),
                                 'url' => ['/admin/operations/index'],
                             ],
-
+                            [
+                                'label' => Yii::t('app','Payout proposals'),
+                                'active' => $c == 'payout-proposals',
+                                'visible' => Access::has($user,'payout-proposals'),
+                                'url' => ['/admin/payout-proposals/index'],
+                            ],
                         ],
                     ],
 
@@ -129,6 +136,7 @@ use app\modules\admin\helpers\Access;
                         'visible' => Access::has($user,'settings'),
                         'url' => ['/admin/settings/index'],
                     ],
+
                     [
                         'label' => Yii::t('app','Exit'),
                         'icon' => 'sign-out',

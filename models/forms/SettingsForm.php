@@ -43,6 +43,9 @@ class SettingsForm extends Model
     public $smtp_port;
     public $smtp_encryption;
 
+    /** Параметры платежей и выплат **/
+    public $payout_min_sum;
+
     /**
      * @return array the validation rules.
      */
@@ -53,7 +56,7 @@ class SettingsForm extends Model
             [['fb_messenger_hook_verify_token','fb_messenger_client_id','fb_messenger_app_secret','fb_messenger_page_monitoring_id','fb_messenger_page_monitoring_token','fb_messenger_page_notifications_id','fb_messenger_page_notifications_token'], 'string'],
             [['email_for_sending','email_for_notifications'], 'string'],
             [['email_for_sending','email_for_notifications'], 'email'],
-            [['smtp_enabled', 'smtp_port'], 'integer'],
+            [['smtp_enabled', 'smtp_port', 'payout_min_sum'], 'integer'],
             [['smtp_encryption','smtp_login','smtp_password','smtp_host'],'string']
         ];
     }
@@ -85,6 +88,8 @@ class SettingsForm extends Model
             'smtp_password' => Yii::t('app','SMTP password'),
             'smtp_port' => Yii::t('app','SMTP port'),
             'smtp_encryption' => Yii::t('app','SMTP encription'),
+
+            'payout_min_sum' => Yii::t('app','Payout minimal sum'),
         ];
     }
 

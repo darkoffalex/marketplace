@@ -6,6 +6,7 @@ use Yii;
 
 use app\models\MoneyAccount;
 use app\models\UsedWebPaymentType;
+use app\models\PayoutProposal;
 
 /**
  * This is the base model class for table "money_transaction".
@@ -28,6 +29,7 @@ use app\models\UsedWebPaymentType;
  * @property MoneyAccount $fromAccount
  * @property MoneyAccount $toAccount
  * @property UsedWebPaymentType $webPaymentType
+ * @property PayoutProposal[] $payoutProposals
  */
 class MoneyTransactionBase extends \yii\db\ActiveRecord
 {
@@ -100,5 +102,13 @@ class MoneyTransactionBase extends \yii\db\ActiveRecord
     public function getWebPaymentType()
     {
         return $this->hasOne(UsedWebPaymentType::className(), ['id' => 'web_payment_type_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPayoutProposals()
+    {
+        return $this->hasMany(PayoutProposal::className(), ['transaction_id' => 'id']);
     }
 }

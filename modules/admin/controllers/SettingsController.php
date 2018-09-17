@@ -2,6 +2,7 @@
 
 namespace app\modules\admin\controllers;
 
+use app\helpers\Help;
 use yii\web\ForbiddenHttpException;
 use app\models\forms\SettingsForm;
 use yii\helpers\Url;
@@ -28,8 +29,13 @@ class SettingsController extends Controller
     {
         $model = SettingsForm::getInstance();
 
-        if($model->load(Yii::$app->request->post()) && $model->validate()){
-            $model->save(false);
+        if($model->load(Yii::$app->request->post())){
+
+            $model->payout_min_sum = Help::toCents($model->payout_min_sum);
+
+            if($model->validate()){
+                $model->save(false);
+            }
         }
 
         return $this->render('index',compact('model'));

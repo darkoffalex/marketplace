@@ -2,6 +2,7 @@
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
 use Facebook\Facebook;
+use app\helpers\Help;
 
 /* @var $model \app\models\forms\SettingsForm */
 /* @var $this \yii\web\View */
@@ -106,6 +107,10 @@ if(!empty($model->fb_auth_client_id) && !empty($model->fb_auth_client_id)){
                     'ssl' => 'SSL',
                     'tls' => 'TLS'
                 ]); ?>
+
+                <hr>
+                <?php $model->payout_min_sum = Help::toPrice($model->payout_min_sum); ?>
+                <?= $form->field($model,'payout_min_sum')->textInput(); ?>
             </div>
 
             <div class="box-footer">

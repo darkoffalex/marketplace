@@ -110,21 +110,40 @@ class AccountsHelper
 
             $transaction->refresh();
 
-            if($operationStatus == Constants::PAYMENT_STATUS_DONE) {
-                $transaction->fromAccount->amount -= $amount;
-                $transaction->fromAccount->updated_at = date('Y-m-d H:i:s',time());
-                $transaction->fromAccount->updated_by_id = Yii::$app->user->id;
-                $transaction->fromAccount->save();
-
-                $transaction->toAccount->amount += $amount;
-                $transaction->toAccount->updated_at = date('Y-m-d H:i:s',time());
-                $transaction->toAccount->updated_by_id = Yii::$app->user->id;
-                $transaction->toAccount->save();
+            if($operationStatus != Constants::PAYMENT_STATUS_CANCELED) {
+                self::moveMoney($transaction->from_account_id,$transaction->to_account_id,$amount);
             }
 
             return $transaction;
         }
 
         return null;
+    }
+
+    /**
+     * Перевести деньги со счета на счет (без создания транзакций)
+     * @param $srcAccountId
+     * @param $dstAccountId
+     * @param $amountInCents
+     */
+    public static function moveMoney($srcAccountId,$dstAccountId,$amountInCents)
+    {
+        /* @var $srcAccount MoneyAccount */
+        /* @var $dstAccount MoneyAccount */
+        $srcAccount = MoneyAccount::findOne((int)$srcAccountId);
+        $dstAccount = MoneyAccount::findOne((int)$dstAccountId);
+
+        if(!empty($srcAccount) && !empty($dstAccount)){
+
+            $srcAccount->amount -= $amountInCents;
+            $srcAccount->updated_at = date('Y-m-d H:i:s',time());
+            $srcAccount->updated_by_id = Yii::$app->user->id;
+            $srcAccount->save();
+
+            $dstAccount->amount += $amountInCents;
+            $dstAccount->updated_at = date('Y-m-d H:i:s',time());
+            $dstAccount->updated_by_id = Yii::$app->user->id;
+            $dstAccount->save();
+        }
     }
 }

@@ -8,6 +8,7 @@ use app\models\Cv;
 use app\models\Marketplace;
 use app\models\MarketplaceKey;
 use app\models\MoneyAccount;
+use app\models\PayoutProposal;
 use app\models\Poster;
 use app\models\UsedWebPaymentType;
 
@@ -38,6 +39,7 @@ use app\models\UsedWebPaymentType;
  * @property Marketplace[] $marketplaces
  * @property MarketplaceKey[] $marketplaceKeys
  * @property MoneyAccount[] $moneyAccounts
+ * @property PayoutProposal[] $payoutProposals
  * @property Poster[] $posters
  * @property UsedWebPaymentType[] $usedWebPaymentTypes
  */
@@ -123,6 +125,14 @@ class UserBase extends \yii\db\ActiveRecord
     public function getMoneyAccounts()
     {
         return $this->hasMany(MoneyAccount::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPayoutProposals()
+    {
+        return $this->hasMany(PayoutProposal::className(), ['user_id' => 'id']);
     }
 
     /**
