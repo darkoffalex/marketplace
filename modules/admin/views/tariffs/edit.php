@@ -64,6 +64,7 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                 <?= $form->field($model,'base_price')->textInput(); ?>
                 <?= $form->field($model,'discounted_price')->textInput(); ?>
                 <?= $form->field($model,'show_on_page')->checkbox(); ?>
+                <?= $form->field($model,'is_main')->checkbox(); ?>
                 <?= $form->field($model,'subscription')->checkbox(); ?>
 
                 <?= $form->field($model,'special_type')->dropDownList([

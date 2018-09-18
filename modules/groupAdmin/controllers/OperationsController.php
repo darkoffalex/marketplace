@@ -4,6 +4,7 @@ namespace app\modules\groupAdmin\controllers;
 use app\helpers\Constants;
 use app\models\MoneyAccount;
 use app\models\MoneyTransactionSearch;
+use app\models\PayoutProposalSearch;
 use app\models\User;
 use Yii;
 use yii\web\Controller;
@@ -36,7 +37,15 @@ class OperationsController extends Controller
 
         $searchModel = new MoneyTransactionSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams, $account->id);
-        return $this->render('index', compact('searchModel','dataProvider','account'));
+        $dataProvider->pagination->pageParam = 'dp1';
+        $dataProvider->pagination->pageSizeParam = 'dp1-size';
+
+        $searchModelPayouts = new PayoutProposalSearch();
+        $dataProviderPayouts = $searchModelPayouts->search(Yii::$app->request->queryParams, $user->id);
+        $dataProviderPayouts->pagination->pageParam = 'dp2';
+        $dataProviderPayouts->pagination->pageSizeParam = 'dp2-size';
+
+        return $this->render('index', compact('searchModel','dataProvider','searchModelPayouts','dataProviderPayouts','account'));
     }
 
     /**

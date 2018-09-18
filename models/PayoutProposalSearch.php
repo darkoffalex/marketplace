@@ -49,11 +49,16 @@ class PayoutProposalSearch extends PayoutProposal
     /**
      * Build search query and return as result data provider
      * @param $params
+     * @param null $userId
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $userId = null)
     {
         $q = parent::find()->alias('p');
+
+        if(!empty($userId)){
+            $q->andWhere(['p.user_id' => $userId]);
+        }
 
         $this->load($params);
 
@@ -85,7 +90,8 @@ class PayoutProposalSearch extends PayoutProposal
             if(is_numeric($this->amount)){
                 $this->amount = Help::toCents($this->amount);
                 $error = 1000;
-                $q->andWhere('p.amount > {from_amount} AND p.amount < {to_amount}',['from_amount' => ($this->amount - $error), 'to_amount' => ($this->amount + $error)]);
+                $q->andWhere('p.amount > :from_amount AND p.amount < :to_amount',['from_amount' => ($this->amount - $error), 'to_amount' => ($this->amount + $error)]);
+                $this->amount = Help::toPrice($this->amount);
             }
         }
 

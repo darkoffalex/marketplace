@@ -16,7 +16,7 @@ class TariffSearch extends Tariff
     {
         return [
             [['name','description'],'string'],
-            [['id','special_type','show_on_page','period_unit_type','period_amount','base_price','discounted_price','subscription'],'integer'],
+            [['id','special_type','show_on_page','period_unit_type','period_amount','base_price','is_main','discounted_price','subscription'],'integer'],
             [['created_at'], 'date', 'format' => 'dd.MM.yyyy - dd.MM.yyyy']
         ];
     }
@@ -49,6 +49,10 @@ class TariffSearch extends Tariff
 
             if(is_numeric($this->subscription)){
                 $q->andWhere(['subscription' => $this->subscription]);
+            }
+
+            if(is_numeric($this->is_main)){
+                $q->andWhere(['is_main' => $this->is_main]);
             }
 
             if(is_numeric($this->special_type)){

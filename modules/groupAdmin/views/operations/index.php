@@ -11,6 +11,8 @@ use yii\helpers\Url;
 /* @var $dataProvider \yii\data\ActiveDataProvider */
 /* @var $this \yii\web\View */
 /* @var $controller \app\modules\groupAdmin\controllers\OperationsController */
+/* @var $dataProviderPayouts \yii\data\ActiveDataProvider */
+/* @var $searchModelPayouts \app\models\MoneyTransactionSearch */
 /* @var $user \app\models\User */
 /* @var $account \app\models\MoneyAccount */
 
@@ -59,6 +61,81 @@ $gridColumns = [
     ],
 ];
 
+$gridColumnsPayouts = [
+    [
+        'attribute' => 'id',
+        'contentOptions' => ['style' => 'width:70px;'],
+        'headerOptions' => ['style' => 'width:70px;'],
+    ],
+    [
+        'attribute' => 'amount',
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column)use($account){
+            /* @var $model \app\models\MoneyTransaction */
+            return Help::toPrice($model->amount).' ₽';
+        },
+    ],
+    [
+        'attribute' => 'description',
+    ],
+    [
+        'attribute' => 'created_at',
+        'filter' => DateRangePicker::widget([
+            'model' => $searchModel,
+            'convertFormat' => true,
+            'attribute' => 'created_at',
+            'pluginOptions' => [
+                'locale' => [
+                    'format'=>'d.m.Y',
+                    'separator'=>' - ',
+                ],
+            ],
+        ]),
+        'enableSorting' => true,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\MoneyTransaction */
+            return !empty($model->created_at) ? Help::dateReformat($model->created_at) : null;
+        },
+    ],
+    [
+        'attribute' => 'status_id',
+        'filter' => [
+            Constants::PAYMENT_STATUS_NEW => Yii::t('app','New (in progress)'),
+            Constants::PAYMENT_STATUS_DONE => Yii::t('app','Done'),
+            Constants::PAYMENT_STATUS_CANCELED => Yii::t('app','Canceled'),
+        ],
+        'enableSorting' => false,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\MoneyTransactionSearch */
+            $names = [
+                Constants::PAYMENT_STATUS_NEW => '<span class="label label-warning">'.Yii::t('app','New (in progress)').'</span>',
+                Constants::PAYMENT_STATUS_DONE => '<span class="label label-success">'.Yii::t('app','Done').'</span>',
+                Constants::PAYMENT_STATUS_CANCELED => '<span class="label label-danger">'.Yii::t('app','Canceled').'</span>',
+            ];
+            return !empty($names[$model->status_id]) ? $names[$model->status_id] : null;
+        },
+    ],
+    [
+        'class' => 'yii\grid\ActionColumn',
+        'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
+        'header' => Yii::t('app','Actions'),
+        'template' => '{info} {proposal-delete}',
+        'buttons' => [
+            'info' => function ($url,$model,$key) {
+                /* @var $model \app\models\MoneyTransactionSearch */
+                return Html::a('<span class="glyphicon glyphicon-info-sign"></span>', Url::to(['/group-admin/operations/proposal-info', 'id' => $model->id]), ['title' => Yii::t('app','View information'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']);
+            },
+            'proposal-delete' => function ($url,$model,$key) {
+                /* @var $model \app\models\MoneyTransactionSearch */
+                return Html::a('<span class="glyphicon glyphicon-trash"></span>', Url::to(['/group-admin/operations/proposal-delete', 'id' => $model->id]), ['title' => Yii::t('app','Delete proposal'), 'data-confirm' => Yii::t('app','Are you sure? Payout will be cancelled and your money be returned to your account.')]);
+            },
+        ],
+    ],
+];
+
+
 ?>
 
 <div class="row">
@@ -73,46 +150,18 @@ $gridColumns = [
             </div>
         </div>
 
-        <?php if($user->getPayoutProposals()->count() > 0): ?>
-            <div class="box">
-                <div class="box-header"><h3 class="box-title"><?= Yii::t('app','Payout proposals'); ?></h3></div>
-                <div class="box-body table-responsive">
-                    <table class="table">
-                        <tbody>
-                        <tr>
-                            <th style="width: 10px">#</th>
-                            <th><?= Yii::t('app','Amount'); ?></th>
-                            <th><?= Yii::t('app','Created'); ?></th>
-                            <th style="width: 40px"><?= Yii::t('app','Status'); ?></th>
-                            <th><?= Yii::t('app','Actions'); ?></th>
-                        </tr>
-                        <?php foreach ($user->payoutProposals as $payout): ?>
-                            <tr>
-                                <td><?= $payout->id; ?></td>
-                                <td><?= Help::toPrice($payout->amount); ?></td>
-                                <td><?= Help::dateReformat($payout->created_at); ?></td>
-                                <td>
-                                    <?php if($payout->status_id == Constants::PAYMENT_STATUS_NEW): ?>
-                                        <span class="label label-warning"><?= Yii::t('app','New'); ?></span>
-                                    <?php elseif($payout->status_id == Constants::PAYMENT_STATUS_DONE): ?>
-                                        <span class="label label-success"><?= Yii::t('app','Done'); ?></span>
-                                    <?php else: ?>
-                                        <span class="label label-danger"><?= Yii::t('app','Refused'); ?></span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <?= Html::a('<span class="glyphicon glyphicon-info-sign"></span>', Url::to(['/group-admin/operations/proposal-info', 'id' => $payout->id]), ['title' => Yii::t('app','View information'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']); ?>
-                                    <?php if($payout->status_id != Constants::PAYMENT_STATUS_DONE): ?>
-                                        <?= Html::a('<span class="glyphicon glyphicon-trash"></span>', Url::to(['/group-admin/operations/proposal-delete', 'id' => $payout->id]), ['title' => Yii::t('app','Delete proposal'), 'data-confirm' => Yii::t('app','Are you sure? Payout will be cancelled and your money be returned to your account.')]); ?>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="box">
+            <div class="box-header"><h3 class="box-title"><?= Yii::t('app','Payout proposals'); ?></h3></div>
+            <div class="box-body">
+                <?= GridView::widget([
+                    'filterModel' => $searchModelPayouts,
+                    'dataProvider' => $dataProviderPayouts,
+                    'columns' => $gridColumnsPayouts,
+                    'bordered' => false,
+                    'pjax' => false,
+                ]); ?>
             </div>
-        <?php endif; ?>
+        </div>
 
         <div class="box">
             <div class="box-header"><h3 class="box-title"><?= Yii::t('app','History of operations'); ?></h3></div>

@@ -26,6 +26,7 @@ use app\models\MarketplaceTariffPrice;
  * @property string $updated_at
  * @property int $created_by_id
  * @property int $updated_by_id
+ * @property int $is_main
  *
  * @property MarketplaceTariffPrice[] $marketplaceTariffPrices
  */
@@ -47,7 +48,7 @@ class TariffBase extends \yii\db\ActiveRecord
         return [
             [['name'], 'required'],
             [['description'], 'string'],
-            [['base_price', 'discounted_price', 'period_unit_type', 'period_amount', 'period_free_amount', 'subscription', 'special_type', 'show_on_page', 'created_by_id', 'updated_by_id'], 'integer'],
+            [['base_price', 'discounted_price', 'period_unit_type', 'period_amount', 'period_free_amount', 'subscription', 'special_type', 'show_on_page', 'created_by_id', 'updated_by_id', 'is_main'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
             [['name', 'image_filename', 'image_crop_settings'], 'string', 'max' => 255],
         ];
@@ -76,6 +77,7 @@ class TariffBase extends \yii\db\ActiveRecord
             'updated_at' => Yii::t('app', 'Updated At'),
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
+            'is_main' => Yii::t('app', 'Is Main'),
         ];
     }
 

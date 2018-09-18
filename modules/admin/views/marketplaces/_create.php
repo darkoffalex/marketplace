@@ -79,7 +79,7 @@ $countries = Country::find()
             'mask' => 'https://www.f\acebook.com/*{*}',
         ]); ?>
 
-        <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
+        <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name'))->label(Yii::t('app','Country')); ?>
 
         <?= $form->field($model,'domain_alias')->textInput(); ?>
 
@@ -89,8 +89,6 @@ $countries = Country::find()
         ]); ?>
 
         <?= $form->field($model,'timezone')->dropDownList(\app\helpers\Help::getTimeZoneArray()); ?>
-
-        <?= $form->field($model,'geo')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
 
         <?= $form->field($model,'selling_rules')->textarea(); ?>
 
@@ -102,45 +100,7 @@ $countries = Country::find()
 
         <?= $form->field($model,'group_description')->textarea(); ?>
 
-        <?php if(!empty($tariffs)): ?>
-            <hr>
-            <h4><?= Yii::t('app','Tariffs'); ?></h4>
-            <table class="table">
-                <tbody>
-                <tr>
-                    <th><?= Yii::t('app','Name'); ?></th>
-                    <th><?= Yii::t('app','Enabled'); ?></th>
-                    <th><?= Yii::t('app','Price'); ?></th>
-                    <th><?= Yii::t('app','Period time units'); ?></th>
-                    <th><?= Yii::t('app','Period time'); ?></th>
-                    <th><?= Yii::t('app','Recurring'); ?></th>
-                </tr>
-                <?php foreach($tariffs as $tariff): ?>
-                    <tr>
-                        <td><?= Yii::t('app',$tariff->name); ?><?= Html::hiddenInput('Marketplace[tariffs]['.$tariff->id.'][id]',$tariff->id); ?></td>
-                        <td><?= Html::checkbox('Marketplace[tariffs]['.$tariff->id.'][enabled]',$model->getTariffPrice($tariff->id) !== null); ?></td>
-                        <td><?= Html::textInput('Marketplace[tariffs]['.$tariff->id.'][price]',Help::toPrice($model->getTariffPrice($tariff->id,true)->price),['class' => 'form-control']); ?></td>
-                        <td>
-                            <?php $names = [
-                                Constants::PERIOD_DAYS => Yii::t('app','Days'),
-                                Constants::PERIOD_WEEKS => Yii::t('app','Weeks'),
-                                Constants::PERIOD_MONTHS => Yii::t('app','Months'),
-                            ]; echo !empty($names[$tariff->period_unit_type]) ? $names[$tariff->period_unit_type] : null; ?>
-                        </td>
-                        <td>
-                            <?= $tariff->period_amount; ?>
-                        </td>
-                        <td>
-                            <?php $names = [
-                                1 => '<span class="label label-success">'.Yii::t('app','Yes').'</span>',
-                                0 => '<span class="label label-danger">'.Yii::t('app','No').'</span>',
-                            ]; echo !empty($names[$tariff->subscription]) ? $names[$tariff->subscription] : null; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+        <?= $form->field($model,'trusted')->checkbox(); ?>
     </div>
 
     <div class="modal-footer">

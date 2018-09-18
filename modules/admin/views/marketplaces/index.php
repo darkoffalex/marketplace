@@ -147,7 +147,7 @@ $gridColumns = [
                 ]); ?>
             </div>
             <div class="box-footer">
-                <a href="<?php echo Url::to(['/admin/marketplaces/create']); ?>" class="btn btn-primary"><?= Yii::t('app','Create'); ?></a>
+                <a data-toggle="modal" data-target=".modal-main" href="<?php echo Url::to(['/admin/marketplaces/create']); ?>" class="btn btn-primary"><?= Yii::t('app','Create'); ?></a>
             </div>
         </div>
     </div>

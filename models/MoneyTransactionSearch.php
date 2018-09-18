@@ -107,7 +107,8 @@ class MoneyTransactionSearch extends MoneyTransaction
             if(is_numeric($this->amount)){
                 $this->amount = Help::toCents($this->amount);
                 $error = 1000;
-                $q->andWhere('mt.amount > {from_amount} AND mt.amount < {to_amount}',['from_amount' => ($this->amount - $error), 'to_amount' => ($this->amount + $error)]);
+                $q->andWhere('mt.amount > :from_amount AND mt.amount < :to_amount',['from_amount' => ($this->amount - $error), 'to_amount' => ($this->amount + $error)]);
+                $this->amount = Help::toPrice($this->amount);
             }
 
             if(!empty($this->created_at)){

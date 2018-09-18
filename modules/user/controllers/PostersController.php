@@ -47,10 +47,16 @@ class PostersController extends Controller
     {
         /* @var $model Poster */
         $model = Poster::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
-        $model->scenario = 'editing';
 
         if(empty($model)){
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
+        }
+
+        $model->scenario = 'editing';
+
+        //Если маркетплейс доверенный - автоматически подтвердить супер-админом
+        if($model->marketplace->trusted){
+            $model->approved_by_sa = (int)true;
         }
 
         //Если о объявления временный статус - значит оно создается в данный момент (не редактируется)

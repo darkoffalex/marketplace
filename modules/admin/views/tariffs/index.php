@@ -15,7 +15,7 @@ use app\modules\admin\helpers\Access;
 $controller = $this->context;
 $user = Yii::$app->user->identity;
 
-$this->title = Yii::t('app','Tariff');
+$this->title = Yii::t('app','Tariffs');
 $this->params['breadcrumbs'][] = $this->title;
 
 $gridColumns = [
@@ -72,6 +72,24 @@ $gridColumns = [
             return !empty($names[(int)$model->show_on_page]) ? $names[(int)$model->show_on_page] : null;
         },
     ],
+
+//    [
+//        'attribute' => 'is_main',
+//        'filter' => [
+//            1 => Yii::t('app','Yes'),
+//            0 => Yii::t('app','No'),
+//        ],
+//        'enableSorting' => false,
+//        'format' => 'raw',
+//        'value' => function ($model, $key, $index, $column){
+//            /* @var $model \app\models\Tariff */
+//            $names = [
+//                1 => '<span class="label label-success">'.Yii::t('app','Yes').'</span>',
+//                0 => '<span class="label label-danger">'.Yii::t('app','No').'</span>',
+//            ];
+//            return !empty($names[(int)$model->is_main]) ? $names[(int)$model->is_main] : null;
+//        },
+//    ],
 
     [
         'attribute' => 'subscription',

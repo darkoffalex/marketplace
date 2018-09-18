@@ -120,35 +120,51 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
 
                 <?= $form->field($model,'group_description')->textarea(); ?>
 
-                <?php if(!empty($tariffs)): ?>
-                    <hr>
-                    <h4><?= Yii::t('app','Tariffs'); ?></h4>
-                    <table class="table">
-                        <tbody>
-                        <tr>
-                            <th><?= Yii::t('app','Name'); ?></th>
-                            <th><?= Yii::t('app','Enabled'); ?></th>
-                            <th><?= Yii::t('app','Price'); ?></th>
-                            <th><?= Yii::t('app','Period time'); ?></th>
-                            <th><?= Yii::t('app','Recurring'); ?></th>
-                        </tr>
-                        <?php foreach($tariffs as $tariff): ?>
+                <?= $form->field($model,'trusted')->checkbox(); ?>
+
+                <hr>
+                <h4><?= Yii::t('app','Tariffs'); ?></h4>
+                <a id="tariffs" name="tariffs"></a>
+                <table class="table">
+                    <tbody>
+                    <tr>
+                        <th><?= Yii::t('app','Name'); ?></th>
+                        <th><?= Yii::t('app','Price'); ?></th>
+                        <th><?= Yii::t('app','Discounted price'); ?></th>
+                        <th><?= Yii::t('app','Period time'); ?></th>
+                        <th><?= Yii::t('app','Recurring'); ?></th>
+                        <th><?= Yii::t('app','Action'); ?></th>
+                    </tr>
+                    <?php if(!empty($model->marketplaceTariffPrices)): ?>
+                        <?php foreach($model->marketplaceTariffPrices as $marketplaceTariff): ?>
                             <tr>
-                                <td><?= Yii::t('app',$tariff->name); ?><?= Html::hiddenInput('Marketplace[tariffs]['.$tariff->id.'][id]',$tariff->id); ?></td>
-                                <td><?= Html::checkbox('Marketplace[tariffs]['.$tariff->id.'][enabled]',$model->getTariffPrice($tariff->id) !== null); ?></td>
-                                <td><?= Html::textInput('Marketplace[tariffs]['.$tariff->id.'][price]',Help::toPrice($model->getTariffPrice($tariff->id,true)->price),['class' => 'form-control']); ?></td>
-                                <td><?= $tariff->getIntervalName(); ?></td>
+                                <td><?= Yii::t('app',$marketplaceTariff->tariff->name); ?></td>
+                                <td><?= Help::toPrice($marketplaceTariff->price).' ₽'; ?></td>
+                                <td><?= !empty($marketplaceTariff->discounted_price) ? Help::toPrice($marketplaceTariff->discounted_price).' ₽' : '<span class="label label-danger">'.Yii::t('app','No').'</span>'; ?></td>
+                                <td><?= $marketplaceTariff->tariff->getIntervalName(); ?></td>
                                 <td>
                                     <?php $names = [
                                         1 => '<span class="label label-success">'.Yii::t('app','Yes').'</span>',
                                         0 => '<span class="label label-danger">'.Yii::t('app','No').'</span>',
-                                    ]; echo !empty($names[$tariff->subscription]) ? $names[$tariff->subscription] : null; ?>
+                                    ]; echo !empty($names[$marketplaceTariff->tariff->subscription]) ? $names[$marketplaceTariff->tariff->subscription] : null; ?>
+                                </td>
+                                <td>
+                                    <?php
+                                    $buttons = Html::a('<span class="glyphicon glyphicon-pencil"></span>', Url::to(['/admin/marketplaces/edit-tariff-attachment', 'id' => $marketplaceTariff->id]), ['title' => Yii::t('app','Edit'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']).' ';
+                                    $buttons.= Html::a('<span class="glyphicon glyphicon-trash"></span>', Url::to(['/admin/marketplaces/delete-tariff-attachment', 'id' => $marketplaceTariff->id]), ['title' => Yii::t('app','Delete'), 'data-confirm' => Yii::t('app','Delete')]);
+                                    echo $buttons;
+                                    ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                <?php endif; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="6"><?= Yii::t('app','No tariffs added for this marketplace'); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+                <a class="btn btn-primary" data-toggle="modal" data-target=".modal-append-tariff" href="<?= Url::to(['/admin/marketplaces/add-tariff', 'id' => $model->id]); ?>"><?= Yii::t('app','Add new tariff'); ?></a>
 
                 <hr>
                 <a id="picture" name="picture"></a>
@@ -183,6 +199,55 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
         </div>
     </div>
 </div>
+
+<div class="modal modal-append-tariff fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+
+
+<div class="modal modal-create-tariff fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(document).on('click', '[data-ajax-submit]', function () {
+
+            var form = $($(this).data('ajax-submit'));
+            var formData = new FormData(form[0]);
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: formData,
+                async: true,
+                success: function (data) {
+                    if(data['is_form']){
+                        $('.modal-create-tariff').find('.modal-content').html(data['content']);
+                    }else{
+                        $('#marketplacetariffprice-tariff_id')
+                            .append($("<option></option>")
+                                .attr("value",data['tariff']['id'])
+                                .text(data['tariff']['name']));
+                        $('#marketplacetariffprice-tariff_id option[value="'+data['tariff']['id']+'"]').prop('selected', true);
+                        $('.modal-create-tariff').modal('hide');
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+
+            return false;
+        });
+    });
+</script>
 
 <script type="text/javascript">
     $(document).ready(function(){
