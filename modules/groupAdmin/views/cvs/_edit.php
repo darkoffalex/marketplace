@@ -42,13 +42,17 @@ $countries = Country::find()
         <h4><?= Yii::t('app','Group information'); ?></h4>
         <?= $form->field($model,'group_name')->textInput(); ?>
 
-        <?= $form->field($model,'group_url')->widget(MaskedInput::class,[
-            'mask' => 'https://www.f\acebook.com/*{*}',
-        ]); ?>
+        <?= $form->field($model,'group_url')->textInput(); ?>
 
-        <?= $form->field($model,'group_admin_profile')->widget(MaskedInput::class,[
-            'mask' => 'https://www.f\acebook.com/*{*}',
-        ]); ?>
+        <?= $form->field($model,'group_admin_profile')->textInput(); ?>
+
+<!--        --><?//= $form->field($model,'group_url')->widget(MaskedInput::class,[
+//            'mask' => 'https://www.f\acebook.com/*{*}',
+//        ]); ?>
+<!---->
+<!--        --><?//= $form->field($model,'group_admin_profile')->widget(MaskedInput::class,[
+//            'mask' => 'https://www.f\acebook.com/*{*}',
+//        ]); ?>
 
         <?= $form->field($model,'group_thematics')->textInput(); ?>
         <?= $form->field($model,'group_popularity')->textInput(); ?>

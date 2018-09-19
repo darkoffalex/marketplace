@@ -71,13 +71,9 @@ $countries = Country::find()
 
         <?= $form->field($model,'name')->textInput()->label(Yii::t('app','Name (reference to group name)')); ?>
 
-        <?= $form->field($model,'group_url')->widget(MaskedInput::class,[
-            'mask' => 'https://www.f\acebook.com/*{*}',
-        ]); ?>
+        <?= $form->field($model,'group_url')->textInput(); ?>
 
-        <?= $form->field($model,'group_admin_profile')->widget(MaskedInput::class,[
-            'mask' => 'https://www.f\acebook.com/*{*}',
-        ]); ?>
+        <?= $form->field($model,'group_admin_profile')->textInput(); ?>
 
         <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name'))->label(Yii::t('app','Country')); ?>
 

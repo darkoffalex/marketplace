@@ -29,7 +29,7 @@ $categories = ArrayHelper::map(Category::getRecursiveCats(),'id',function($curre
 
 $tariffs = ArrayHelper::map($model->marketplace->marketplaceTariffPrices,'id',function($item){
     /* @var $item \app\models\MarketplaceTariffPrice */
-    return $item->getNameWithDetails();
+    return $item->getNameWithDetails(true,true);
 });
 ?>
 
@@ -81,7 +81,7 @@ $tariffs = ArrayHelper::map($model->marketplace->marketplaceTariffPrices,'id',fu
                 <?= $form->field($model,'category_id')->dropDownList($categories); ?>
 
                 <?php if($model->status_id == Constants::STATUS_TEMPORARY): ?>
-                    <?= $form->field($model,'marketplace_tariff_id')->dropDownList($tariffs); ?>
+                    <?= $form->field($model,'marketplace_tariff_id')->radioList($tariffs,['encode' => false]); ?>
                 <?php endif; ?>
 
                 <hr>

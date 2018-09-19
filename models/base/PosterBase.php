@@ -41,6 +41,9 @@ use app\models\PosterImage;
  * @property int $approved_by_sa
  * @property int $published
  * @property string $refuse_reason
+ * @property string $admin_post_time
+ * @property int $admin_post_time_approve_status
+ * @property string $admin_post_disapprove_reason
  *
  * @property Category $category
  * @property Marketplace $marketplace
@@ -64,9 +67,9 @@ class PosterBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['marketplace_id', 'category_id', 'user_id', 'country_id', 'status_id', 'period_seconds', 'period_free_seconds', 'created_by_id', 'updated_by_id', 'marketplace_tariff_id', 'approved_by_ga', 'approved_by_sa', 'published'], 'integer'],
-            [['description', 'description_approved', 'admin_post_text', 'refuse_reason'], 'string'],
-            [['paid_at', 'created_at', 'updated_at'], 'safe'],
+            [['marketplace_id', 'category_id', 'user_id', 'country_id', 'status_id', 'period_seconds', 'period_free_seconds', 'created_by_id', 'updated_by_id', 'marketplace_tariff_id', 'approved_by_ga', 'approved_by_sa', 'published', 'admin_post_time_approve_status'], 'integer'],
+            [['description', 'description_approved', 'admin_post_text', 'refuse_reason', 'admin_post_disapprove_reason'], 'string'],
+            [['paid_at', 'created_at', 'updated_at', 'admin_post_time'], 'safe'],
             [['title', 'phone', 'whats_app', 'title_approved', 'phone_approved', 'whats_app_approved', 'admin_post_image_filename'], 'string', 'max' => 255],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['marketplace_id'], 'exist', 'skipOnError' => true, 'targetClass' => Marketplace::className(), 'targetAttribute' => ['marketplace_id' => 'id']],
@@ -109,6 +112,9 @@ class PosterBase extends \yii\db\ActiveRecord
             'approved_by_sa' => Yii::t('app', 'Approved By Sa'),
             'published' => Yii::t('app', 'Published'),
             'refuse_reason' => Yii::t('app', 'Refuse Reason'),
+            'admin_post_time' => Yii::t('app', 'Admin Post Time'),
+            'admin_post_time_approve_status' => Yii::t('app', 'Admin Post Time Approve Status'),
+            'admin_post_disapprove_reason' => Yii::t('app', 'Admin Post Disapprove Reason'),
         ];
     }
 

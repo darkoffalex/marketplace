@@ -89,13 +89,17 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
 
                 <?= $form->field($model,'name')->textInput()->label(Yii::t('app','Name (reference to group name)')); ?>
 
-                <?= $form->field($model,'group_url')->widget(MaskedInput::class,[
-                    'mask' => 'https://www.f\acebook.com/*{*}',
-                ]); ?>
+                <?= $form->field($model,'group_url')->textInput(); ?>
 
-                <?= $form->field($model,'group_admin_profile')->widget(MaskedInput::class,[
-                    'mask' => 'https://www.f\acebook.com/*{*}',
-                ]); ?>
+                <?= $form->field($model,'group_admin_profile')->textInput(); ?>
+
+<!--                --><?//= $form->field($model,'group_url')->widget(MaskedInput::class,[
+//                    'mask' => 'https://www.f\acebook.com/*{*}',
+//                ]); ?>
+
+<!--                --><?//= $form->field($model,'group_admin_profile')->widget(MaskedInput::class,[
+//                    'mask' => 'https://www.f\acebook.com/*{*}',
+//                ]); ?>
 
                 <?= $form->field($model,'domain_alias')->textInput(); ?>
 

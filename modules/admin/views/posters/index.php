@@ -9,6 +9,7 @@ use yii\helpers\Url;
 use app\modules\admin\helpers\Access;
 use yii\web\JsExpression;
 use kartik\select2\Select2;
+use app\helpers\Constants;
 
 /* @var $searchModel \app\models\PosterSearch */
 /* @var $dataProvider \yii\data\ActiveDataProvider */
@@ -114,6 +115,31 @@ $gridColumns = [
         'value' => function ($model, $key, $index, $column){
             /* @var $model \app\models\PosterSearch */
             return $model->getPaymentInformation();
+        },
+    ],
+
+    [
+        'attribute' => 'admin_post_time_approve_status',
+        'label' => Yii::t('app','Admin post status'),
+        'filter' => [
+            Constants::ADMIN_POST_TIME_AT_REVIEW => Yii::t('app','At review'),
+            Constants::ADMIN_POST_TIME_APPROVED => Yii::t('app','Approved'),
+            Constants::ADMIN_POST_TIME_DISAPPROVED => Yii::t('app','Disapproved'),
+        ],
+        'enableSorting' => false,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\PosterSearch */
+            if($model->marketplaceTariff->tariff->special_type != Constants::TARIFF_SUB_TYPE_ADMIN_POST){
+                return '<span class="label label-default">'.Yii::t('app','Not used').'</span>';
+            }
+
+            $names = [
+                Constants::ADMIN_POST_TIME_AT_REVIEW => '<span class="label label-warning">'.Yii::t('app','At review').'</span>',
+                Constants::ADMIN_POST_TIME_APPROVED => '<span class="label label-success">'.Yii::t('app','Approved').'</span>',
+                Constants::ADMIN_POST_TIME_DISAPPROVED => '<span class="label label-danger">'.Yii::t('app','Disapproved').'</span>',
+            ];
+            return $names[(int)$model->admin_post_time_approve_status];
         },
     ],
 

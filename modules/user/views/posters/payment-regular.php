@@ -1,7 +1,7 @@
 <?php
 use yii\helpers\Url;
 use app\models\User;
-use app\helpers\Help;
+use app\helpers\Constants;
 
 /* @var $model \app\models\Poster*/
 /* @var $this \yii\web\View */
@@ -22,8 +22,14 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="box box-primary">
             <div class="box-header with-border"><h3 class="box-title"><?= Yii::t('app','Payment information'); ?></h3></div>
             <div class="box-body">
-                <p><strong><?= Yii::t('app','Tariff'); ?>:</strong> <?= $model->marketplaceTariff->getNameWithDetails(); ?></p>
-                <p><strong><?= Yii::t('app','Published until'); ?>:</strong> <?= $model->marketplaceTariff->tariff->getUntilDate(); ?></p>
+                <p><strong><?= Yii::t('app','Tariff'); ?>:</strong> <?= $model->marketplaceTariff->getNameWithDetails(true); ?></p>
+
+                <?php if($model->marketplaceTariff->tariff->special_type == Constants::TARIFF_SUB_TYPE_REGULAR): ?>
+                    <p><strong><?= Yii::t('app','Published until'); ?>:</strong> <?= $model->marketplaceTariff->tariff->getUntilDate(); ?></p>
+                <?php elseif($model->marketplaceTariff->tariff->special_type == Constants::TARIFF_SUB_TYPE_ADMIN_POST): ?>
+                    <p><strong><?= Yii::t('app','Published since'); ?>:</strong> <?= $model->getAdminPostSinceDate(); ?></p>
+                <?php endif; ?>
+
                 <p><strong><?= Yii::t('app','Subscription'); ?>:</strong>
                     <?= $model->marketplaceTariff->tariff->subscription ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>' : '<span class="label label-danger">'.Yii::t('app','No').'</span>'; ?>
                 </p>

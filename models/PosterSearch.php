@@ -32,7 +32,7 @@ class PosterSearch extends Poster
     {
         return [
             [['title','description','phone','whats_app','title_approved','description_approved','phone_approved','whats_app_approved'], 'string', 'max' => 255],
-            [['id','status_id','user_id','approved_by_ga','approved_by_sa','approved','published','marketplace_tariff_id','refuse_reason','paid_at','common_status','category_id','marketplace_id','tariff_id'], 'integer'],
+            [['id','status_id','user_id','approved_by_ga','approved_by_sa','approved','published','marketplace_tariff_id','refuse_reason','paid_at','common_status','category_id','marketplace_id','tariff_id','admin_post_time_approve_status'], 'integer'],
             [['created_at'], 'date', 'format' => 'dd.MM.yyyy - dd.MM.yyyy']
         ];
     }
@@ -62,6 +62,7 @@ class PosterSearch extends Poster
             ->alias('p')
             ->joinWith('marketplace mp')
             ->joinWith('marketplaceTariff mpt')
+            ->joinWith('marketplaceTariff.tariff t')
             ->where('p.status_id != :excepted', ['excepted' => Constants::STATUS_TEMPORARY]);
 
         $this->load($params);
@@ -121,19 +122,19 @@ class PosterSearch extends Poster
             }
 
             if(is_numeric($this->approved_by_ga)){
-                $q->andFilterWhere(['p.approved_by_ga' => (int)$this->approved_by_ga]);
+                $q->andWhere(['p.approved_by_ga' => (int)$this->approved_by_ga]);
             }
 
             if(is_numeric($this->approved_by_sa)){
-                $q->andFilterWhere(['p.approved_by_sa' => (int)$this->approved_by_sa]);
+                $q->andWhere(['p.approved_by_sa' => (int)$this->approved_by_sa]);
             }
 
             if(is_numeric($this->published)){
-                $q->andFilterWhere(['p.published' => (int)$this->published]);
+                $q->andWhere(['p.published' => (int)$this->published]);
             }
 
             if(!empty($this->marketplace_tariff_id)){
-                $q->andFilterWhere(['p.marketplace_tariff_id' => (int)$this->marketplace_tariff_id]);
+                $q->andWhere(['p.marketplace_tariff_id' => (int)$this->marketplace_tariff_id]);
             }
 
             if(is_numeric($this->refuse_reason)){
@@ -142,6 +143,10 @@ class PosterSearch extends Poster
                }else{
                    $q->andWhere('p.refuse_reason IS NULL');
                }
+            }
+
+            if(!empty($this->admin_post_time_approve_status)){
+                $q->andWhere(['p.admin_post_time_approve_status' => (int)$this->admin_post_time_approve_status]);
             }
 
             if(is_numeric($this->approved)){
@@ -164,16 +169,20 @@ class PosterSearch extends Poster
                         'paid_at IS NULL'
                     ]);
                 }else{
-                    $q->andWhere('(paid_at + INTERVAL period_seconds SECOND) > NOW()');
+                    $q->andFilterWhere([
+                        'or',
+                        '(paid_at + INTERVAL period_seconds SECOND) > NOW()',
+                        't.special_type = '.Constants::TARIFF_SUB_TYPE_ADMIN_POST.' AND paid_at IS NOT NULL'
+                    ]);
                 }
             }
 
             if(!empty($this->category_id)){
-                $q->andWhere(['category_id' => $this->category_id]);
+                $q->andWhere(['p.category_id' => $this->category_id]);
             }
 
             if(!empty($this->marketplace_id)){
-                $q->andWhere(['marketplace_id' => $this->marketplace_id]);
+                $q->andWhere(['p.marketplace_id' => $this->marketplace_id]);
             }
 
             if(!empty($this->created_at)){

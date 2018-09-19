@@ -1,6 +1,8 @@
 <?php
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Url;
+use app\helpers\Constants;
+use Carbon\Carbon;
 
 /* @var $model \app\models\Poster*/
 /* @var $this \yii\web\View */
@@ -55,6 +57,21 @@ $controller = $this->context;
         <div id="reason-block" class="hidden">
             <?= $form->field($model,'refuse_reason')->textarea(); ?>
         </div>
+
+        <?php if($model->marketplaceTariff->tariff->special_type == Constants::TARIFF_SUB_TYPE_ADMIN_POST): ?>
+            <hr>
+            <p><strong><?= Yii::t('app','Publication time'); ?>:</strong> <?= Carbon::parse($model->admin_post_time)->format('d-m-Y H:i'); ?></p>
+
+            <?= $form->field($model,'admin_post_time_approve_status')->dropDownList([
+                Constants::ADMIN_POST_TIME_AT_REVIEW => Yii::t('app','At review'),
+                Constants::ADMIN_POST_TIME_APPROVED => Yii::t('app','Approved'),
+                Constants::ADMIN_POST_TIME_DISAPPROVED => Yii::t('app','Disapproved'),
+            ],['data-activate' => "#reason-ad-block:".Constants::ADMIN_POST_TIME_DISAPPROVED])->label(Yii::t('app','Publication time review status')); ?>
+
+            <div id="reason-ad-block" class="<?= $model->admin_post_time_approve_status != Constants::ADMIN_POST_TIME_DISAPPROVED ? 'hidden' : ''; ?>">
+                <?= $form->field($model,'admin_post_disapprove_reason')->textarea(); ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="modal-footer">

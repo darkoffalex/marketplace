@@ -67,6 +67,11 @@ class Constants
     const PAYMENT_SYSTEM_YM = 1;
     const PAYMENT_SYSTEM_PAYPAL = 2;
 
+    //Типы проверки подтверждения статуса
+    const ADMIN_POST_TIME_AT_REVIEW = 1;
+    const ADMIN_POST_TIME_APPROVED = 2;
+    const ADMIN_POST_TIME_DISAPPROVED = 3;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

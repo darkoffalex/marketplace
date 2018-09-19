@@ -173,7 +173,7 @@ class PostersController extends Controller
     /**
      * Страница оплаты
      * @param $id
-     * @return string
+     * @return array|string|Response
      * @throws NotFoundHttpException
      */
     public function actionPayment($id)
@@ -183,6 +183,26 @@ class PostersController extends Controller
 
         if(empty($model) || $model->status_id == Constants::STATUS_TEMPORARY || $model->isPaid()){
             throw new NotFoundHttpException(Yii::t('app','Not found'),404);
+        }
+
+        //Если выбран тариф типа "пост от админа" и время публикации не подтверждено - выводить форму выбора времени публикации
+        if($model->marketplaceTariff->tariff->special_type == Constants::TARIFF_SUB_TYPE_ADMIN_POST && $model->admin_post_time_approve_status != Constants::ADMIN_POST_TIME_APPROVED)
+        {
+            //AJAX валидация
+            if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                return ActiveForm::validate($model);
+            }
+
+            //Если информация была загружена в модель
+            if($model->load(Yii::$app->request->post()) && $model->validate()){
+                $model->updated_at = date('Y-m-d H:i:s',time());
+                $model->updated_by_id = Yii::$app->user->id;
+                $model->save();
+            }
+
+            //Вывод формы
+            return $this->render('payment-admin-post-configure', compact('model'));
         }
 
         //Тестовый режим
@@ -205,7 +225,7 @@ class PostersController extends Controller
                 $mainOperation = AccountsHelper::makeOperation(
                     $memberAccount->id,
                     $sysIncomeAccount->id,
-                    $model->marketplaceTariff->price,
+                    $model->marketplaceTariff->getActivePrice(),
                     Constants::PAYMENT_STATUS_DONE,
                     Constants::PAYMENT_WEB_INITIATED,
                     null,

@@ -77,9 +77,10 @@ class MarketplacesController extends Controller
                 $model->created_by_id = Yii::$app->user->id;
                 $model->updated_at = date('Y-m-d H:i:s',time());
                 $model->updated_by_id = Yii::$app->user->id;
+                $model->save();
 
                 //к детальному редактированию
-                $this->redirect(Url::to(['/admin/marketplaces/index']));
+                $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $model->id]));
             }
         }
 
@@ -179,7 +180,7 @@ class MarketplacesController extends Controller
         }
 
         FileLoad::deleteFile($model,'header_image_filename');
-        return $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $model->id]).'#rates');
+        return $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $model->id]).'#picture');
     }
 
     /**
@@ -217,7 +218,7 @@ class MarketplacesController extends Controller
                 $model->marketplace_id = $marketplace->id;
                 $model->save();
 
-                return $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $model->marketplace_id]));
+                return $this->redirect(Url::to(['/admin/marketplaces/update', 'id' => $model->marketplace_id]).'#tariffs');
             }
         }
 

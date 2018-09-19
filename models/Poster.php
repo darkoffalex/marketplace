@@ -83,6 +83,8 @@ class Poster extends \app\models\base\PosterBase
             case Constants::TARIFF_SUB_TYPE_REGULAR:
                 return Carbon::parse($this->paid_at)->addSeconds($this->period_seconds)->getTimestamp() > time();
                 break;
+            case Constants::TARIFF_SUB_TYPE_ADMIN_POST:
+                return true;
             default:
                 return false;
                 break;
@@ -103,9 +105,11 @@ class Poster extends \app\models\base\PosterBase
                 }else{
                     return '<span class="label label-success">'.Yii::t('app','Not paid (until {date})',['date' => $ends->format('d.m.Y H:i')]).'</span>';
                 }
+            }elseif($this->marketplaceTariff->tariff->special_type == Constants::TARIFF_SUB_TYPE_ADMIN_POST){
+                $at = Carbon::parse($this->paid_at)->format('d.m.Y H:i');
+                return '<span class="label label-success">'.Yii::t('app','Paid (at {date})',['date' => $at]).'</span>';
             }else{
-                /* TODO: Выводить информациб по иным типам тарифов */
-                return 'INFORMATION OUTPUT NOT READY';
+                return Yii::t('app','Unknown');
             }
         }
         return '<span class="label label-danger">'.Yii::t('app','Not paid').'</span>';
@@ -188,5 +192,19 @@ class Poster extends \app\models\base\PosterBase
     {
         return $this->hasOne(PosterImage::class, ['poster_id' => 'id'])
             ->orderBy('main_pic, priority ASC');
+    }
+
+    /**
+     * Получить дату с которой начинается публикация "поста от админа"
+     * @param string $format
+     * @return string
+     */
+    public function getAdminPostSinceDate($format = 'd-m-Y H:i')
+    {
+        if(empty($this->admin_post_time)){
+            return null;
+        }
+
+        return Carbon::parse($this->admin_post_time)->format($format);
     }
 }
