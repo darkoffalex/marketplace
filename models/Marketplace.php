@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\helpers\Help;
 use Yii;
+use yii\helpers\Url;
 use yii\web\UploadedFile;
 
 /**
@@ -68,26 +69,38 @@ class Marketplace extends \app\models\base\MarketplaceBase
     }
 
     /**
-     * Синхронизировать тарифы
-     * @param $tariffs
+     * Получить ссылку на основную страницу маркеплейса
+     * @param bool $scheme
+     * @return string
      */
-    public function syncTariffs($tariffs)
+    public function getLink($scheme = false)
     {
-        if(empty($tariffs)){
-            return;
+        return Url::to([
+            '/marketplace/index',
+            'subSubSubDomain' => $this->domain_alias,
+            'subSubDomain' => $this->country->domain_alias
+        ], $scheme);
+    }
+
+    /**
+     * Получить ссылку на категорию внутри маркетплейса
+     * @param $category
+     * @param bool $scheme
+     * @return null|string
+     */
+    public function getCategoryLink(&$category, $scheme = false)
+    {
+        /* @var $category Category */
+        if(empty($category->id)){
+            return null;
         }
 
-        foreach ($tariffs as $id => $settings) {
-            if(!empty($settings['enabled'])){
-                $t = $this->getTariffPrice($id,true);
-                $t->price = Help::toCents($settings['price']);
-                $t->save();
-            }else{
-                $t = $this->getTariffPrice($id,false);
-                if(!empty($t)){
-                    $t->delete();
-                }
-            }
-        }
+        return Url::to([
+            '/marketplace/category',
+            'subSubSubDomain' => $this->domain_alias,
+            'subSubDomain' => $this->country->domain_alias,
+            'id' => $category->id,
+            'title' => Help::slug( Yii::t('app',$category->name))
+        ], $scheme);
     }
 }

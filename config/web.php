@@ -132,11 +132,19 @@ $config = [
                 '<protocol:http|https>://user.<subDomain>.<domain>/<language:\w{2}>/<controller>/<action>' => 'user/<controller>/<action>',
                 '<protocol:http|https>://user.<subDomain>.<domain>/<controller>/<action>' => 'user/<controller>/<action>',
 
+                //Маркетплейс (суб-суб-домен)
+                '<protocol:http|https>://<subSubSubDomain>.<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>' => 'marketplace/index',
+                '<protocol:http|https>://<subSubSubDomain>.<subSubDomain>.<subDomain>.<domain>/' => 'marketplace/index',
+
+                //Категория в маркетплейсе
+                '<protocol:http|https>://<subSubSubDomain>.<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>/<id:\d+>/<title:\w+(-\w+)*>' => 'marketplace/category',
+                '<protocol:http|https>://<subSubSubDomain>.<subSubDomain>.<subDomain>.<domain>/<id:\d+>/<title:\w+(-\w+)*>' => 'marketplace/category',
+
                 //Страна (суб-домен)
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>' => 'country/index',
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/' => 'country/index',
 
-                //Категория
+                //Категория (обычная, в стране)
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>/<id:\d+>/<title:\w+(-\w+)*>' => 'country/category',
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<id:\d+>/<title:\w+(-\w+)*>' => 'country/category',
 

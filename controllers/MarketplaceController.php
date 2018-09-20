@@ -2,17 +2,18 @@
 
 namespace app\controllers;
 
-use app\components\Controller;
-use app\models\Country;
-use app\models\Category;
 use app\helpers\Constants;
+use app\models\Country;
+use app\components\Controller;
+use app\models\Marketplace;
 use app\models\Poster;
-use yii\data\Pagination;
 use yii\web\NotFoundHttpException;
+use yii\data\Pagination;
+use app\models\Category;
 use Yii;
 
 /**
- * Контроллер для общего просмотра объявлений по странам
+ * Показ маркетплейса и его содержимого
  *
  * @copyright 	2018 Alex Nem
  * @link 		https://github.com/darkoffalex
@@ -20,15 +21,16 @@ use Yii;
  *
  * @package app\controllers
  */
-class CountryController extends Controller
+class MarketplaceController extends Controller
 {
     /**
-     * Просмотр объявлений по стране
-     * @param null $subSubDomain
+     * Основная страница маркетплейса
+     * @param $subSubSubDomain
+     * @param $subSubDomain
      * @return string
      * @throws NotFoundHttpException
      */
-    public function actionIndex($subSubDomain = null)
+    public function actionIndex($subSubSubDomain, $subSubDomain)
     {
         /* @var $country Country */
         $country = Country::find()
@@ -36,18 +38,35 @@ class CountryController extends Controller
             ->one();
 
         if(empty($country)){
-            throw new NotFoundHttpException(\Yii::t('app','Country not found'));
+            throw new NotFoundHttpException(\Yii::t('app','Page not found'));
+        }
+
+        /* @var $marketplace Marketplace */
+        $marketplace = Marketplace::find()
+            ->where(['domain_alias' => $subSubSubDomain, 'status_id' => Constants::STATUS_ENABLED, 'country_id' => $country->id])
+            ->one();
+
+        if(empty($marketplace)){
+            throw new NotFoundHttpException(\Yii::t('app','Page not found'));
         }
 
         /* @var $categories Category[] */
-        $categories = Category::find()
-            ->where(['status_id' => Constants::STATUS_ENABLED, 'parent_category_id' => 0])
+        $categories = Category::find()->alias('c')
+            ->where(['c.status_id' => Constants::STATUS_ENABLED, 'c.parent_category_id' => 0])
             ->all();
 
+        //Скрыть пустые категории если нужно
+        if(!$marketplace->display_empty_categories){
+            foreach ($categories as $index => $category){
+                if($category->getPublishedPostersForMarketplace($marketplace->id)->count() == 0){
+                    unset($categories[$index]);
+                }
+            }
+        }
 
         //Сформировать запрос на получение всех опубликованных и оплаченных объявлений
         $q = Poster::find()->alias('p')->joinWith('marketplaceTariff.tariff t')->where([
-            'p.country_id' => $country->id,
+            'p.marketplace_id' => $marketplace->id,
             'p.status_id' => Constants::STATUS_ENABLED,
             'p.published' => (int)true,
         ])->andFilterWhere([
@@ -63,18 +82,18 @@ class CountryController extends Controller
         /* @var $posters Poster[] */
         $posters = $q->offset($pagination->offset)->limit($pagination->limit)->all();
 
-
-        return $this->render('index',compact('country','categories','posters','pagination'));
+        return $this->render('index',compact('country','categories','posters','pagination','marketplace'));
     }
 
     /**
-     * Просмотр объявлений по категории (и стране)
+     * Категория в маркетплейсе
+     * @param $subSubSubDomain
      * @param $subSubDomain
      * @param $id
      * @return string
      * @throws NotFoundHttpException
      */
-    public function actionCategory($subSubDomain, $id)
+    public function actionCategory($subSubSubDomain, $subSubDomain, $id)
     {
         /* @var $country Country */
         $country = Country::find()
@@ -82,7 +101,16 @@ class CountryController extends Controller
             ->one();
 
         if(empty($country)){
-            throw new NotFoundHttpException(\Yii::t('app','Country of category can not be found'));
+            throw new NotFoundHttpException(\Yii::t('app','Page not found'));
+        }
+
+        /* @var $marketplace Marketplace */
+        $marketplace = Marketplace::find()
+            ->where(['domain_alias' => $subSubSubDomain, 'status_id' => Constants::STATUS_ENABLED, 'country_id' => $country->id])
+            ->one();
+
+        if(empty($marketplace)){
+            throw new NotFoundHttpException(\Yii::t('app','Page not found'));
         }
 
         /* @var $category Category */
@@ -95,10 +123,24 @@ class CountryController extends Controller
             throw new NotFoundHttpException(\Yii::t('app','Category not found'));
         }
 
+        /* @var $categories Category[] */
+        $categories = Category::find()->alias('c')
+            ->where(['c.status_id' => Constants::STATUS_ENABLED, 'c.parent_category_id' => (int)$category->id])
+            ->all();
+
+        //Скрыть пустые категории если нужно
+        if(!$marketplace->display_empty_categories){
+            foreach ($categories as $index => $categoryItem){
+                if($categoryItem->getPublishedPostersForMarketplace($marketplace->id)->count() == 0){
+                    unset($categories[$index]);
+                }
+            }
+        }
+
         //Сформировать запрос на получение всех опубликованных и оплаченных объявлений
         $q = Poster::find()->alias('p')->joinWith('marketplaceTariff.tariff t')->where([
-            'p.country_id' => $country->id,
-            'p.category_id' => $category->id,
+            'p.category_id' => (int)$category->id,
+            'p.marketplace_id' => $marketplace->id,
             'p.status_id' => Constants::STATUS_ENABLED,
             'p.published' => (int)true,
         ])->andFilterWhere([
@@ -114,6 +156,6 @@ class CountryController extends Controller
         /* @var $posters Poster[] */
         $posters = $q->offset($pagination->offset)->limit($pagination->limit)->all();
 
-        return $this->render('category',compact('country','category','posters','pagination'));
+        return $this->render('category',compact('country','categories','posters','pagination','marketplace','category'));
     }
 }

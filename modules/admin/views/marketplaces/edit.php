@@ -187,7 +187,7 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                         <div class="col-md-6">
                             <h4><?= Yii::t('app','Preview'); ?>:</h4>
                             <div>
-                                <img src="<?= CropHelper::GetCroppedUrl($model,'header_image_filename','header_image_crop_settings'); ?>">
+                                <img src="<?= CropHelper::GetCroppedUrl($model,'header_image_filename','header_image_crop_settings',Yii::$app->params['visual']['marketplaceHeaderSizes']); ?>">
                             </div>
                         </div>
                     </div>
@@ -259,7 +259,7 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
          * Обрезка изображений
          */
         var image = document.getElementById('crop-image');
-        var ratio = 468 / 234;
+        var ratio = (<?= Yii::$app->params['visual']['marketplaceHeaderSizes'][0]; ?>) / (<?= Yii::$app->params['visual']['marketplaceHeaderSizes'][1]; ?>);
         var cropDataField = $('.crop-data');
         var cropData = undefined;
 

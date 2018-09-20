@@ -16,6 +16,8 @@ use yii\helpers\ArrayHelper;
 $controller = $this->context;
 $user = Yii::$app->user->identity;
 
+$this->registerJsFile('@web/common/js/clipboard.js');
+
 $this->title = Yii::t('app','Marketplaces');
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -76,6 +78,19 @@ $gridColumns = [
             return !empty($names[$model->status_id]) ? $names[$model->status_id] : null;
         },
     ],
+
+    [
+        'header' => Yii::t('app','Link'),
+        'format' => 'raw',
+        'enableSorting' => false,
+        'value' => function($model, $key, $index, $column){
+            /* @var $model \app\models\MarketplaceSearch*/
+            return '<div class="input-group input-group-sm"><input id="copy-link-'.$model->id.'" class="form-control" readonly type="text" value="'.$model->GetLink(false).'"><span class="input-group-btn"><button title="'.Yii::t('app','Copy').'" type="button" data-clipboard-target="#copy-link-'.$model->id.'" class="btn btn-info btn-flat copy-text"><i class="fa fa-fw fa-clipboard"></i></button></span></div>';
+        },
+        'contentOptions' => ['style' => 'width:230px;'],
+        'headerOptions' => ['style' => 'width:230px;']
+    ],
+
     [
         'header' => '',
         'format' => 'raw',
@@ -106,3 +121,9 @@ $gridColumns = [
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        new Clipboard('.copy-text');
+    });
+</script>

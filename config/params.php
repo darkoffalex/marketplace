@@ -5,4 +5,9 @@ return [
         'addMissing' => false,
         'markMissing' => false,
     ],
+
+    // Параметры визуализации некоторых элементов
+    'visual' => [
+        'marketplaceHeaderSizes' => [1110,236],
+    ],
 ];

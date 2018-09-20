@@ -139,27 +139,52 @@ class Category extends \app\models\base\CategoryBase
     /**
      * Получить массив для breadcrumbs
      * @param null|Country $country
+     * @param null|Marketplace $marketplace
      * @return array
      */
-    public function getBreadCrumbs($country = null)
+    public function getBreadCrumbs($country = null, $marketplace = null)
     {
         $result = [];
 
         /* @var $country Country */
-        if(!empty($country)){
-            $result[] = ['label' => Yii::t('app',$country->name), 'url' => $country->getUrl()];
+        if(empty($marketplace)){
+            if(!empty($country)){
+                $result[] = ['label' => Yii::t('app',$country->name), 'url' => $country->getUrl()];
+            }
+        }else{
+            $result[] = ['label' => Yii::t('app',$marketplace->name), 'url' => $marketplace->getLink()];
         }
 
         $items = [];
         $cat = $this;
         while (!empty($cat->parent)){
             $cat = $cat->parent;
-            $items[] = ['label' => Yii::t('app',$cat->name), 'url' => $cat->getUrl()];
+            $items[] = ['label' => Yii::t('app',$cat->name), 'url' => !empty($marketplace) ? $marketplace->getCategoryLink($cat) : $cat->getUrl()];
         }
 
         $items = array_reverse($items);
         $items[] = Yii::t('app',$this->name);
 
         return ArrayHelper::merge($result,$items);
+    }
+
+    /**
+     * Сформировать запрос на получение опубликованных объявлений для конкретного маркетплейса (и текущей категории)
+     * @param $marketplaceId
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPublishedPostersForMarketplace($marketplaceId)
+    {
+        $q = Poster::find()->alias('p')->joinWith('marketplaceTariff.tariff t')->where([
+            'p.marketplace_id' => $marketplaceId,
+            'p.category_id' => $this->id,
+            'p.status_id' => Constants::STATUS_ENABLED,
+            'p.published' => (int)true,
+        ])->andFilterWhere([
+            'or',
+            '(p.paid_at + INTERVAL period_seconds SECOND) > NOW()',
+            'p.paid_at < NOW() and t.special_type = '.Constants::TARIFF_SUB_TYPE_ADMIN_POST
+        ])->distinct();
+        return $q;
     }
 }
