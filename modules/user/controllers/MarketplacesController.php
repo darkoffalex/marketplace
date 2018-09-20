@@ -78,6 +78,7 @@ class MarketplacesController extends Controller
         //Создать временное объявление
         $model = new Poster();
         $model->marketplace_id = $marketplace->id;
+        $model->country_id = $marketplace->country_id;
         $model->user_id = Yii::$app->user->id;
         $model->status_id = Constants::STATUS_TEMPORARY;
         $model->created_at = date('Y-m-d H:i:s',time());

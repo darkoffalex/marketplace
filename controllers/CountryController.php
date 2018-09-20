@@ -6,7 +6,10 @@ use app\components\Controller;
 use app\models\Country;
 use app\models\Category;
 use app\helpers\Constants;
+use app\models\Poster;
+use yii\data\Pagination;
 use yii\web\NotFoundHttpException;
+use Yii;
 
 /**
  * Контроллер для общего просмотра объявлений по странам
@@ -42,8 +45,25 @@ class CountryController extends Controller
             ->all();
 
 
+        //Сформировать запрос на получение всех опубликованных и оплаченных объявлений
+        $q = Poster::find()->alias('p')->joinWith('marketplaceTariff.tariff t')->where([
+            'p.country_id' => $country->id,
+            'p.status_id' => Constants::STATUS_ENABLED,
+            'p.published' => (int)true,
+        ])->andFilterWhere([
+            'or',
+            '(p.paid_at + INTERVAL period_seconds SECOND) > NOW()',
+            'p.paid_at < NOW() and t.special_type = '.Constants::TARIFF_SUB_TYPE_ADMIN_POST
+        ])->distinct();
 
-        return $this->render('index',compact('country','categories'));
+        //Кол-во
+        $count = $q->count();
+        $pagination = new Pagination(['totalCount' => $count, 'pageSize' => Yii::$app->request->get('per-page',20)]);
+        /* @var $posters Poster[] */
+        $posters = $q->offset($pagination->offset)->limit($pagination->limit)->all();
+
+
+        return $this->render('index',compact('country','categories','posters','pagination'));
     }
 
     /**
@@ -64,6 +84,7 @@ class CountryController extends Controller
             throw new NotFoundHttpException(\Yii::t('app','Page not found'));
         }
 
+        /* @var $category Category */
         $category = Category::find()
             ->with(['childrenActive.parent'],['childrenActive.childrenActive'])
             ->where(['id' => (int)$id, 'status_id' => Constants::STATUS_ENABLED])
@@ -73,7 +94,24 @@ class CountryController extends Controller
             throw new NotFoundHttpException(\Yii::t('app','Page not found'));
         }
 
+        //Сформировать запрос на получение всех опубликованных и оплаченных объявлений
+        $q = Poster::find()->alias('p')->joinWith('marketplaceTariff.tariff t')->where([
+            'p.country_id' => $country->id,
+            'p.category_id' => $category->id,
+            'p.status_id' => Constants::STATUS_ENABLED,
+            'p.published' => (int)true,
+        ])->andFilterWhere([
+            'or',
+            '(p.paid_at + INTERVAL period_seconds SECOND) > NOW()',
+            'p.paid_at < NOW() and t.special_type = '.Constants::TARIFF_SUB_TYPE_ADMIN_POST
+        ])->distinct();
 
-        return $this->render('category',compact('country','category'));
+        //Кол-во
+        $count = $q->count();
+        $pagination = new Pagination(['totalCount' => $count, 'pageSize' => Yii::$app->request->get('per-page',20)]);
+        /* @var $posters Poster[] */
+        $posters = $q->offset($pagination->offset)->limit($pagination->limit)->all();
+
+        return $this->render('category',compact('country','category','posters','pagination'));
     }
 }
