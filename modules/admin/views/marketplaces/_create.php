@@ -75,7 +75,7 @@ $countries = Country::find()
 
         <?= $form->field($model,'group_admin_profile')->textInput(); ?>
 
-        <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name'))->label(Yii::t('app','Country')); ?>
+        <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name'))->label(Yii::t('app','Group geo')); ?>
 
         <?= $form->field($model,'domain_alias')->textInput(); ?>
 

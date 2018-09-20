@@ -87,12 +87,20 @@ $gridColumns = [
         'class' => 'yii\grid\ActionColumn',
         'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
         'header' => Yii::t('app','Actions'),
-        'template' => '{delete} {view}',
+        'template' => '{delete} {view} {update}',
         'buttons' => [
             'view' => function ($url,$model,$key) {
                 /* @var $model \app\models\Cv */
                 return Html::a('<span class="glyphicon glyphicon-eye-open"></span>', Url::to(['/group-admin/cvs/view', 'id' => $model->id]), ['title' => Yii::t('app','View'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']);
             },
+            'update' => function ($url,$model,$key) {
+                /* @var $model \app\models\Cv */
+                return Html::a('<span class="glyphicon glyphicon-pencil"></span>', Url::to(['/group-admin/cvs/update', 'id' => $model->id]), ['title' => Yii::t('app','View'), 'data-target' => '.modal-main', 'data-toggle'=>'modal']);
+            },
+        ],
+        'visibleButtons' => [
+            'delete' => function ($model, $key, $index) use ($user) {/* @var $model \app\models\Cv */ return $model->status_id == Constants::CV_STATUS_NEW;},
+            'update' => function ($model, $key, $index) use ($user) {/* @var $model \app\models\Cv */ return $model->status_id == Constants::CV_STATUS_NEW ;},
         ],
     ],
 ];

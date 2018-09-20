@@ -103,7 +103,7 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
 
                 <?= $form->field($model,'domain_alias')->textInput(); ?>
 
-                <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
+                <?= $form->field($model,'country_id')->dropDownList(ArrayHelper::map($countries,'id','name'))->label(Yii::t('app','Group geo')); ?>
 
                 <?= $form->field($model, 'status_id')->dropDownList([
                     Constants::USR_STATUS_ENABLED => Constants::GetStatusName(Constants::USR_STATUS_ENABLED),
@@ -112,7 +112,7 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
 
                 <?= $form->field($model,'timezone')->dropDownList(\app\helpers\Help::getTimeZoneArray()); ?>
 
-                <?= $form->field($model,'geo')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
+<!--                --><?//= $form->field($model,'geo')->dropDownList(ArrayHelper::map($countries,'id','name')); ?>
 
                 <?= $form->field($model,'selling_rules')->textarea(); ?>
 

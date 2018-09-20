@@ -75,6 +75,51 @@ class CvsController extends Controller
     }
 
     /**
+     * Обновить/редактировать
+     * @param $id
+     * @return array|string
+     * @throws NotFoundHttpException
+     */
+    public function actionUpdate($id)
+    {
+        /* @var Cv $model */
+        $model = Cv::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id, 'status_id' => Constants::CV_STATUS_NEW])->one();
+
+        //если не найден
+        if(empty($model)){
+            throw new NotFoundHttpException('Page not found',404);
+        }
+
+        //AJAX валидация
+        if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+
+        //если пришли данные из POST и они успешно заружены в объект
+        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
+
+            //если все данные в итоге корректны
+            if($model->validate()){
+
+                //базовые параметры, обновить
+                $model->status_id = Constants::CV_STATUS_NEW;
+                $model->created_at = date('Y-m-d H:i:s',time());
+                $model->created_by_id = Yii::$app->user->id;
+                $model->updated_at = date('Y-m-d H:i:s',time());
+                $model->updated_by_id = Yii::$app->user->id;
+                $model->save();
+
+                //к списку
+                $this->redirect(Url::to(['/group-admin/cvs/index']));
+            }
+        }
+
+        //вывести форму редактирования
+        return $this->renderAjax('_edit',compact('model','flags'));
+    }
+
+    /**
      * Просмотр заявки
      * @param $id
      * @return string
@@ -94,7 +139,7 @@ class CvsController extends Controller
     public function actionDelete($id)
     {
         /* @var Cv $model */
-        $model = Cv::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id])->one();
+        $model = Cv::find()->where(['id' => (int)$id, 'user_id' => Yii::$app->user->id, 'status_id' => Constants::CV_STATUS_NEW])->one();
 
         //если не найден
         if(empty($model)){

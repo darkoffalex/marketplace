@@ -78,7 +78,7 @@ class PostersController extends Controller
             //Если есть изменения в основных полях - сбросить подтверждения
             if($model->hasNewChanges()){
                 $model->approved_by_ga = (int)false;
-                $model->approved_by_sa = (int)false;
+                $model->approved_by_sa = (int)$model->marketplace->trusted;
             }
 
             //Если статус по каком-то причинам все еще времнный - перевести в "активный"

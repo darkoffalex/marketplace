@@ -6,6 +6,7 @@ use Yii;
 
 use app\models\Country;
 use app\models\User;
+use app\models\Marketplace;
 
 /**
  * This is the base model class for table "cv".
@@ -37,6 +38,7 @@ use app\models\User;
  *
  * @property Country $country
  * @property User $user
+ * @property Marketplace[] $marketplaces
  */
 class CvBase extends \yii\db\ActiveRecord
 {
@@ -110,5 +112,13 @@ class CvBase extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMarketplaces()
+    {
+        return $this->hasMany(Marketplace::className(), ['cv_id' => 'id']);
     }
 }

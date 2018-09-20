@@ -41,6 +41,8 @@ class CountryController extends Controller
             ->where(['status_id' => Constants::STATUS_ENABLED, 'parent_category_id' => 0])
             ->all();
 
+
+
         return $this->render('index',compact('country','categories'));
     }
 

@@ -10,12 +10,18 @@ use Yii;
 class Cv extends \app\models\base\CvBase
 {
     /**
+     * @var null|int
+     */
+    public $create_marketplace = null;
+
+    /**
      * @inheritdoc
      */
     public function rules()
     {
         $rules = parent::rules();
         $rules[] = [['name','group_name','group_popularity','group_url','email','phone'],'required'];
+        $rules[] = [['create_marketplace'], 'safe'];
         return $rules;
     }
 

@@ -54,7 +54,7 @@ $controller = $this->context;
             Constants::CV_STATUS_NEW => Yii::t('app','New'),
             Constants::CV_STATUS_APPROVED => Yii::t('app','Approved'),
             Constants::CV_STATUS_REJECTED => Yii::t('app','Rejected'),
-        ],['data-activate' => "#discard-reason:".Constants::CV_STATUS_REJECTED]); ?>
+        ],['data-activate' => "#discard-reason:".Constants::CV_STATUS_REJECTED.",#and-create:".Constants::ADMIN_POST_TIME_APPROVED]); ?>
 
         <div id="discard-reason" class="hidden">
             <?= $form->field($model,'discard_reason')->textarea(); ?>
@@ -64,6 +64,9 @@ $controller = $this->context;
     <div class="modal-footer">
         <button type="button" class="btn btn-default pull-left" data-dismiss="modal"><?= Yii::t('app','Cancel'); ?></button>
         <button type="submit" class="btn btn-primary"><?= $model->isNewRecord ? Yii::t('app','Create') : Yii::t('app','Save'); ?></button>
+        <?php if(!$model->isNewRecord && empty($model->marketplaces)): ?>
+            <button id="and-create" type="submit" name="Cv[create_marketplace]" value="1" class="btn btn-primary hidden"><?= Yii::t('app','Save & create mp'); ?></button>
+        <?php endif; ?>
     </div>
 
 <?php ActiveForm::end(); ?>

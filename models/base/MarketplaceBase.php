@@ -5,6 +5,7 @@ namespace app\models\base;
 use Yii;
 
 use app\models\Country;
+use app\models\Cv;
 use app\models\User;
 use app\models\MarketplaceKey;
 use app\models\MarketplaceTariffPrice;
@@ -37,8 +38,10 @@ use app\models\Poster;
  * @property int $created_by_id
  * @property int $updated_by_id
  * @property int $trusted
+ * @property int $cv_id
  *
  * @property Country $country
+ * @property Cv $cv
  * @property User $user
  * @property MarketplaceKey[] $marketplaceKeys
  * @property MarketplaceTariffPrice[] $marketplaceTariffPrices
@@ -60,12 +63,13 @@ class MarketplaceBase extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'country_id', 'display_empty_categories', 'status_id', 'group_popularity', 'created_by_id', 'updated_by_id', 'trusted'], 'integer'],
+            [['user_id', 'country_id', 'display_empty_categories', 'status_id', 'group_popularity', 'created_by_id', 'updated_by_id', 'trusted', 'cv_id'], 'integer'],
             [['name', 'domain_alias'], 'required'],
             [['selling_rules', 'pm_theme_description', 'group_description'], 'string'],
             [['created_at', 'updated_at'], 'safe'],
             [['geo', 'name', 'domain_alias', 'header_image_filename', 'header_image_crop_settings', 'admin_phone_wa', 'group_thematics', 'group_url', 'group_admin_profile', 'timezone'], 'string', 'max' => 255],
             [['country_id'], 'exist', 'skipOnError' => true, 'targetClass' => Country::className(), 'targetAttribute' => ['country_id' => 'id']],
+            [['cv_id'], 'exist', 'skipOnError' => true, 'targetClass' => Cv::className(), 'targetAttribute' => ['cv_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
@@ -100,6 +104,7 @@ class MarketplaceBase extends \yii\db\ActiveRecord
             'created_by_id' => Yii::t('app', 'Created By ID'),
             'updated_by_id' => Yii::t('app', 'Updated By ID'),
             'trusted' => Yii::t('app', 'Trusted'),
+            'cv_id' => Yii::t('app', 'Cv ID'),
         ];
     }
 
@@ -109,6 +114,14 @@ class MarketplaceBase extends \yii\db\ActiveRecord
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['id' => 'country_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCv()
+    {
+        return $this->hasOne(Cv::className(), ['id' => 'cv_id']);
     }
 
     /**

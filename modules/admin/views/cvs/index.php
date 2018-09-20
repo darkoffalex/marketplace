@@ -151,11 +151,6 @@ $gridColumns = [
                     'pjax' => false,
                 ]); ?>
             </div>
-            <?php if(Access::has($user,'cvs','create')): ?>
-                <div class="box-footer">
-                    <a href="<?php echo Url::to(['/admin/cvs/create']); ?>" data-toggle="modal" data-target=".modal-main" class="btn btn-primary"><?= Yii::t('app','Create'); ?></a>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>
