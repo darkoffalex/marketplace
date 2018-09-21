@@ -108,6 +108,74 @@ $gridColumns = [
     ],
 
     [
+        'attribute' => 'is_group_admin',
+        'filter' => [
+            0 => Yii::t('app','No'),
+            1 => Yii::t('app','Yes'),
+        ],
+        'enableSorting' => false,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\UserSearch */
+            $names = [
+                0 => Yii::t('app','No'),
+                1 => Yii::t('app','Yes'),
+            ];
+            $key = (int)$model->isApprovedGroupAdmin();
+            return !empty($names[$key]) ? $names[$key] : null;
+        },
+    ],
+
+    [
+        'attribute' => 'is_member',
+        'filter' => [
+            0 => Yii::t('app','No'),
+            1 => Yii::t('app','Yes'),
+        ],
+        'enableSorting' => false,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\UserSearch */
+            $names = [
+                0 => Yii::t('app','No'),
+                1 => Yii::t('app','Yes'),
+            ];
+            $key = (int)$model->isApprovedMember();
+            return !empty($names[$key]) ? $names[$key] : null;
+        },
+    ],
+
+    [
+        'attribute' => 'total_agr_income',
+        'enableSorting' => true,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\UserSearch */
+            return $model->getGroupAdminIncome(true).' ₽';
+        },
+    ],
+
+    [
+        'attribute' => 'average_agr_day_income',
+        'enableSorting' => true,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\UserSearch */
+            return $model->getGroupAdminDayIncome(true).' ₽';
+        },
+    ],
+
+    [
+        'attribute' => 'group_members',
+        'enableSorting' => true,
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $column){
+            /* @var $model \app\models\UserSearch */
+            return $model->getTotalGroupMembers();
+        },
+    ],
+
+    [
         'class' => 'yii\grid\ActionColumn',
         'contentOptions'=>['style'=>'width: 140px; text-align: center;'],
         'header' => Yii::t('app','Actions'),

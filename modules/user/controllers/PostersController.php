@@ -207,7 +207,7 @@ class PostersController extends Controller
 
         //Тестовый режим
         //В этом месте происходит эмитация оплаты
-        //TODO: убрать этот блок в бальнейшем
+        //TODO: убрать этот блок в дальнейшем
         if(Yii::$app->request->post('test-mode')){
 
             //Если есть цена

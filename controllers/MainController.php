@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\helpers\Constants;
+use app\helpers\Help;
 use app\models\forms\SettingsForm;
 use app\models\User;
 use app\components\Controller;
@@ -103,12 +104,14 @@ class MainController extends Controller
                 $user->username = $appScopedUID;
                 $user->facebook_id = $appScopedUID;
                 $user->name = ArrayHelper::getValue($baseUserData, 'name');
+                $user->fb_msg_sub_code = Help::randomString(10);
                 $user->role_id = Constants::ROLE_USER;
                 $user->status_id = Constants::STATUS_ENABLED;
                 $user->created_at = date('Y-m-d H:i:s');
                 $user->created_by_id = 0;
             }
 
+            $user->email = ArrayHelper::getValue($baseUserData,'email');
             $user->avatar_url = $avatarData->getUrl();
             $user->updated_at = date('Y-m-d H:i:s');
             $user->last_login_at = date('Y-m-d H:i:s');

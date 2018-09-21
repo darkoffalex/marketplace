@@ -60,17 +60,8 @@ class OperationsController extends Controller
                 $model->created_at = date('Y-m-d H:i:s',time());
 
                 //Если статус установлен в "выполнено" - произвести начисление и списание
-                if($model->save() && $model->status_id == Constants::PAYMENT_STATUS_DONE){
-
-                    $model->fromAccount->amount -= $model->amount;
-                    $model->fromAccount->updated_at = date('Y-m-d H:i:s',time());
-                    $model->fromAccount->updated_by_id = Yii::$app->user->id;
-                    $model->fromAccount->save();
-
-                    $model->toAccount->amount += $model->amount;
-                    $model->toAccount->updated_at = date('Y-m-d H:i:s',time());
-                    $model->toAccount->updated_by_id = Yii::$app->user->id;
-                    $model->toAccount->save();
+                if($model->save() && $model->status_id != Constants::PAYMENT_STATUS_CANCELED){
+                    AccountsHelper::moveMoney($model->from_account_id,$model->to_account_id,$model->amount);
                 }
 
                 return $this->redirect(Url::to(['/admin/operations/index']));

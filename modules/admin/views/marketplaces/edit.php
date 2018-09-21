@@ -93,6 +93,8 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
 
                 <?= $form->field($model,'group_admin_profile')->textInput(); ?>
 
+                <?= $form->field($model,'group_popularity')->textInput(); ?>
+
 <!--                --><?//= $form->field($model,'group_url')->widget(MaskedInput::class,[
 //                    'mask' => 'https://www.f\acebook.com/*{*}',
 //                ]); ?>

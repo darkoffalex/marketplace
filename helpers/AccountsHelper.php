@@ -107,13 +107,9 @@ class AccountsHelper
         $transaction -> updated_at = date('Y-m-d H:i:s',time());
 
         if($transaction->save()){
-
-            $transaction->refresh();
-
             if($operationStatus != Constants::PAYMENT_STATUS_CANCELED) {
                 self::moveMoney($transaction->from_account_id,$transaction->to_account_id,$amount);
             }
-
             return $transaction;
         }
 
@@ -144,6 +140,18 @@ class AccountsHelper
             $dstAccount->updated_at = date('Y-m-d H:i:s',time());
             $dstAccount->updated_by_id = Yii::$app->user->id;
             $dstAccount->save();
+
+            //Если это зачисление на аккаунт админа группы - добавить к общему доходу
+            if($dstAccount->account_type_id == Constants::GROUP_ADMIN_ACCOUNT){
+                $dstAccount->user->total_agr_income += $amountInCents;
+                $dstAccount->user->update();
+            }
+
+            //Если это списание с аккаунта админа группы - вычесть из общего дохода
+            if($srcAccount->account_type_id == Constants::GROUP_ADMIN_ACCOUNT && $dstAccount->account_type_id != Constants::SYSTEM_OUTGO_ACCOUNT){
+                $srcAccount->user->total_agr_income -= $amountInCents;
+                $srcAccount->user->update();
+            }
         }
     }
 }

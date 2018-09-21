@@ -43,6 +43,26 @@ class m180912_132119_create_money_account_table extends Migration
             'CASCADE',
             'NO ACTION'
         );
+
+        $this->insert('money_account',[
+            'user_id' => null,
+            'account_type_id' => \app\helpers\Constants::SYSTEM_INCOME_ACCOUNT,
+            'amount' => 0,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_by_id' => 0,
+            'updated_by_id' => 0,
+        ]);
+
+        $this->insert('money_account',[
+            'user_id' => null,
+            'account_type_id' => \app\helpers\Constants::SYSTEM_OUTGO_ACCOUNT,
+            'amount' => 0,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s'),
+            'created_by_id' => 0,
+            'updated_by_id' => 0,
+        ]);
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace app\models;
 
+use app\helpers\Help;
 use app\models\base\UserBase;
+use Carbon\Carbon;
 use Yii;
 use app\helpers\Constants;
 use Imagine\Exception\NotSupportedException;
@@ -12,6 +14,8 @@ use yii\web\IdentityInterface;
 /**
  * Class User
  * @package app\models
+ * @property MoneyTransaction[] $groupAdminIncomeTransactions
+ * @property MoneyAccount[] $moneyAccountsGroupAdmin
  */
 class User extends UserBase implements IdentityInterface
 {
@@ -137,6 +141,13 @@ class User extends UserBase implements IdentityInterface
     {
         $baseLabels = parent::attributeLabels();
         $baseLabels['password'] = Yii::t('app','Password');
+        $baseLabels['role_id'] = Yii::t('app','Role');
+        $baseLabels['status_id'] = Yii::t('app','Status');
+        $baseLabels['is_group_admin'] = Yii::t('app','Approved group admin');
+        $baseLabels['is_member'] = Yii::t('app','Approved member');
+        $baseLabels['total_agr_income'] = Yii::t('app','Total income');
+        $baseLabels['average_agr_day_income'] = Yii::t('app','Average day income');
+        $baseLabels['group_members'] = Yii::t('app','Group members');
         return $baseLabels;
     }
 
@@ -170,12 +181,21 @@ class User extends UserBase implements IdentityInterface
     }
 
     /**
-     * Является ли пользователь подтвержденным админом груп
+     * Является ли пользователь подтвержденным админом групп (есть ли у него хоть один маркетплейс)
      * @return bool
      */
     public function isApprovedGroupAdmin()
     {
         return Marketplace::find()->where(['user_id' => $this->id])->count() > 0;
+    }
+
+    /**
+     * Является ли пользователь подтвержденным участником (привязан ли хоть один маркетплейс)
+     * @return bool
+     */
+    public function isApprovedMember()
+    {
+        return Marketplace::find()->alias('mp')->joinWith('marketplaceKeys mpk')->where(['mpk.used_by_id' => $this->id])->count() > 0;
     }
 
     /**
@@ -235,4 +255,71 @@ class User extends UserBase implements IdentityInterface
 
         return $account;
     }
+
+    /**
+     * Получить доход админа группы
+     * @param bool $format
+     * @return mixed|string
+     */
+    public function getGroupAdminIncome($format = false)
+    {
+        return $format ? Help::toPrice($this->total_agr_income) : $this->total_agr_income;
+    }
+
+    /**
+     * Получить сумму всех невыплаченных выплат этому админу группы
+     * @param bool $format
+     * @return mixed|string
+     */
+    public function getUndonePayoutsSum($format = false)
+    {
+        $sum = $this->getPayoutProposals()->andWhere('status_id != :done',['done' => Constants::PAYMENT_STATUS_DONE])->sum('amount');
+        return $format ? Help::toPrice($sum) : $sum;
+    }
+
+    /**
+     * Получить кол-во рекламодателей однажды оплативших свои объявления
+     * @return int|string
+     */
+    public function getPaidAdvertisersCount()
+    {
+        return User::find()->alias('u')
+            ->joinWith(['posters p','posters.marketplace mp'])
+            ->andWhere('p.paid_at IS NOT NULL')
+            ->andWhere(['mp.user_id' => $this->id])
+            ->distinct()
+            ->count();
+    }
+
+    /**
+     * Получить средний доход админа группы за день
+     * @param bool $format
+     * @return int|string
+     */
+    public function getGroupAdminDayIncome($format = false)
+    {
+        $secondsSinceRegistration = time() - Carbon::parse($this->created_at)->getTimestamp();
+        $daysSinceRegistration = max(1,$secondsSinceRegistration / 86400);
+        $daysIncome = (int)($this->getGroupAdminIncome() / $daysSinceRegistration);
+        return $format ? Help::toPrice($daysIncome) : $daysIncome;
+    }
+
+    /**
+     * Получить все счета с типом Constants::GROUP_ADMIN_ACCOUNT
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMoneyAccountsGroupAdmin()
+    {
+        return $this->hasMany(MoneyAccount::class, ['user_id' => 'id'])->andWhere(['account_type_id' => Constants::GROUP_ADMIN_ACCOUNT]);
+    }
+
+    /**
+     * Получить суммарное кол-во участников в в группах маркетплейсов
+     * @return mixed
+     */
+    public function getTotalGroupMembers()
+    {
+        return $this->getMarketplaces()->sum('marketplace.group_popularity');
+    }
+
 }

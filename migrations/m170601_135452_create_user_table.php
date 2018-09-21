@@ -18,6 +18,7 @@ class m170601_135452_create_user_table extends Migration
             'password_hash' => $this->string(),
             'auth_key' => $this->string(),
             'name' => $this->string(),
+            'email' => $this->string(),
             'avatar_url' => $this->string()->defaultValue(null),
             'avatar_filename' => $this->string()->defaultValue(null),
             'role_id' => $this->integer(),
@@ -28,7 +29,7 @@ class m170601_135452_create_user_table extends Migration
             'created_at' => $this->dateTime(),
             'updated_at' => $this->dateTime(),
             'created_by_id' => $this->integer(),
-            'updated_by_id' => $this->integer()
+            'updated_by_id' => $this->integer(),
         ]);
 
         $this->insert('user',[
@@ -36,6 +37,7 @@ class m170601_135452_create_user_table extends Migration
             'auth_key' => Yii::$app->security->generateRandomString(),
             'password_hash' => Yii::$app->security->generatePasswordHash('123456'),
             'name' => 'John Johnson',
+            'email' => 'test@test.com',
             'role_id' => \app\helpers\Constants::ROLE_ADMIN,
             'status_id' => \app\helpers\Constants::USR_STATUS_ENABLED,
             'created_at' => date('Y-m-d H:i:s',time()),
