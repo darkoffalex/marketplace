@@ -10,6 +10,7 @@ use app\models\MarketplaceKey;
 use app\models\MoneyAccount;
 use app\models\PayoutProposal;
 use app\models\Poster;
+use app\models\ShortLink;
 use app\models\UsedWebPaymentType;
 
 /**
@@ -48,6 +49,7 @@ use app\models\UsedWebPaymentType;
  * @property MoneyAccount[] $moneyAccounts
  * @property PayoutProposal[] $payoutProposals
  * @property Poster[] $posters
+ * @property ShortLink[] $shortLinks
  * @property UsedWebPaymentType[] $usedWebPaymentTypes
  */
 class UserBase extends \yii\db\ActiveRecord
@@ -155,6 +157,14 @@ class UserBase extends \yii\db\ActiveRecord
     public function getPosters()
     {
         return $this->hasMany(Poster::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getShortLinks()
+    {
+        return $this->hasMany(ShortLink::className(), ['user_id' => 'id']);
     }
 
     /**

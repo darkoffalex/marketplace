@@ -9,6 +9,8 @@ use app\models\User;
 use app\components\Controller;
 use Facebook\Facebook;
 use Yii;
+use app\models\ShortLink;
+use yii\web\NotFoundHttpException;
 use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use yii\web\ServerErrorHttpException;
@@ -125,6 +127,29 @@ class MainController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Перенаправление для коротких ссылок
+     * @param $key
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionShortLinkRedirect($key)
+    {
+        /* @var $shortLink ShortLink */
+        $shortLink = ShortLink::find()->where(['key' => $key, 'status_id' => Constants::STATUS_ENABLED])->one();
+
+        if(empty($shortLink)){
+            throw new NotFoundHttpException('Page not found', 404);
+        }
+
+        //Увеличить кол-во кликов
+        $shortLink->clicks++;
+        $shortLink->update();
+
+        //return $this->redirect($shortLink->original_link);
+        return $this->renderPartial('short-link-redirect',['link' => $shortLink]);
     }
 
     /**

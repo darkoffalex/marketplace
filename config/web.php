@@ -148,6 +148,9 @@ $config = [
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<language:\w{2}>/<id:\d+>/<title:\w+(-\w+)*>' => 'country/category',
                 '<protocol:http|https>://<subSubDomain>.<subDomain>.<domain>/<id:\d+>/<title:\w+(-\w+)*>' => 'country/category',
 
+                //Редирект для коротких ссылок
+                '<protocol:http|https>://<subDomain>.<domain>/sl/<key:\w+>' => 'main/short-link-redirect',
+
                 //Базовые правила
                 '<protocol:http|https>://<subDomain>.<domain>/<language:\w{2}>/' => 'main/index',
                 '<protocol:http|https>://<subDomain>.<domain>/' => 'main/index',

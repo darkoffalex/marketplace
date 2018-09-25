@@ -72,6 +72,10 @@ class Constants
     const ADMIN_POST_TIME_APPROVED = 2;
     const ADMIN_POST_TIME_DISAPPROVED = 3;
 
+    //Типы сокращенных ссылок
+    const SHORT_LINK_REGULAR = 1;
+    const SHORT_LINK_WHATSAPP = 2;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

@@ -69,7 +69,13 @@ $user = Yii::$app->user->identity;
                                         'active' => $c == 'operations',
                                         'url' => ['/user/operations/index'],
                                         'visible' => true,
-                                    ]
+                                    ],
+                                    [
+                                        'label' => Yii::t('app','Short links'),
+                                        'url' => ['/user/short-links/index'],
+                                        'active' => $c == 'short-links',
+                                        'visible' => true,
+                                    ],
                                 ],
                             'options' => ['class' => 'navbar-nav'],
                         ]); ?>

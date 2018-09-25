@@ -143,7 +143,9 @@ $gridColumnsPayouts = [
         <div class="box">
             <div class="box-header"><h3 class="box-title"><?= Yii::t('app','Account details'); ?></h3></div>
             <div class="box-body">
-                 <h4><?= Yii::t('app','Balance'); ?>: <?= Help::toPrice($account->amount).' ₽'; ?></h4>
+                <h4><strong><?= Yii::t('app','Balance'); ?>: <?= Help::toPrice($account->amount).' ₽'; ?></strong></h4>
+                <h4><?= Yii::t('app','Total income'); ?>: <?= Help::toPrice($user->total_agr_income).' ₽'; ?></h4>
+                <h4><?= Yii::t('app','Average day income'); ?> <?= Help::toPrice($user->getGroupAdminDayIncome()).' ₽' ?></h4>
             </div>
             <div class="box-footer">
                 <a class="btn btn-primary" data-target=".modal-main" data-toggle="modal" href="<?= Url::to(['/group-admin/operations/new-proposal']); ?>"><?= Yii::t('app','Withdrawal'); ?></a>
