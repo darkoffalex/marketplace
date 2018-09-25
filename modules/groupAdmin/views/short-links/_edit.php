@@ -7,7 +7,7 @@ use yii\helpers\Url;
 
 /* @var $model \app\models\ShortLink*/
 /* @var $this \yii\web\View */
-/* @var $controller \app\modules\user\controllers\ShortLinksController */
+/* @var $controller \app\modules\groupAdmin\controllers\ShortLinksController */
 /* @var $user \app\models\User */
 
 $controller = $this->context;
@@ -52,7 +52,7 @@ $user = Yii::$app->user->identity;
 
         <div id="advanced" style="margin-top: 10px;" class="collapse">
 
-            <?php if($user->isApprovedMember()): ?>
+            <?php if($user->isApprovedGroupAdmin()): ?>
                 <div class="phone-block <?= $model->type_id == Constants::SHORT_LINK_REGULAR ? 'hidden' : ''; ?>">
                     <?= $form->field($model,'message')->textarea(); ?>
                 </div>

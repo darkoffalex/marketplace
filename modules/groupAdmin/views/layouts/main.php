@@ -83,6 +83,34 @@ $user = Yii::$app->user->identity;
                                         'url' => ['/group-admin/operations/index'],
                                         'visible' => true,
                                     ],
+                                    [
+                                        'label' => Yii::t('app','Short links'),
+                                        'url' => ['/group-admin/short-links/index'],
+                                        'active' => $c == 'short-links',
+                                        'visible' => true,
+                                    ],
+                                    [
+                                        'label' => Yii::t('app','Monitoring'),
+                                        'active' => in_array($c,['groups','dictionaries']),
+                                        'visible' => true,
+                                        'url' => $user->isApprovedGroupAdmin() ? '#' : Url::to(['/group-admin/messages/unavailable-common']),
+                                        'linkOptions' => $user->isApprovedGroupAdmin() ? null : ['data-toggle' => 'modal', 'data-target' => '.modal-main'],
+                                        'items' => !$user->isApprovedGroupAdmin() ? null : [
+                                            [
+                                                'label' => Yii::t('app','Dictionaries'),
+                                                'url' => ['/group-admin/dictionaries/index'],
+                                                'active' => $c == 'dictionaries',
+                                                'visible' => true
+                                            ],
+                                            [
+                                                'label' => Yii::t('app','Groups'),
+                                                'url' => ['/group-admin/monitored-groups/index'],
+                                                'active' => $c == 'groups',
+                                                'visible' => true
+                                            ],
+                                        ]
+                                    ],
+
                                 ],
                             'options' => ['class' => 'navbar-nav'],
                         ]); ?>

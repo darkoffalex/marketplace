@@ -1,6 +1,6 @@
 <?php
 
-namespace app\modules\user\controllers;
+namespace app\modules\groupAdmin\controllers;
 
 use app\helpers\FileLoad;
 use app\models\ShortLinkSearch;
@@ -22,7 +22,7 @@ use yii\web\UploadedFile;
  * @link 		https://github.com/darkoffalex
  * @author 		Alex Nem
  *
- * @package app\modules\user\controllers
+ * @package app\modules\groupAdmin\controllers
  */
 class ShortLinksController extends Controller
 {
@@ -48,7 +48,7 @@ class ShortLinksController extends Controller
         $user = Yii::$app->user->identity;
 
         //Если пользователь не подтвержден и у него есть ссылки - нельзя создать
-        if(!$user->isApprovedMember() && $user->getShortLinks()->count() > 0){
+        if(!$user->isApprovedGroupAdmin() && $user->getShortLinks()->count() > 0){
             throw new NotFoundHttpException(Yii::t('app','Page not found'),404);
         }
 
@@ -100,7 +100,7 @@ class ShortLinksController extends Controller
                 $model->ObtainKey();
 
                 //к списку
-                $this->redirect(Url::to(['/user/short-links/index']));
+                $this->redirect(Url::to(['/group-admin/short-links/index']));
             }
         }
 
@@ -163,7 +163,7 @@ class ShortLinksController extends Controller
                 }
 
                 //к списку
-                $this->redirect(Url::to(['/user/short-links/index']));
+                $this->redirect(Url::to(['/group-admin/short-links/index']));
             }
         }
 
