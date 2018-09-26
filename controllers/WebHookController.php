@@ -7,6 +7,7 @@ use app\components\FacebookBotMessage;
 use app\models\Dictionary;
 use app\models\DictionarySubscriber;
 use app\models\forms\SettingsForm;
+use app\models\User;
 use Facebook\Facebook;
 use yii\helpers\ArrayHelper;
 use pimax\FbBotApp;
@@ -30,8 +31,7 @@ class WebHookController extends Controller
      */
     public function actionFbPageHook()
     {
-        //Ключ проверки при первой настройке
-        $verify_token = CommonSettingsForm::getInstance()->fb_messenger_hook_verify_token;
+        $verify_token = SettingsForm::getInstance()->fb_messenger_hook_verify_token;
 
         //Если это проверка во время настройки - вернуть ответ
         if (!empty($_REQUEST['hub_mode']) && $_REQUEST['hub_mode'] == 'subscribe' && $_REQUEST['hub_verify_token'] == $verify_token) {
@@ -45,10 +45,17 @@ class WebHookController extends Controller
             //ID страницы с которой отправлено сообщение)
             $pageId = ArrayHelper::getValue($data, 'entry.0.id');
 
-            //Если это обращение к основной странице приложения
-            //работет основной сценарий (обращение к базовым функциям бота)
-            if (!empty($pageId) && $pageId == CommonSettingsForm::getInstance()->fb_messenger_valid_page_id) {
-                $this->handleRegularMessages($data);
+            //Если ID страницы которой было отправлено сообщение не пуст
+            if(!empty($pageId)){
+
+                //Есди это страница уведомлений по стоп-словам
+                if($pageId == SettingsForm::getInstance()->fb_messenger_page_monitoring_id){
+                    $this->handleMonitoringNotificationsPageMessages($data);
+                }
+                //Если это страница уведомлений системы
+                elseif($pageId == SettingsForm::getInstance()->fb_messenger_page_notifications_id){
+                    $this->handleSystemNotificationsPageMessages($data);
+                }
             }
         }
 
@@ -56,10 +63,10 @@ class WebHookController extends Controller
     }
 
     /**
-     * Обаботка прямых сообщений странице
-     * @param $data array
+     * Обработка сообщений со страницы относящейся к уведомлениям по стоп-словам (мониторинг групп)
+     * @param $data
      */
-    private function handleRegularMessages($data)
+    private function handleMonitoringNotificationsPageMessages($data)
     {
         if (!empty($data['entry'][0]['messaging'])) {
             foreach ($data['entry'][0]['messaging'] as $item) {
@@ -76,11 +83,11 @@ class WebHookController extends Controller
                     //Попытка получить данные пользователя
                     try {
                         $fbNew = new Facebook([
-                            'app_id' => CommonSettingsForm::getInstance()->fb_messenger_client_id,
-                            'app_secret' => CommonSettingsForm::getInstance()->fb_messenger_app_secret,
+                            'app_id' => SettingsForm::getInstance()->fb_messenger_client_id,
+                            'app_secret' => SettingsForm::getInstance()->fb_messenger_app_secret,
                         ]);
 
-                        $usersData = $fbNew->get("/{$senderId}?fields=name,timezone,gender,profile_pic,third_party_id", CommonSettingsForm::getInstance()->fb_messenger_page_token)
+                        $usersData = $fbNew->get("/{$senderId}?fields=name,timezone,gender,profile_pic,third_party_id", SettingsForm::getInstance()->fb_messenger_page_monitoring_token)
                             ->getGraphUser()
                             ->asArray();
                     }
@@ -99,7 +106,7 @@ class WebHookController extends Controller
                         //$tpID = ArrayHelper::getValue($usersData, 'third_party_id');
 
                         //Ответ по умолчанию
-                        $response = "Hello i am hype.today chat-bot\n";
+                        $response = "Hello {$senderName}, i am marketplace.guide chat-bot for monitoring notifications\n";
                         $response .= "Available commands : \n\n";
                         $response .= "DICT {Dictionary key} - Subscribe/un-subscribe to notifications of dictionary\n\n";
 
@@ -136,7 +143,7 @@ class WebHookController extends Controller
                         }
                         //Отправка ответа отправителю от имени основной страницы
                         try {
-                            $bot = new FbBotApp(CommonSettingsForm::getInstance()->fb_messenger_page_token);
+                            $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_monitoring_token);
                             $bot->send(new FacebookBotMessage($senderId,$response));
                         } catch (\Exception $ex) {
                             Yii::info($ex->getMessage(), 'info');
@@ -170,12 +177,94 @@ class WebHookController extends Controller
                                 $subscriber->AddToIgnored($groupId,true);
 
                                 try {
-                                    $bot = new FbBotApp(CommonSettingsForm::getInstance()->fb_messenger_page_token);
+                                    $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_monitoring_token);
                                     $bot->send(new FacebookBotMessage($senderId,"Group successfully added to ignored group list\n\n"));
                                 } catch (\Exception $ex) {
                                     Yii::info($ex->getMessage(), 'info');
                                 }
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Обработка сообщений со страницы относящейся к системным уведомлениям
+     * @param $data
+     */
+    private function handleSystemNotificationsPageMessages($data)
+    {
+        if (!empty($data['entry'][0]['messaging'])) {
+            foreach ($data['entry'][0]['messaging'] as $item) {
+                // Т Е К С Т О В Ы Е  К О М А Н Д Ы
+                if (!empty($item['message']) && empty($item['message']['is_echo'])) {
+
+                    //Отправитель (ID в контексте страницы)
+                    $senderId = $item['sender']['id'];
+
+                    //Данные пользователя
+                    $usersData = [];
+
+                    //Попытка получить данные пользователя
+                    try {
+                        $fbNew = new Facebook([
+                            'app_id' => SettingsForm::getInstance()->fb_messenger_client_id,
+                            'app_secret' => SettingsForm::getInstance()->fb_messenger_app_secret,
+                        ]);
+
+                        $usersData = $fbNew->get("/{$senderId}?fields=name,timezone,gender,profile_pic,third_party_id", SettingsForm::getInstance()->fb_messenger_page_notifications_token)
+                            ->getGraphUser()
+                            ->asArray();
+                    }
+                    catch (\Exception $ex) {
+                        Yii::info($ex->getMessage(), 'info');
+                    }
+
+                    //Отправленный текст
+                    $command = $item['message']['text'];
+
+                    //Если что-то отправлено (текст не пуст)
+                    if (!empty($command)) {
+                        //Параметры отправителя
+                        $senderName = ArrayHelper::getValue($usersData, 'name');
+                        $avatarUrl = ArrayHelper::getValue($usersData, 'profile_pic');
+                        //$tpID = ArrayHelper::getValue($usersData, 'third_party_id');
+
+                        //Ответ по умолчанию
+                        $response = "Hello {$senderName}, i am marketplace.guide chat-bot for system notifications\n";
+                        $response .= "Available commands : \n\n";
+                        $response .= "SUB {subscription key} - Subscribe/un-subscribe to(from) user's notifications\n\n";
+
+                        //Аргумент (параметр) передаваемый в команде
+                        $argument = null;
+
+                        //Подписка на обычные уведомления
+                        if ($this->isCommand($command, 'SUB', $argument)) {
+                            /* @var $user User */
+                            $user = User::find()->where(['fb_msg_sub_code' => $argument])->one();
+                            if(!empty($user)){
+
+                                if(empty($user->fb_msg_uid)){
+                                    $user->fb_msg_uid = $senderId;
+                                    $response = "You successfully subscribed to user's \"{$user->name}\", notifications ";
+                                }else{
+                                    $response = "You successfully un subscribed from user's \"{$user->name}\", notifications ";
+                                    $user->fb_msg_uid = null;
+                                }
+                                $user->update();
+                            }else{
+                                $response = "Seems like user with subscription key {$argument} not exist. Please check your data\n\n";
+                            }
+                        }
+
+                        //Отправка ответа отправителю от имени основной страницы
+                        try {
+                            $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_notifications_token);
+                            $bot->send(new FacebookBotMessage($senderId,$response));
+                        } catch (\Exception $ex) {
+                            Yii::info($ex->getMessage(), 'info');
                         }
                     }
                 }

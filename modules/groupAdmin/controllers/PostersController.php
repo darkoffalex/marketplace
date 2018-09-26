@@ -59,12 +59,23 @@ class PostersController extends Controller
             return ActiveForm::validate($model);
         }
 
+        $oldApproveStatus = $model->isApprovedByAll();
+        $oldRefuseReason = $model->refuse_reason;
+
         if($model->load(Yii::$app->request->post()) && $model->validate()){
 
             //Если подтверждено супер-админом и админом группы
             if($model->isApprovedByAll()){
                 //Перенести данные в "подтвержденные"
                 $model->approveData(true);
+                //Если ранее не было подтверждено - уведомить владельца объявления об одобрении
+                if(empty($oldApproveStatus)){
+                    $model->user->notifyFbAdvertisementConfirmation($model);
+                }
+            }
+            //Если есть причина отклонения - уведомить
+            elseif(!empty($model->refuse_reason) && $model->refuse_reason != $oldRefuseReason){
+                $model->user->notifyFbAdvertisementConfirmation($model);
             }
 
             $model->updated_by_id = Yii::$app->user->id;
@@ -131,12 +142,23 @@ class PostersController extends Controller
             return ActiveForm::validate($model);
         }
 
+        $oldApproveStatus = $model->isApprovedByAll();
+        $oldRefuseReason = $model->refuse_reason;
+
         if($model->load(Yii::$app->request->post()) && $model->validate()){
 
             //Если подтверждено супер-админом и админом группы
             if($model->isApprovedByAll()){
                 //Перенести данные в "подтвержденные"
                 $model->approveData(true);
+                //Если ранее не было подтверждено - уведомить владельца объявления об одобрении
+                if(empty($oldApproveStatus)){
+                    $model->user->notifyFbAdvertisementConfirmation($model);
+                }
+            }
+            //Если есть причина отклонения - уведомить
+            elseif(!empty($model->refuse_reason) && $model->refuse_reason != $oldRefuseReason){
+                $model->user->notifyFbAdvertisementConfirmation($model);
             }
 
             $model->updated_by_id = Yii::$app->user->id;

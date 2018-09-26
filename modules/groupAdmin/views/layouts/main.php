@@ -53,6 +53,12 @@ $user = Yii::$app->user->identity;
                             'items' =>
                                 [
                                     [
+                                        'label' => Yii::t('app','My profile'),
+                                        'active' => $c == 'profile',
+                                        'url' => ['/group-admin/profile/index'],
+                                        'visible' => true,
+                                    ],
+                                    [
                                         'label' => Yii::t('app','My marketplaces'),
                                         'active' => $c == 'marketplaces' || $c == 'cvs' || $c == 'posters',
                                         'visible' => true,
@@ -110,7 +116,6 @@ $user = Yii::$app->user->identity;
                                             ],
                                         ]
                                     ],
-
                                 ],
                             'options' => ['class' => 'navbar-nav'],
                         ]); ?>

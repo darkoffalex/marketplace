@@ -58,6 +58,9 @@ class CvsController extends Controller
             return ActiveForm::validate($model);
         }
 
+        //Старый статус
+        $oldStatus = $model->status_id;
+
         //Если пришли данные из POST и они успешно заружены в объект
         if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
 
@@ -68,6 +71,11 @@ class CvsController extends Controller
                 $model->updated_at = date('Y-m-d H:i:s',time());
                 $model->updated_by_id = Yii::$app->user->id;
                 $model->update();
+
+                //Если изменился статус - уведомить владельца
+                if($oldStatus != $model->status_id && $model->status_id != Constants::CV_STATUS_NEW){
+                    $model->user->notifyFbMarketplaceConfirmation($model);
+                }
 
                 //Если нужно создать маркетплейс по заявке
                 //У заявки не должно быть маркетплейсов и статус должен быть "одобрено"

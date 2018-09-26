@@ -95,8 +95,11 @@ class PostersController extends Controller
             $model->updated_by_id = Yii::$app->user->id;
             $model->save();
 
-            //Если это создание - перенаправляем на оплату
+            //Если это создание
             if($model->scenario == 'creating'){
+                //Уведомить владельца маркетплейса о новом объявлении
+                $model->marketplace->user->notifyFbNewAdvertisement($model);
+                //К оплате
                 return $this->redirect(Url::to(['/user/posters/payment', 'id' => $model->id]));
             }
         }

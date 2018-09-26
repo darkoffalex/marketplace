@@ -106,6 +106,10 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+
+                //Web-hook
+                '<protocol:http|https>://<hostName>/web-hook/fb-page-hook' => 'web-hook/fb-page-hook',
+
                 //Админ панель
                 '<protocol:http|https>://<subDomain>.<domain>/admin' => 'admin/main/index',
                 '<protocol:http|https>://<subDomain>.<domain>/admin/<controller>' => 'admin/<controller>/index',

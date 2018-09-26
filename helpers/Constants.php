@@ -76,6 +76,14 @@ class Constants
     const SHORT_LINK_REGULAR = 1;
     const SHORT_LINK_WHATSAPP = 2;
 
+    //Типы уведомлений
+    const NOTIFY_NEW_MARKETPLACE = 1;
+    const NOTIFY_NEW_ADVERTISEMENTS = 2;
+    const NOTIFY_NEW_PAYOUTS = 5;
+    const NOTIFY_MARKETPLACE_CONFIRMATION = 3;
+    const NOTIFY_ADVERTISEMENTS_CONFIRMATION = 4;
+    const NOTIFY_PAYOUTS_CONFIRMATION = 5;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**

@@ -33,7 +33,7 @@ if(!empty($model->fb_auth_client_id) && !empty($model->fb_auth_client_id)){
             <?php $form = ActiveForm::begin([
                 'id' => 'data-form-slide-create',
                 'options' => ['role' => 'form', 'method' => 'post', 'enctype' => 'multipart/form-data'],
-                'enableClientValidation' => true,
+                'enableClientValidation' => false,
                 'fieldConfig' => [
                     'template' => "{label}\n{input}\n{error}\n",
                     //'labelOptions' => ['class' => 'col-lg-1 control-label'],

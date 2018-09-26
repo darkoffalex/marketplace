@@ -21,6 +21,13 @@ class Dictionary extends \app\models\base\DictionaryBase
     public function rules()
     {
         $rules = parent::rules();
+
+        foreach ($rules as $index => $originalRule){
+            if(($originalRule[0] == 'name' || $originalRule[0] == ['name']) && $originalRule[1] == 'required'){
+                $rules[$index]['on'] = 'editing';
+            }
+        }
+
         $rules[] = ['groups_arr', 'safe'];
         return $rules;
     }

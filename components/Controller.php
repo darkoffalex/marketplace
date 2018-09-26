@@ -73,6 +73,21 @@ class Controller extends BaseController
         //установить язык из GET либо по умолчнию
         Yii::$app->language = Yii::$app->request->get('language',$defaultLanguagePrefix);
 
+        //Получить контроллер, экшен, строку из того и другого
+        $c = $this->action->controller->id;
+        $a = $this->action->controller->action->id;
+        $ca = "{$c}/{$a}";
+
+        //Перечень открытых страницы
+        $open = [
+            'web-hook/fb-page-hook',
+        ];
+
+        //Если страницы в перечне открытых - отключить CSRF валидацию
+        if(in_array($ca,$open)){
+            Yii::$app->request->enableCsrfValidation = false;
+        }
+
         //если пользователь не пуст - обновить его
         if(!empty($user)){
             $user->last_online_at = date('Y-m-d H:i:s',time());

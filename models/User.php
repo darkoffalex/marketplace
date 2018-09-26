@@ -2,9 +2,12 @@
 
 namespace app\models;
 
+use app\components\FacebookBotMessage;
 use app\helpers\Help;
 use app\models\base\UserBase;
+use app\models\forms\SettingsForm;
 use Carbon\Carbon;
+use pimax\FbBotApp;
 use Yii;
 use app\helpers\Constants;
 use Imagine\Exception\NotSupportedException;
@@ -320,6 +323,122 @@ class User extends UserBase implements IdentityInterface
     public function getTotalGroupMembers()
     {
         return $this->getMarketplaces()->sum('marketplace.group_popularity');
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Включены ли уведомления конкретного типа
+     * @param $type
+     * @return bool
+     */
+    public function isNotificationsOn($type)
+    {
+        $types = !empty($this->fb_msg_types) ? explode(',',$this->fb_msg_types) : null;
+        return in_array($type,$types);
+    }
+
+    /**
+     * Есть ли подписка на чат-бота для уведомленйи данного пользователя
+     * @return bool
+     */
+    public function isFbNotificationSubscribed()
+    {
+        return !empty($this->fb_msg_uid);
+    }
+
+    /**
+     * Уведомить о смене статуса заявки на маркетплейс
+     * @param Cv $cv
+     */
+    public function notifyFbMarketplaceConfirmation(&$cv)
+    {
+        /* @var $cv Cv */
+        if($this->isFbNotificationSubscribed() && $this->isNotificationsOn(Constants::NOTIFY_MARKETPLACE_CONFIRMATION)){
+            $template = "Your marketplace's request's {group_name} ({request_id}) status was changed to {status}.{reason}";
+            $text = str_replace(
+                [
+                    '{group_name}',
+                    '{request_id}',
+                    '{status}',
+                    '{reason}'
+                ],
+                [
+                    $cv->group_name,
+                    $cv->id,
+                    $cv->status_id == Constants::CV_STATUS_APPROVED ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
+                    " \n{$cv->discard_reason}"
+                ], $template);
+
+            try {
+                //Получить объект чат-бота для отправки сообщений
+                $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_notifications_token);
+                //Отправка сообщения
+                $bot->send(new FacebookBotMessage($this->fb_msg_uid, $text));
+            }
+            catch (\Exception $ex){
+                Yii::info($ex->getMessage(),'info');
+            }
+        }
+    }
+
+    /**
+     * Уведомить о новом объявлении
+     * @param Poster $advertisement
+     */
+    public function notifyFbNewAdvertisement(&$advertisement)
+    {
+        /* @var $advertisement Poster */
+        if($this->isFbNotificationSubscribed() && $this->isNotificationsOn(Constants::NOTIFY_NEW_ADVERTISEMENTS)){
+            $template = "You have new advertisement to verify (id - {id})";
+            $text = str_replace([
+                    '{id}',
+                ], [
+                    $advertisement->id,
+                ],
+                $template);
+
+            try {
+                //Получить объект чат-бота для отправки сообщений
+                $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_notifications_token);
+                //Отправка сообщения
+                $bot->send(new FacebookBotMessage($this->fb_msg_uid, $text));
+            }
+            catch (\Exception $ex){
+                Yii::info($ex->getMessage(),'info');
+            }
+        }
+    }
+
+    /**
+     * Уведомить о смене статуса объявления
+     * @param Poster $advertisement
+     */
+    public function notifyFbAdvertisementConfirmation(&$advertisement)
+    {
+        /* @var $advertisement Poster */
+        if($this->isFbNotificationSubscribed() && $this->isNotificationsOn(Constants::NOTIFY_ADVERTISEMENTS_CONFIRMATION)){
+            $template = "Your advertisement's \"{name}\" (id - {id}) status was changed to \"{status}\"";
+            $text = str_replace([
+                '{id}',
+                '{name}',
+                '{status}'
+            ], [
+                $advertisement->id,
+                $advertisement->title,
+                $advertisement->isApprovedByAll() ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
+            ], $template);
+
+            try {
+                //Получить объект чат-бота для отправки сообщений
+                $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_notifications_token);
+                //Отправка сообщения
+                $bot->send(new FacebookBotMessage($this->fb_msg_uid, $text));
+            }
+            catch (\Exception $ex){
+                Yii::info($ex->getMessage(),'info');
+            }
+        }
     }
 
 }
