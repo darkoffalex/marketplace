@@ -70,12 +70,12 @@ class PostersController extends Controller
                 $model->approveData(true);
                 //Если ранее не было подтверждено - уведомить владельца объявления об одобрении
                 if(empty($oldApproveStatus)){
-                    $model->user->notifyFbAdvertisementConfirmation($model);
+                    $model->user->notifyAdvertisementConfirmation($model);
                 }
             }
             //Если есть причина отклонения - уведомить
             elseif(!empty($model->refuse_reason) && $model->refuse_reason != $oldRefuseReason){
-                $model->user->notifyFbAdvertisementConfirmation($model);
+                $model->user->notifyAdvertisementConfirmation($model);
             }
 
             $model->updated_by_id = Yii::$app->user->id;
@@ -153,12 +153,12 @@ class PostersController extends Controller
                 $model->approveData(true);
                 //Если ранее не было подтверждено - уведомить владельца объявления об одобрении
                 if(empty($oldApproveStatus)){
-                    $model->user->notifyFbAdvertisementConfirmation($model);
+                    $model->user->notifyAdvertisementConfirmation($model);
                 }
             }
             //Если есть причина отклонения - уведомить
             elseif(!empty($model->refuse_reason) && $model->refuse_reason != $oldRefuseReason){
-                $model->user->notifyFbAdvertisementConfirmation($model);
+                $model->user->notifyAdvertisementConfirmation($model);
             }
 
             $model->updated_by_id = Yii::$app->user->id;

@@ -189,7 +189,7 @@ $this->registerJsFile('@web/common/cropper/cropper.js', ['position' => \yii\web\
                         <div class="col-md-6">
                             <h4><?= Yii::t('app','Preview'); ?>:</h4>
                             <div>
-                                <img src="<?= CropHelper::GetCroppedUrl($model,'header_image_filename','header_image_crop_settings',Yii::$app->params['visual']['marketplaceHeaderSizes']); ?>">
+                                <img style="width: 100%;" src="<?= CropHelper::GetCroppedUrl($model,'header_image_filename','header_image_crop_settings',Yii::$app->params['visual']['marketplaceHeaderSizes']); ?>">
                             </div>
                         </div>
                     </div>

@@ -12,6 +12,7 @@ use Facebook\Facebook;
 use yii\console\Controller;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
+use app\helpers\ConsoleHelper;
 
 /**
  * Collects posts and comments for monitored group
@@ -40,18 +41,8 @@ class ParsingController extends Controller
      */
     public function beforeAction($action)
     {
-        //Установка временной зоны PHP
-        date_default_timezone_set('UTC');
-
-        //Синхронизировать MySQL с временной зоной PHP
-        $now = new \DateTime();
-        $min = $now->getOffset() / 60;
-        $sgn = ($min < 0 ? -1 : 1);
-        $min = abs($min);
-        $hrs = floor($min / 60);
-        $min -= $hrs * 60;
-        $offset = sprintf('%+d:%02d', $hrs*$sgn, $min);
-        \Yii::$app->db->createCommand("SET time_zone='$offset';")->execute();
+        //Установка врменной зоны и синхронизация её с БД
+        ConsoleHelper::setTimezone('UTC');
 
         //Вызов родительского метода
         return parent::beforeAction($action);
@@ -63,9 +54,7 @@ class ParsingController extends Controller
     public function actionIndex()
     {
         //Сообщение о начале процесса
-        $processId = uniqid();
-        $startedAt = date('Y-m-d H:i:s', time());
-        echo "Process \"{$processId}\" started at {$startedAt}\n\n";
+        $pid = ConsoleHelper::processStart();
 
 
         //Найти порцию источников ожидающих обновления
@@ -224,8 +213,7 @@ class ParsingController extends Controller
 
 
         //Сообщение о завершении процесса
-        $endedAt = date('Y-m-d H:i:s', time());
-        echo "Process \"{$processId}\" ended at {$endedAt}\n\n";
+        ConsoleHelper::processEnd($pid);
     }
 
     /**

@@ -74,7 +74,7 @@ class CvsController extends Controller
 
                 //Если изменился статус - уведомить владельца
                 if($oldStatus != $model->status_id && $model->status_id != Constants::CV_STATUS_NEW){
-                    $model->user->notifyFbMarketplaceConfirmation($model);
+                    $model->user->notifyMarketplaceConfirmation($model);
                 }
 
                 //Если нужно создать маркетплейс по заявке

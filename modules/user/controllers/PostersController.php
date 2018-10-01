@@ -98,7 +98,7 @@ class PostersController extends Controller
             //Если это создание
             if($model->scenario == 'creating'){
                 //Уведомить владельца маркетплейса о новом объявлении
-                $model->marketplace->user->notifyFbNewAdvertisement($model);
+                $model->marketplace->user->notifyNewAdvertisement($model,true);
                 //К оплате
                 return $this->redirect(Url::to(['/user/posters/payment', 'id' => $model->id]));
             }

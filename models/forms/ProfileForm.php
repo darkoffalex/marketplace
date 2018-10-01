@@ -30,7 +30,17 @@ class ProfileForm extends Model
     /**
      * @var array|null
      */
-    public $notification_types = [];
+    public $fb_notification_types = [];
+
+    /**
+     * @var array|null
+     */
+    public $email_notification_types = [];
+
+    /**
+     * @var null|bool
+     */
+    public $email_notifications_enabled;
 
     /**
      * @return array the validation rules.
@@ -40,7 +50,8 @@ class ProfileForm extends Model
         return [
             [['name','email'],'string'],
             [['email'],'email'],
-            [['notification_types'], 'string'],
+            [['fb_notification_types','email_notification_types'], 'string'],
+            [['email_notifications_enabled'], 'integer'],
             [['name'],'required'],
             [['avatar'], 'file', 'extensions' => ['jpg','png','gif', 'jpeg'], 'skipOnEmpty' => true, 'maxSize' => 1024 * 1024 * 10],
         ];
@@ -55,7 +66,9 @@ class ProfileForm extends Model
             'email' => Yii::t('app','Email'),
             'name' => Yii::t('app','Name'),
             'avatar' => Yii::t('app','Avatar'),
-            'notification_types' => Yii::t('app','Notification types')
+            'fb_notification_types' => Yii::t('app','Chat bot notification types'),
+            'email_notification_types' => Yii::t('app','Email notification types'),
+            'email_notifications_enabled' => Yii::t('app','Enable email notifications')
         ];
     }
 }

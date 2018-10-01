@@ -47,7 +47,8 @@ class Controller extends BaseController
         $this->view->registerMetaTag(['property' => 'og:image:height', 'content' => '200']);
 
         //временная зона
-        date_default_timezone_set('Europe/Moscow');
+//        date_default_timezone_set('Europe/Moscow');
+        date_default_timezone_set('UTC');
 
         //базовый конструктор
         parent::__construct($id,$module,$config);

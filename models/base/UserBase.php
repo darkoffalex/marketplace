@@ -5,9 +5,11 @@ namespace app\models\base;
 use Yii;
 
 use app\models\Cv;
+use app\models\Dictionary;
 use app\models\Marketplace;
 use app\models\MarketplaceKey;
 use app\models\MoneyAccount;
+use app\models\MonitoredGroup;
 use app\models\PayoutProposal;
 use app\models\Poster;
 use app\models\ShortLink;
@@ -42,11 +44,15 @@ use app\models\UsedWebPaymentType;
  * @property int $total_agr_income
  * @property int $total_mgr_income
  * @property int $total_usr_outgo
+ * @property int $email_notify_enabled
+ * @property string $email_notify_types
  *
  * @property Cv[] $cvs
+ * @property Dictionary[] $dictionaries
  * @property Marketplace[] $marketplaces
  * @property MarketplaceKey[] $marketplaceKeys
  * @property MoneyAccount[] $moneyAccounts
+ * @property MonitoredGroup[] $monitoredGroups
  * @property PayoutProposal[] $payoutProposals
  * @property Poster[] $posters
  * @property ShortLink[] $shortLinks
@@ -69,10 +75,10 @@ class UserBase extends \yii\db\ActiveRecord
     {
         return [
             [['username'], 'required'],
-            [['role_id', 'status_id', 'created_by_id', 'updated_by_id', 'ag_income_percentage', 'total_agr_income', 'total_mgr_income', 'total_usr_outgo'], 'integer'],
+            [['role_id', 'status_id', 'created_by_id', 'updated_by_id', 'ag_income_percentage', 'total_agr_income', 'total_mgr_income', 'total_usr_outgo', 'email_notify_enabled'], 'integer'],
             [['last_login_at', 'last_online_at', 'created_at', 'updated_at'], 'safe'],
             [['facebook_token'], 'string'],
-            [['username', 'password_hash', 'auth_key', 'name', 'email', 'avatar_url', 'avatar_filename', 'preferred_language', 'facebook_id', 'fb_msg_sub_code', 'fb_msg_uid', 'fb_msg_types'], 'string', 'max' => 255],
+            [['username', 'password_hash', 'auth_key', 'name', 'email', 'avatar_url', 'avatar_filename', 'preferred_language', 'facebook_id', 'fb_msg_sub_code', 'fb_msg_uid', 'fb_msg_types', 'email_notify_types'], 'string', 'max' => 255],
         ];
     }
 
@@ -108,6 +114,8 @@ class UserBase extends \yii\db\ActiveRecord
             'total_agr_income' => Yii::t('app', 'Total Agr Income'),
             'total_mgr_income' => Yii::t('app', 'Total Mgr Income'),
             'total_usr_outgo' => Yii::t('app', 'Total Usr Outgo'),
+            'email_notify_enabled' => Yii::t('app', 'Email Notify Enabled'),
+            'email_notify_types' => Yii::t('app', 'Email Notify Types'),
         ];
     }
 
@@ -117,6 +125,14 @@ class UserBase extends \yii\db\ActiveRecord
     public function getCvs()
     {
         return $this->hasMany(Cv::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDictionaries()
+    {
+        return $this->hasMany(Dictionary::className(), ['user_id' => 'id']);
     }
 
     /**
@@ -141,6 +157,14 @@ class UserBase extends \yii\db\ActiveRecord
     public function getMoneyAccounts()
     {
         return $this->hasMany(MoneyAccount::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMonitoredGroups()
+    {
+        return $this->hasMany(MonitoredGroup::className(), ['user_id' => 'id']);
     }
 
     /**

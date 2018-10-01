@@ -33,7 +33,7 @@ class SysController extends Controller
     public function beforeAction($action)
     {
         //Установка врменной зоны и синхронизация её с БД
-        //ConsoleHelper::setTimezone('UTC');
+        ConsoleHelper::setTimezone('UTC');
 
         //Вызов родительского метода
         return parent::beforeAction($action);

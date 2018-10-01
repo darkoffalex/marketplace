@@ -328,117 +328,132 @@ class User extends UserBase implements IdentityInterface
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Включены ли уведомления конкретного типа
+     * Включены ли уведомления конкретного типа для рассылки по email
      * @param $type
      * @return bool
      */
-    public function isNotificationsOn($type)
+    public function isEmailNotificationOn($type)
     {
+        if(!$this->isEmailNotificationEnabled()){
+            return false;
+        }
+
+        $types = !empty($this->email_notify_types) ? explode(',',$this->email_notify_types) : null;
+        return in_array($type,$types);
+    }
+
+    /**
+     * Включены ли уведомления конкретного типа для рассылки по чат-ботам
+     * @param $type
+     * @return bool
+     */
+    public function isFbNotificationsOn($type)
+    {
+        if(!$this->isFbNotificationsEnabled()){
+            return false;
+        }
+
         $types = !empty($this->fb_msg_types) ? explode(',',$this->fb_msg_types) : null;
         return in_array($type,$types);
     }
 
     /**
-     * Есть ли подписка на чат-бота для уведомленйи данного пользователя
+     * Включены ли уведомления по чат-боту
      * @return bool
      */
-    public function isFbNotificationSubscribed()
+    public function isFbNotificationsEnabled()
     {
         return !empty($this->fb_msg_uid);
     }
 
     /**
-     * Уведомить о смене статуса заявки на маркетплейс
+     * Включены ли уведомления по email
+     * @return bool
+     */
+    public function isEmailNotificationEnabled()
+    {
+        return !empty($this->email_notify_enabled) && !empty($this->email);
+    }
+
+    /**
+     * Создать уведомление о подтверждении маркетплейса
      * @param Cv $cv
      */
-    public function notifyFbMarketplaceConfirmation(&$cv)
+    public function notifyMarketplaceConfirmation(&$cv)
     {
         /* @var $cv Cv */
-        if($this->isFbNotificationSubscribed() && $this->isNotificationsOn(Constants::NOTIFY_MARKETPLACE_CONFIRMATION)){
-            $template = "Your marketplace's request's {group_name} ({request_id}) status was changed to {status}.{reason}";
-            $text = str_replace(
-                [
-                    '{group_name}',
-                    '{request_id}',
-                    '{status}',
-                    '{reason}'
-                ],
-                [
-                    $cv->group_name,
-                    $cv->id,
-                    $cv->status_id == Constants::CV_STATUS_APPROVED ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
-                    " \n{$cv->discard_reason}"
-                ], $template);
 
-            try {
-                //Получить объект чат-бота для отправки сообщений
-                $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_notifications_token);
-                //Отправка сообщения
-                $bot->send(new FacebookBotMessage($this->fb_msg_uid, $text));
-            }
-            catch (\Exception $ex){
-                Yii::info($ex->getMessage(),'info');
-            }
-        }
+        $text_fb = Yii::t('app',"Your marketplace's request's {group_name} ({request_id}) status was changed to {status}",[
+            'group_name' => $cv->group_name,
+            'request_id' => $cv->id,
+            'status' => $cv->status_id == Constants::CV_STATUS_APPROVED ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
+        ],!empty($this->preferred_language) ? $this->preferred_language : null);
+
+        $text_email = $text_fb;
+        $subject_email = Yii::t('app','Notification',[],!empty($this->preferred_language) ? $this->preferred_language : null);
+
+        SystemNotification::CreateNotification(
+            $text_fb,
+            $this->isFbNotificationsOn(Constants::NOTIFY_MARKETPLACE_CONFIRMATION) ? $this->fb_msg_uid : null,
+            $this->isFbNotificationsOn(Constants::NOTIFY_MARKETPLACE_CONFIRMATION) ? $this->email : null,
+            $text_email,
+            $subject_email);
     }
 
     /**
-     * Уведомить о новом объявлении
+     * Создать уведомление о подтверждении объявления
      * @param Poster $advertisement
      */
-    public function notifyFbNewAdvertisement(&$advertisement)
+    public function notifyAdvertisementConfirmation(&$advertisement)
     {
-        /* @var $advertisement Poster */
-        if($this->isFbNotificationSubscribed() && $this->isNotificationsOn(Constants::NOTIFY_NEW_ADVERTISEMENTS)){
-            $template = "You have new advertisement to verify (id - {id})";
-            $text = str_replace([
-                    '{id}',
-                ], [
-                    $advertisement->id,
-                ],
-                $template);
+        $text_fb = Yii::t('app',"Your advertisement's \"{name}\" (id - {id}) status was changed to \"{status}\"",[
+            'id' => $advertisement->id,
+            'name' => $advertisement->title,
+            'status' => $advertisement->isApprovedByAll() ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
+        ],!empty($this->preferred_language) ? $this->preferred_language : null);
 
-            try {
-                //Получить объект чат-бота для отправки сообщений
-                $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_notifications_token);
-                //Отправка сообщения
-                $bot->send(new FacebookBotMessage($this->fb_msg_uid, $text));
-            }
-            catch (\Exception $ex){
-                Yii::info($ex->getMessage(),'info');
-            }
-        }
+        $text_email = $text_fb;
+        $subject_email = Yii::t('app','Notification',[],!empty($this->preferred_language) ? $this->preferred_language : null);
+
+        SystemNotification::CreateNotification(
+            $text_fb,
+            $this->isFbNotificationsOn(Constants::NOTIFY_ADVERTISEMENTS_CONFIRMATION) ? $this->fb_msg_uid : null,
+            $this->isFbNotificationsOn(Constants::NOTIFY_ADVERTISEMENTS_CONFIRMATION) ? $this->email : null,
+            $text_email,
+            $subject_email);
     }
 
     /**
-     * Уведомить о смене статуса объявления
-     * @param Poster $advertisement
+     * Создать уведомление о новом объявлении
+     * @param $advertisement
+     * @param bool $notifyAdmins
      */
-    public function notifyFbAdvertisementConfirmation(&$advertisement)
+    public function notifyNewAdvertisement(&$advertisement, $notifyAdmins = false)
     {
-        /* @var $advertisement Poster */
-        if($this->isFbNotificationSubscribed() && $this->isNotificationsOn(Constants::NOTIFY_ADVERTISEMENTS_CONFIRMATION)){
-            $template = "Your advertisement's \"{name}\" (id - {id}) status was changed to \"{status}\"";
-            $text = str_replace([
-                '{id}',
-                '{name}',
-                '{status}'
-            ], [
-                $advertisement->id,
-                $advertisement->title,
-                $advertisement->isApprovedByAll() ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
-            ], $template);
+        if($notifyAdmins){
+            /* @var $admins User[] */
+            $admins = self::find()
+                ->where(['role_id' => [Constants::ROLE_ADMIN,Constants::ROLE_BOOKKEEPER]])
+                ->andWhere('(fb_msg_sub_code IS NOT NULL) OR (email_notify_enabled = 1 AND email IS NOT NULL)')
+                ->all();
 
-            try {
-                //Получить объект чат-бота для отправки сообщений
-                $bot = new FbBotApp(SettingsForm::getInstance()->fb_messenger_page_notifications_token);
-                //Отправка сообщения
-                $bot->send(new FacebookBotMessage($this->fb_msg_uid, $text));
-            }
-            catch (\Exception $ex){
-                Yii::info($ex->getMessage(),'info');
+            foreach ($admins as $user){
+                $user->notifyNewAdvertisement($advertisement,false);
             }
         }
-    }
 
+        $text_fb = Yii::t('app',"You have new advertisement to verify (id - {id})",[
+            'id' => $advertisement->id,
+        ],!empty($this->preferred_language) ? $this->preferred_language : null);
+
+        $text_email = $text_fb;
+        $subject_email = Yii::t('app','Notification',[],!empty($this->preferred_language) ? $this->preferred_language : null);
+
+        SystemNotification::CreateNotification(
+            $text_fb,
+            $this->isFbNotificationsOn(Constants::NOTIFY_NEW_ADVERTISEMENTS) ? $this->fb_msg_uid : null,
+            $this->isFbNotificationsOn(Constants::NOTIFY_NEW_ADVERTISEMENTS) ? $this->email : null,
+            $text_email,
+            $subject_email);
+    }
 }

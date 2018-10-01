@@ -81,7 +81,6 @@ if($user->isApprovedMember()){
                     <strong><?= Yii::t('app','Subscribed'); ?>:</strong>
                     <?= !empty($user->fb_msg_uid) ? '<span class="label label-success">'.Yii::t('app','Yes').'</span>' : '<span class="label label-danger">'.Yii::t('app','No').'</span>'; ?>
                 </p>
-                <hr>
                 <?php $form = ActiveForm::begin([
                     'id' => 'edit-marketplace-form',
                     'options' => ['role' => 'form', 'method' => 'post', 'enctype' => 'multipart/form-data'],
@@ -91,14 +90,23 @@ if($user->isApprovedMember()){
                         //'labelOptions' => ['class' => 'col-lg-1 control-label'],
                     ],
                 ]); ?>
-                <?= $form->field($model,'notification_types')->checkboxList([
+                <?= $form->field($model,'fb_notification_types')->checkboxList([
                     Constants::NOTIFY_NEW_ADVERTISEMENTS => Yii::t('app','New advertisements'),
                     Constants::NOTIFY_MARKETPLACE_CONFIRMATION => Yii::t('app','Marketplace confirmation'),
                     Constants::NOTIFY_ADVERTISEMENTS_CONFIRMATION => Yii::t('app','Advertisement confirmation'),
                     Constants::NOTIFY_PAYOUTS_CONFIRMATION => Yii::t('app','Payouts confirmation')
                 ]); ?>
-                <?= $form->field($model,'name')->textInput(); ?>
+                <hr>
                 <?= $form->field($model,'email')->textInput(); ?>
+                <?= $form->field($model,'email_notifications_enabled')->checkbox(); ?>
+                <?= $form->field($model,'email_notification_types')->checkboxList([
+                    Constants::NOTIFY_NEW_ADVERTISEMENTS => Yii::t('app','New advertisements'),
+                    Constants::NOTIFY_MARKETPLACE_CONFIRMATION => Yii::t('app','Marketplace confirmation'),
+                    Constants::NOTIFY_ADVERTISEMENTS_CONFIRMATION => Yii::t('app','Advertisement confirmation'),
+                    Constants::NOTIFY_PAYOUTS_CONFIRMATION => Yii::t('app','Payouts confirmation')
+                ]); ?>
+                <hr>
+                <?= $form->field($model,'name')->textInput(); ?>
                 <button type="submit" class="btn btn-primary"><?= Yii::t('app','Save'); ?></button>
                 <?php ActiveForm::end(); ?>
             </div>
