@@ -381,15 +381,18 @@ class User extends UserBase implements IdentityInterface
      */
     public function notifyMarketplaceConfirmation(&$cv)
     {
-        /* @var $cv Cv */
-
-        $text_fb = Yii::t('app',"Your marketplace's request's {group_name} ({request_id}) status was changed to {status}",[
+        $text_fb = Yii::t('app',SettingsForm::getInstance()->notification_template_marketplace_confirmation_fb,[
             'group_name' => $cv->group_name,
             'request_id' => $cv->id,
             'status' => $cv->status_id == Constants::CV_STATUS_APPROVED ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
         ],!empty($this->preferred_language) ? $this->preferred_language : null);
 
-        $text_email = $text_fb;
+        $text_email = Yii::t('app',SettingsForm::getInstance()->notification_template_marketplace_confirmation_email,[
+            'group_name' => $cv->group_name,
+            'request_id' => $cv->id,
+            'status' => $cv->status_id == Constants::CV_STATUS_APPROVED ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
+        ],!empty($this->preferred_language) ? $this->preferred_language : null);
+
         $subject_email = Yii::t('app','Notification',[],!empty($this->preferred_language) ? $this->preferred_language : null);
 
         SystemNotification::CreateNotification(
@@ -406,13 +409,18 @@ class User extends UserBase implements IdentityInterface
      */
     public function notifyAdvertisementConfirmation(&$advertisement)
     {
-        $text_fb = Yii::t('app',"Your advertisement's \"{name}\" (id - {id}) status was changed to \"{status}\"",[
+        $text_fb = Yii::t('app',SettingsForm::getInstance()->notification_template_advertisement_confirmation_fb,[
             'id' => $advertisement->id,
             'name' => $advertisement->title,
             'status' => $advertisement->isApprovedByAll() ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
         ],!empty($this->preferred_language) ? $this->preferred_language : null);
 
-        $text_email = $text_fb;
+        $text_email = Yii::t('app',SettingsForm::getInstance()->notification_template_advertisement_confirmation_email,[
+            'id' => $advertisement->id,
+            'name' => $advertisement->title,
+            'status' => $advertisement->isApprovedByAll() ? Yii::t('app','Approved') : Yii::t('app','Rejected'),
+        ],!empty($this->preferred_language) ? $this->preferred_language : null);
+
         $subject_email = Yii::t('app','Notification',[],!empty($this->preferred_language) ? $this->preferred_language : null);
 
         SystemNotification::CreateNotification(
@@ -425,7 +433,7 @@ class User extends UserBase implements IdentityInterface
 
     /**
      * Создать уведомление о новом объявлении
-     * @param $advertisement
+     * @param Poster $advertisement
      * @param bool $notifyAdmins
      */
     public function notifyNewAdvertisement(&$advertisement, $notifyAdmins = false)
@@ -442,11 +450,14 @@ class User extends UserBase implements IdentityInterface
             }
         }
 
-        $text_fb = Yii::t('app',"You have new advertisement to verify (id - {id})",[
+        $text_fb = Yii::t('app',SettingsForm::getInstance()->notification_template_new_advertisement_fb,[
             'id' => $advertisement->id,
         ],!empty($this->preferred_language) ? $this->preferred_language : null);
 
-        $text_email = $text_fb;
+        $text_email = Yii::t('app',SettingsForm::getInstance()->notification_template_new_advertisement_email,[
+            'id' => $advertisement->id,
+        ],!empty($this->preferred_language) ? $this->preferred_language : null);
+
         $subject_email = Yii::t('app','Notification',[],!empty($this->preferred_language) ? $this->preferred_language : null);
 
         SystemNotification::CreateNotification(

@@ -46,6 +46,14 @@ class SettingsForm extends Model
     /** Параметры платежей и выплат **/
     public $payout_min_sum;
 
+    /** Параметры уведомлений **/
+    public $notification_template_marketplace_confirmation_fb;
+    public $notification_template_marketplace_confirmation_email;
+    public $notification_template_advertisement_confirmation_fb;
+    public $notification_template_advertisement_confirmation_email;
+    public $notification_template_new_advertisement_fb;
+    public $notification_template_new_advertisement_email;
+
     /**
      * @return array the validation rules.
      */
@@ -57,7 +65,15 @@ class SettingsForm extends Model
             [['email_for_sending','email_for_notifications'], 'string'],
             [['email_for_sending','email_for_notifications'], 'email'],
             [['smtp_enabled', 'smtp_port', 'payout_min_sum'], 'integer'],
-            [['smtp_encryption','smtp_login','smtp_password','smtp_host'],'string']
+            [['smtp_encryption','smtp_login','smtp_password','smtp_host'],'string'],
+            [[
+                'notification_template_marketplace_confirmation_fb',
+                'notification_template_marketplace_confirmation_email',
+                'notification_template_advertisement_confirmation_fb',
+                'notification_template_advertisement_confirmation_email',
+                'notification_template_new_advertisement_fb',
+                'notification_template_new_advertisement_email'
+            ],'string']
         ];
     }
 
@@ -90,6 +106,13 @@ class SettingsForm extends Model
             'smtp_encryption' => Yii::t('app','SMTP encription'),
 
             'payout_min_sum' => Yii::t('app','Payout minimal sum'),
+
+            'notification_template_marketplace_confirmation_fb' => Yii::t('app','Template for marketplace confirmation (messenger)'),
+            'notification_template_marketplace_confirmation_email' => Yii::t('app','Template for marketplace confirmation (email)'),
+            'notification_template_advertisement_confirmation_fb' => Yii::t('app','Template for advertisement confirmation (messenger)'),
+            'notification_template_advertisement_confirmation_email' => Yii::t('app','Template for advertisement confirmation (email)'),
+            'notification_template_new_advertisement_fb' => Yii::t('app','Template for new advertisement (messenger)'),
+            'notification_template_new_advertisement_email' => Yii::t('app','Template for new advertisement (email)')
         ];
     }
 

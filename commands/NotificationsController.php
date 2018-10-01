@@ -138,7 +138,7 @@ class NotificationsController extends Controller
                             ->setFrom([SettingsForm::getInstance()->email_for_sending => Yii::$app->name])
                             ->setTo($task->recipient_email)
                             ->setSubject($task->subject_email)
-                            ->setTextBody($task->message_email)
+                            ->setHtmlBody($task->message_email)
                             ->send();
                     }
                 }
